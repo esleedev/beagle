@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <SDL.h>
 #include <gl/glew.h>
 #include <SDL_opengl.h>
@@ -15,6 +16,13 @@ int main(int argc, char* args[])
 	SDL_Window* sdlWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	SDL_GLContext sdlGLContext = SDL_GL_CreateContext(sdlWindow);
 
+	// glewExperimental = GL_TRUE;
+	GLenum glewInitState = glewInit();
+	if (glewInitState != GLEW_OK)
+		printf("Error initializing GLEW: %s\n", glewGetErrorString(glewInitState));
+
+	SDL_GL_SetSwapInterval(1);
+
 	Game* game = new Game();
 	Uint32 lastTime = 0;
 
@@ -26,14 +34,20 @@ int main(int argc, char* args[])
 		{
 			if (sdlEvent.type == SDL_QUIT)
 				isRunning = false;
-
-			Uint32 currentTime = SDL_GetTicks();
-
-			game->Update(0.001 * (lastTime - currentTime));
-			game->Render();
-
-			lastTime = currentTime;
 		}
+
+		Uint32 currentTime = SDL_GetTicks();
+
+		game->Update(0.001 * (lastTime - currentTime));
+
+		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.5f, 0.5f, 0, 1.0f);
+
+		game->Render();
+
+		SDL_GL_SwapWindow(sdlWindow);
+
+		lastTime = currentTime;
 	}
 
 	delete game;
