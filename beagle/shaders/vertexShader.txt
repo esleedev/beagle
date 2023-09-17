@@ -1,8 +1,10 @@
 #version 140
 
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
 in vec3 inPosition;
 
 void main()
 {
-	gl_Position = vec4(inPosition.x, inPosition.y, inPosition.z, 1);
+	gl_Position = projectionMatrix * viewMatrix * vec4(inPosition.x, inPosition.y, inPosition.z, 1);
 }

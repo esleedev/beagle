@@ -38,10 +38,10 @@ int main(int argc, char* args[])
 
 		Uint32 currentTime = SDL_GetTicks();
 
-		game->Update(0.001 * (lastTime - currentTime));
+		game->Update(0.001 * (currentTime - lastTime));
 
 		glClear(GL_COLOR_BUFFER_BIT);
-		glClearColor(0.5f, 0.5f, 0, 1.0f);
+		glClearColor(0.25f, 0.25f, 0.2f, 1.0f);
 
 		game->Render();
 
