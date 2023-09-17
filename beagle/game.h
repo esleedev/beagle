@@ -14,6 +14,8 @@ public:
 	GLuint vbo, ibo, vao;
 
 	Matrix projectionMatrix, viewMatrix;
+	// projection settings
+	float aspectRatio, verticalFieldOfViewInDegrees, near, far;
 
 	Game();
 	~Game();
