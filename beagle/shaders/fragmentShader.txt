@@ -6,5 +6,5 @@ in float x;
 
 void main()
 {
-	outColor = vec4(x - 1, 0.5, z - 2, 1); 
+	outColor = vec4(abs(z) * 0.5 + 1.0, sin(x) * 0.5 + 1.0, sin(z) * 0.5 + 1, 1); 
 }

@@ -2,13 +2,14 @@
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
+uniform mat4 objectMatrix;
 in vec3 inPosition;
 out float z;
 out float x;
 
 void main()
 {
-	gl_Position = projectionMatrix * viewMatrix * vec4(inPosition.x, inPosition.y, inPosition.z, 1);
+	gl_Position = projectionMatrix * viewMatrix * objectMatrix * vec4(inPosition.x, inPosition.y, inPosition.z, 1);
 	z = inPosition.z;
 	x = inPosition.x;
 }
