@@ -3,18 +3,12 @@
 #include "shaders.h"
 #include "vector.h"
 #include "matrix.h"
+#include "transform.h"
 #include <vector>
 
 struct Mesh
 {
 	GLuint vao, vbo, ibo;
-};
-
-struct Transform
-{
-	Vector position;
-	float yaw;
-	Matrix matrix;
 };
 
 class Object

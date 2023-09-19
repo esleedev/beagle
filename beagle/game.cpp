@@ -45,10 +45,7 @@ Game::Game()
     for (int x = 0; x < 8; x++)
     {
         cubeTransform.position = { x * 1.25f, cos(x * 1.9f) * 0.4f, 5.0f + sin(x * 0.5f) + x % 2 };
-        Matrix translationMatrix, rotationMatrix;
-        translationMatrix.SetTranslation(cubeTransform.position);
-        rotationMatrix.SetRotation(cubeTransform.yaw);
-        cubeTransform.matrix = rotationMatrix * translationMatrix;
+        cubeTransform.UpdateMatrix();
         objects.push_back(new Object{ 0, cubeTransform });
     }
 

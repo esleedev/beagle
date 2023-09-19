@@ -7,8 +7,9 @@ struct Matrix
 	float matrix[4][4];
 
 	void SetIdentity();
-	void SetTranslation(Vector Vector);
+	void SetTranslation(Vector Position);
 	void SetRotation(float YawInDegrees);
+	void SetTranslationAndRotation(Vector Position, float YawInDegrees);
 
     Matrix operator*(const Matrix& OtherMatrix);
 };

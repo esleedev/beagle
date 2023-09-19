@@ -31,6 +31,18 @@ void Matrix::SetRotation(float YawInDegrees)
 	matrix[2][2] = cosOfAngle;
 }
 
+void Matrix::SetTranslationAndRotation
+(
+	Vector Position,
+	float YawInDegrees
+)
+{
+	Matrix translationMatrix, rotationMatrix;
+	translationMatrix.SetTranslation(Position);
+	rotationMatrix.SetRotation(YawInDegrees);
+	*this = rotationMatrix * translationMatrix;
+}
+
 Matrix Matrix::operator*(const Matrix& OtherMatrix)
 {
 	Matrix newMatrix = {};
