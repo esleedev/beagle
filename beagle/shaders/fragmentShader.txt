@@ -1,8 +1,10 @@
 #version 140
 
 out vec4 outColor;
+in float z;
+in float x;
 
 void main()
 {
-	outColor = vec4(0.25, 1, 0.5, 1); 
+	outColor = vec4(x - 1, 0.5, z - 2, 1); 
 }

@@ -22,6 +22,7 @@ int main(int argc, char* args[])
 		printf("Error initializing GLEW: %s\n", glewGetErrorString(glewInitState));
 
 	SDL_GL_SetSwapInterval(1);
+	glEnable(GL_DEPTH_TEST);
 
 	Game* game = new Game();
 	Uint32 lastTime = 0;
@@ -40,7 +41,7 @@ int main(int argc, char* args[])
 
 		game->Update(0.001 * (currentTime - lastTime));
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.25f, 0.25f, 0.2f, 1.0f);
 
 		game->Render();

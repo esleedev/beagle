@@ -1,7 +1,14 @@
 #pragma once
 
 #include "shaders.h"
+#include "vector.h"
 #include "matrix.h"
+
+struct CameraObject
+{
+	Vector position;
+	float yaw;
+};
 
 class Game
 {
@@ -11,11 +18,13 @@ public:
 	GLint positionAttribute;
 	GLint projectionMatrixLocation, viewMatrixLocation;
 
-	GLuint vbo, ibo, vao;
+	GLuint vao, vbo, ibo;
 
 	Matrix projectionMatrix, viewMatrix;
 	// projection settings
 	float aspectRatio, verticalFieldOfViewInDegrees, near, far;
+
+	CameraObject cameraObject;
 
 	Game();
 	~Game();
