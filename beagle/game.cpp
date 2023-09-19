@@ -71,10 +71,8 @@ Game::~Game()
 
 void Game::Update(float DeltaTime)
 {
-    //viewMatrix.Move(Vector{ DeltaTime * 0.25f, DeltaTime * -0.1f, 0 });
-
     cameraTransform.yaw += 0.9f * DeltaTime;
-    cameraTransform.position.x -= 0.3 * DeltaTime;
+    cameraTransform.position.x += 0.3 * DeltaTime;
 
     for (int object = 0; object < objects.size(); object++)
     {
@@ -85,7 +83,7 @@ void Game::Update(float DeltaTime)
         }
     }
 
-    cameraTransform.matrix.SetTranslationAndRotation(cameraTransform.position, sin(cameraTransform.yaw) * 22.0);
+    cameraTransform.matrix.SetTranslationAndRotation(-cameraTransform.position, sin(cameraTransform.yaw) * 22.0);
 
     // update projection matrix
     float projectionAngleHalved = tan(verticalFieldOfViewInDegrees * 0.5f * 0.0174532925199f);
