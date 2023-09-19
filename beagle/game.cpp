@@ -45,7 +45,7 @@ Game::Game()
     for (int x = 0; x < 8; x++)
     {
         cubeTransform.position = { x * 1.25f, cos(x * 1.9f) * 0.4f, 5.0f + sin(x * 0.5f) + x % 2 };
-        cubeTransform.UpdateMatrix();
+        cubeTransform.shouldUpdateMatrix = true;
         objects.push_back(new Object{ 0, cubeTransform });
     }
 
@@ -73,14 +73,19 @@ void Game::Update(float DeltaTime)
 {
     //viewMatrix.Move(Vector{ DeltaTime * 0.25f, DeltaTime * -0.1f, 0 });
 
-    cameraTransform.yaw += DeltaTime * 0.59f;
+    cameraTransform.yaw += 0.9f * DeltaTime;
     cameraTransform.position.x -= 0.3 * DeltaTime;
 
-    Matrix translationMatrix, rotationMatrix;
-    translationMatrix.SetTranslation(cameraTransform.position);
-    rotationMatrix.SetRotation(sin(cameraTransform.yaw) * 35.0f);
-    cameraTransform.matrix.SetIdentity();
-    cameraTransform.matrix = rotationMatrix * translationMatrix;
+    for (int object = 0; object < objects.size(); object++)
+    {
+        if (objects[object]->transform.shouldUpdateMatrix)
+        {
+            objects[object]->transform.UpdateMatrix();
+            objects[object]->transform.shouldUpdateMatrix = false;
+        }
+    }
+
+    cameraTransform.matrix.SetTranslationAndRotation(cameraTransform.position, sin(cameraTransform.yaw) * 22.0);
 
     // update projection matrix
     float projectionAngleHalved = tan(verticalFieldOfViewInDegrees * 0.5f * 0.0174532925199f);
