@@ -5,6 +5,24 @@
 #include "matrix.h"
 #include "transform.h"
 #include <vector>
+#include <SDL.h>
+
+class Input
+{
+public:
+	bool isKeyPressed[SDL_NUM_SCANCODES];
+	bool wasKeyPressed[SDL_NUM_SCANCODES];
+
+	bool IsKeyJustPressed(SDL_Scancode ScanCode)
+	{
+		return isKeyPressed[ScanCode] && !wasKeyPressed[ScanCode];
+	}
+
+	bool IsKeyJustReleased(SDL_Scancode ScanCode)
+	{
+		return !isKeyPressed[ScanCode] && wasKeyPressed[ScanCode];
+	}
+};
 
 struct Vertex
 {
@@ -50,6 +68,8 @@ public:
 
 	// projection settings
 	float aspectRatio, verticalFieldOfViewInDegrees, near, far;
+
+	Input* input;
 
 	Game();
 	~Game();

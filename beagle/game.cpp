@@ -63,6 +63,8 @@ Game::Game()
     verticalFieldOfViewInDegrees = 30.0f;
     near = 0.5f;
     far = 100.0f;
+
+    input = new Input();
 }
 
 Game::~Game()
@@ -73,12 +75,29 @@ Game::~Game()
     {
         delete objects[object];
     }
+
+    delete input;
 }
 
 void Game::Update(float DeltaTime)
 {
-    cameraTransform.yaw += 0.9f * DeltaTime;
-    cameraTransform.position.x += 0.3 * DeltaTime;
+    if (input->isKeyPressed[SDL_SCANCODE_D])
+    {
+        cameraTransform.position.x += 0.5 * DeltaTime;
+    }
+    else if (input->isKeyPressed[SDL_SCANCODE_A])
+    {
+        cameraTransform.position.x -= 0.5 * DeltaTime;
+    }
+
+    if (input->isKeyPressed[SDL_SCANCODE_LEFT])
+    {
+        cameraTransform.yaw -= 30.0f * DeltaTime;
+    }
+    else if (input->isKeyPressed[SDL_SCANCODE_RIGHT])
+    {
+        cameraTransform.yaw += 30.0f * DeltaTime;
+    }
 
     for (int object = 0; object < objects.size(); object++)
     {
@@ -89,7 +108,7 @@ void Game::Update(float DeltaTime)
         }
     }
 
-    cameraTransform.matrix.SetTranslationAndRotation(-cameraTransform.position, sin(cameraTransform.yaw) * 22.0);
+    cameraTransform.matrix.SetTranslationAndRotation(-cameraTransform.position, cameraTransform.yaw);
 
     // update projection matrix
     float projectionAngleHalved = tan(verticalFieldOfViewInDegrees * 0.5f * 0.0174532925199f);

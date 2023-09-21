@@ -33,10 +33,27 @@ int main(int argc, char* args[])
 	bool isRunning = true;
 	while (isRunning)
 	{
+		for (int key = 0; key < SDL_NUM_SCANCODES; key++)
+		{
+			game->input->wasKeyPressed[key] = game->input->isKeyPressed[key];
+		}
+
 		while (SDL_PollEvent(&sdlEvent) != 0)
 		{
-			if (sdlEvent.type == SDL_QUIT)
-				isRunning = false;
+			switch (sdlEvent.type)
+			{
+				case SDL_QUIT:
+					isRunning = false;
+					break;
+				case SDL_KEYDOWN:
+					game->input->isKeyPressed[sdlEvent.key.keysym.scancode] = true;
+					break;
+				case SDL_KEYUP:
+					game->input->isKeyPressed[sdlEvent.key.keysym.scancode] = false;
+					break;
+				default:
+					break;
+			}
 		}
 
 		Uint32 currentTime = SDL_GetTicks();
