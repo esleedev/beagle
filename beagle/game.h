@@ -6,15 +6,27 @@
 #include "transform.h"
 #include <vector>
 
+struct Vertex
+{
+	Vector position;
+	Vector2D uv;
+};
+
 struct Mesh
 {
 	GLuint vao, vbo, ibo;
+};
+
+struct Material
+{
+	GLuint texture;
 };
 
 class Object
 {
 public:
 	short mesh;
+	short material;
 	Transform transform;
 };
 
@@ -24,13 +36,16 @@ public:
 	GLuint shaderProgram;
 
 	GLint positionAttribute;
+	GLint uvAttribute;
 	GLint objectMatrixUniform;
-	GLint projectionMatrixLocation, viewMatrixLocation;
+	GLint projectionMatrixUniform, viewMatrixUniform;
+	GLint textureUniform;
 
 	Matrix projectionMatrix;
 	Transform cameraTransform;
 
 	std::vector<Mesh> meshes;
+	std::vector<Material> materials;
 	std::vector<Object*> objects;
 
 	// projection settings

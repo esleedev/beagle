@@ -1,29 +1,29 @@
 #include "game.h"
 #include "vector.h"
+#include "texture.h"
 #include <iostream>
 
 Game::Game()
 {
 	shaderProgram = CreateShaderProgram("shaders/vertexShader.txt", "shaders/fragmentShader.txt");
 	positionAttribute = glGetAttribLocation(shaderProgram, "inPosition");
+    uvAttribute = glGetAttribLocation(shaderProgram, "inUV");
     objectMatrixUniform = glGetUniformLocation(shaderProgram, "objectMatrix");
-    projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
-    viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
+    projectionMatrixUniform = glGetUniformLocation(shaderProgram, "projectionMatrix");
+    viewMatrixUniform = glGetUniformLocation(shaderProgram, "viewMatrix");
+    textureUniform = glGetUniformLocation(shaderProgram, "texture");
 
     float z = 0;
-    GLfloat vertexData[] =
+
+    Vertex vertices[] =
     {
-        0 - 0.5, 0 - 0.5, z - 0.5,
-        1 - 0.5, 0 - 0.5, z - 0.5,
-        0 - 0.5, 1 - 0.5, z - 0.5,
-        1 - 0.5, 1 - 0.5, z - 0.5,
-        0 - 0.5, 0 - 0.5, z + 0.5,
-        0 - 0.5, 1 - 0.5, z + 0.5,
-        1 - 0.5, 1 - 0.5, z + 0.5,
-        1 - 0.5, 0 - 0.5, z + 0.5,
+        Vertex{ { 0 - 0.5, 0 - 0.5, 0 - 0.5 }, { 0, 1 } },
+        Vertex{ { 1 - 0.5, 0 - 0.5, 0 - 0.5 }, { 1, 1 } },
+        Vertex{ { 0 - 0.5, 1 - 0.5, 0 - 0.5 }, { 0, 0 } },
+        Vertex{ { 1 - 0.5, 1 - 0.5, 0 - 0.5 }, { 1, 0 } }
     };
 
-    GLuint indexData[] = { 0, 2, 1, 1, 2, 3, 4, 5, 0, 0, 5, 2, 2, 5, 6, 2, 6, 3, 1, 3, 6, 1, 6, 7, 6, 4, 7, 6, 5, 4 };
+    GLuint indexData[] = { 0, 2, 1, 1, 2, 3 };
 
     Mesh cube;
     glGenVertexArrays(1, &cube.vao);
@@ -31,22 +31,28 @@ Game::Game()
 
     glGenBuffers(1, &cube.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, cube.vbo);
-    glBufferData(GL_ARRAY_BUFFER, 8 * 3 * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertices, GL_STATIC_DRAW);
     
-    glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(positionAttribute);
+    glEnableVertexAttribArray(uvAttribute);
+    glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+    glVertexAttribPointer(uvAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
 
     glGenBuffers(1, &cube.ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube.ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 30 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
     meshes.push_back(cube);
+
+    GLuint texture = LoadTexture("textures/spriteSheet.png");
+    Material material = { texture };
+    materials.push_back(material);
 
     Transform cubeTransform = {};
     for (int x = 0; x < 8; x++)
     {
         cubeTransform.position = { x * 1.25f, cos(x * 1.9f) * 0.4f, 5.0f + sin(x * 0.5f) + x % 2 };
         cubeTransform.shouldUpdateMatrix = true;
-        objects.push_back(new Object{ 0, cubeTransform });
+        objects.push_back(new Object{ 0, 0, cubeTransform });
     }
 
     projectionMatrix.SetIdentity();
@@ -99,14 +105,15 @@ void Game::Update(float DeltaTime)
 void Game::Render()
 {
 	glUseProgram(shaderProgram);
-    glUniformMatrix4fv(projectionMatrixLocation, 1, GL_TRUE, &projectionMatrix.matrix[0][0]);
-    glUniformMatrix4fv(viewMatrixLocation, 1, GL_TRUE, &cameraTransform.matrix.matrix[0][0]);
+    glUniformMatrix4fv(projectionMatrixUniform, 1, GL_TRUE, &projectionMatrix.matrix[0][0]);
+    glUniformMatrix4fv(viewMatrixUniform, 1, GL_TRUE, &cameraTransform.matrix.matrix[0][0]);
 
     for (int object = 0; object < objects.size(); object++)
     {
         glBindVertexArray(meshes[objects[object]->mesh].vao);
         glUniformMatrix4fv(objectMatrixUniform, 1, GL_TRUE, &objects[object]->transform.matrix.matrix[0][0]);
-        glDrawElements(GL_TRIANGLES, 30, GL_UNSIGNED_INT, NULL);
+        glUniform1i(materials[objects[object]->material].texture, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     }
 
 }

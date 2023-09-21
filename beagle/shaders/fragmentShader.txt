@@ -1,10 +1,10 @@
 #version 140
 
+uniform sampler2D texture;
+in vec2 uv;
 out vec4 outColor;
-in float z;
-in float x;
 
 void main()
 {
-	outColor = vec4(abs(z) * 0.5 + 1.0, sin(x) * 0.5 + 1.0, sin(z) * 0.5 + 1, 1); 
+	outColor = texture2D(texture, uv.xy); 
 }

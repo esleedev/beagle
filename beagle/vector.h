@@ -6,3 +6,8 @@ struct Vector
 
 	Vector operator-();
 };
+
+struct Vector2D
+{
+	float x, y;
+};

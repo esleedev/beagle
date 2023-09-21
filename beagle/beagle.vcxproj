@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\evajo\Documents\Libraries\SDL2-2.24.0\include;C:\Users\evajo\Documents\Libraries\glew-2.1.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\evajo\Documents\Libraries\SDL2-2.24.0\lib\x64;C:\Users\evajo\Documents\Libraries\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\evajo\Documents\Libraries\SDL2-2.24.0\include;C:\Users\evajo\Documents\Libraries\SDL2_image-2.6.3\include;C:\Users\evajo\Documents\Libraries\glew-2.1.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\evajo\Documents\Libraries\SDL2-2.24.0\lib\x64;C:\Users\evajo\Documents\Libraries\SDL2_image-2.6.3\lib\x64;C:\Users\evajo\Documents\Libraries\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -112,7 +112,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,12 +143,16 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="shaders.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaders\fragmentShader.txt" />
     <Text Include="shaders\vertexShader.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\spriteSheet.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
