@@ -1,11 +1,26 @@
 #pragma once
 
-#include "shaders.h"
-#include "vector.h"
-#include "matrix.h"
-#include "transform.h"
-#include <vector>
 #include <SDL.h>
+#include <vector>
+#include "graphicsTypes.h"
+#include "transform.h"
+
+class Game;
+
+class System
+{
+public:
+	virtual void Update(float DeltaTime, Game* Game) = 0;
+};
+
+class Object
+{
+public:
+	short mesh;
+	short material;
+	Transform transform;
+	SpriteMesh* spriteMesh;
+};
 
 class Input
 {
@@ -24,47 +39,18 @@ public:
 	}
 };
 
-struct Vertex
-{
-	Vector position;
-	Vector2D uv;
-};
-
-struct Mesh
-{
-	GLuint vao, vbo, ibo;
-};
-
-struct Material
-{
-	GLuint texture;
-};
-
-class Object
-{
-public:
-	short mesh;
-	short material;
-	Transform transform;
-};
-
 class Game
 {
 public:
-	GLuint shaderProgram;
-
-	GLint positionAttribute;
-	GLint uvAttribute;
-	GLint objectMatrixUniform;
-	GLint projectionMatrixUniform, viewMatrixUniform;
-	GLint textureUniform;
+	std::vector<Mesh> meshes;
+	std::vector<Material> materials;
+	std::vector<Shader> shaders;
+	std::vector<Object*> objects;
+	std::vector<System*> systems;
+	std::vector<SpriteMesh*> spriteMeshes;
 
 	Matrix projectionMatrix;
 	Transform cameraTransform;
-
-	std::vector<Mesh> meshes;
-	std::vector<Material> materials;
-	std::vector<Object*> objects;
 
 	// projection settings
 	float aspectRatio, verticalFieldOfViewInDegrees, near, far;
@@ -77,3 +63,6 @@ public:
 	void Update(float DeltaTime);
 	void Render();
 };
+
+void OnGameStart(Game* Game);
+void OnGameEnd(Game* Game);

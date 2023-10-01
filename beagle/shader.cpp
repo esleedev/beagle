@@ -1,4 +1,4 @@
-#include "shaders.h"
+#include "shader.h"
 #include <SDL_opengl.h>
 #include <fstream>
 #include <iostream>
@@ -84,4 +84,15 @@ GLuint CreateShaderProgram(std::string VertexShaderFilePath, std::string Fragmen
 void DeleteShaderProgram(GLuint ShaderProgram)
 {
 	glDeleteProgram(ShaderProgram);
+}
+
+Shader GetShaderWithLocations(GLuint ShaderProgram)
+{
+	Shader shader;
+	shader.shaderProgram = ShaderProgram;
+	shader.objectMatrixUniform = glGetUniformLocation(ShaderProgram, "objectMatrix");
+	shader.projectionMatrixUniform = glGetUniformLocation(ShaderProgram, "projectionMatrix");
+	shader.viewMatrixUniform = glGetUniformLocation(ShaderProgram, "viewMatrix");
+	shader.textureUniform = glGetUniformLocation(ShaderProgram, "texture");
+	return shader;
 }

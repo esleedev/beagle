@@ -11,3 +11,8 @@ struct Vector2D
 {
 	float x, y;
 };
+
+struct Rectangle
+{
+	float x, y, width, height;
+};

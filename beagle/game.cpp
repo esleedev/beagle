@@ -1,59 +1,10 @@
 #include "game.h"
 #include "vector.h"
-#include "texture.h"
 #include <iostream>
 
 Game::Game()
 {
-	shaderProgram = CreateShaderProgram("shaders/vertexShader.txt", "shaders/fragmentShader.txt");
-	positionAttribute = glGetAttribLocation(shaderProgram, "inPosition");
-    uvAttribute = glGetAttribLocation(shaderProgram, "inUV");
-    objectMatrixUniform = glGetUniformLocation(shaderProgram, "objectMatrix");
-    projectionMatrixUniform = glGetUniformLocation(shaderProgram, "projectionMatrix");
-    viewMatrixUniform = glGetUniformLocation(shaderProgram, "viewMatrix");
-    textureUniform = glGetUniformLocation(shaderProgram, "texture");
-
-    float z = 0;
-
-    Vertex vertices[] =
-    {
-        Vertex{ { 0 - 0.5, 0 - 0.5, 0 - 0.5 }, { 0, 1 } },
-        Vertex{ { 1 - 0.5, 0 - 0.5, 0 - 0.5 }, { 1, 1 } },
-        Vertex{ { 0 - 0.5, 1 - 0.5, 0 - 0.5 }, { 0, 0 } },
-        Vertex{ { 1 - 0.5, 1 - 0.5, 0 - 0.5 }, { 1, 0 } }
-    };
-
-    GLuint indexData[] = { 0, 2, 1, 1, 2, 3 };
-
-    Mesh cube;
-    glGenVertexArrays(1, &cube.vao);
-    glBindVertexArray(cube.vao);
-
-    glGenBuffers(1, &cube.vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, cube.vbo);
-    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertices, GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(positionAttribute);
-    glEnableVertexAttribArray(uvAttribute);
-    glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-    glVertexAttribPointer(uvAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
-
-    glGenBuffers(1, &cube.ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube.ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
-    meshes.push_back(cube);
-
-    GLuint texture = LoadTexture("textures/spriteSheet.png");
-    Material material = { texture };
-    materials.push_back(material);
-
-    Transform cubeTransform = {};
-    for (int x = 0; x < 8; x++)
-    {
-        cubeTransform.position = { x * 1.25f, cos(x * 1.9f) * 0.4f, 5.0f + sin(x * 0.5f) + x % 2 };
-        cubeTransform.shouldUpdateMatrix = true;
-        objects.push_back(new Object{ 0, 0, cubeTransform });
-    }
+    input = new Input();
 
     projectionMatrix.SetIdentity();
     cameraTransform = {};
@@ -64,12 +15,17 @@ Game::Game()
     near = 0.5f;
     far = 100.0f;
 
-    input = new Input();
+    OnGameStart(this);
 }
 
 Game::~Game()
 {
-	DeleteShaderProgram(shaderProgram);
+    OnGameEnd(this);
+
+    for (int system = 0; system < systems.size(); system++)
+    {
+        delete systems[system];
+    }
 
     for (int object = 0; object < objects.size(); object++)
     {
@@ -81,22 +37,9 @@ Game::~Game()
 
 void Game::Update(float DeltaTime)
 {
-    if (input->isKeyPressed[SDL_SCANCODE_D])
+    for (int system = 0; system < systems.size(); system++)
     {
-        cameraTransform.position.x += 0.5 * DeltaTime;
-    }
-    else if (input->isKeyPressed[SDL_SCANCODE_A])
-    {
-        cameraTransform.position.x -= 0.5 * DeltaTime;
-    }
-
-    if (input->isKeyPressed[SDL_SCANCODE_LEFT])
-    {
-        cameraTransform.yaw -= 30.0f * DeltaTime;
-    }
-    else if (input->isKeyPressed[SDL_SCANCODE_RIGHT])
-    {
-        cameraTransform.yaw += 30.0f * DeltaTime;
+        systems[system]->Update(DeltaTime, this);
     }
 
     for (int object = 0; object < objects.size(); object++)
@@ -106,6 +49,23 @@ void Game::Update(float DeltaTime)
             objects[object]->transform.UpdateMatrix();
             objects[object]->transform.shouldUpdateMatrix = false;
         }
+    }
+
+    for (int mesh = 0; mesh < spriteMeshes.size(); mesh++)
+    {
+        // update sprite animation
+        SpriteMesh* spriteMesh = spriteMeshes[mesh];
+        spriteMesh->sprite.time += DeltaTime * spriteMesh->sprite.clip.speed;
+        if (spriteMesh->sprite.time >= spriteMesh->sprite.clip.frameCount)
+        {
+            spriteMesh->sprite.clip = spriteMesh->sprite.queuedClip;
+            spriteMesh->sprite.time = 0;
+        }
+
+        // update sprite mesh
+        spriteMesh->UpdateVertices();
+        glBindBuffer(GL_ARRAY_BUFFER, spriteMesh->vbo);
+        glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), spriteMesh->vertices, GL_STATIC_DRAW);
     }
 
     cameraTransform.matrix.SetTranslationAndRotation(-cameraTransform.position, cameraTransform.yaw);
@@ -123,16 +83,22 @@ void Game::Update(float DeltaTime)
 
 void Game::Render()
 {
-	glUseProgram(shaderProgram);
-    glUniformMatrix4fv(projectionMatrixUniform, 1, GL_TRUE, &projectionMatrix.matrix[0][0]);
-    glUniformMatrix4fv(viewMatrixUniform, 1, GL_TRUE, &cameraTransform.matrix.matrix[0][0]);
-
-    for (int object = 0; object < objects.size(); object++)
+    int object = 0;
+    for (int shader = 0; shader < shaders.size(); shader++)
     {
-        glBindVertexArray(meshes[objects[object]->mesh].vao);
-        glUniformMatrix4fv(objectMatrixUniform, 1, GL_TRUE, &objects[object]->transform.matrix.matrix[0][0]);
-        glUniform1i(materials[objects[object]->material].texture, 0);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
-    }
+        glUseProgram(shaders[shader].shaderProgram);
+        glUniformMatrix4fv(shaders[shader].projectionMatrixUniform, 1, GL_TRUE, &projectionMatrix.matrix[0][0]);
+        glUniformMatrix4fv(shaders[shader].viewMatrixUniform, 1, GL_TRUE, &cameraTransform.matrix.matrix[0][0]);
 
+        // objects assumed to be sorted by order of shaders
+        while (object < objects.size() && materials[objects[object]->material].shader == shader)
+        {
+            glBindTexture(GL_TEXTURE_2D, materials[objects[object]->material].texture);
+            glBindVertexArray(meshes[objects[object]->mesh].vao);
+            glUniformMatrix4fv(shaders[shader].objectMatrixUniform, 1, GL_TRUE, &objects[object]->transform.matrix.matrix[0][0]);
+            glUniform1i(materials[objects[object]->material].texture, 0);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+            object++;
+        }
+    }
 }
