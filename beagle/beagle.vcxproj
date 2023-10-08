@@ -136,6 +136,7 @@
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="pointTests.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="sparky.cpp" />
     <ClCompile Include="sprite.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="graphicsTypes.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="pointTests.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="transform.h" />

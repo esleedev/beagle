@@ -70,3 +70,15 @@ public:
 		vertices[3].uv = { uvs.x + uvs.width, uvs.y };
 	}
 };
+
+struct Line2D
+{
+	Vector2D pointA, pointB;
+	float width;
+};
+
+struct Line
+{
+	Vector pointA, pointB;
+	float width;
+};
