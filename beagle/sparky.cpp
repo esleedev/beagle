@@ -7,6 +7,19 @@
 class PlayerSystem : public System
 {
 public:
+    Line2D line;
+    PlayerSystem(Game* Game)
+    {
+        line.pointA = { -2, 0 };
+        line.pointB = { 2, -2 };
+        line.width = 0.25;
+        Game->meshes.push_back(GenerateLine(line));
+        Transform noTransform = {};
+        noTransform.position = { 0, 0, 0 };
+        noTransform.shouldUpdateMatrix = true;
+        Game->objects.push_back(new Object{ 1, 0, noTransform, nullptr });
+    }
+
     void Update(float DeltaTime, Game* Game)
     {
         Game->cameraTransform.position.z = -10;
@@ -25,7 +38,7 @@ public:
 
         playerPoint.y -= DeltaTime; // fall
 
-        Vector2D pointInLine = GetPointClosestToPointInLine(playerPoint, { -2, 0 }, { 2, -2 });
+        Vector2D pointInLine = GetPointClosestToPointInLine(playerPoint, {-2, 0}, {2, -2});
         if (playerPoint.y <= pointInLine.y)
         {
             playerPoint.y = pointInLine.y;
@@ -59,7 +72,7 @@ void OnGameStart(Game* Game)
     Game->objects.push_back(new Object{ 0, 0, playerTransform, spriteMesh });
     Game->spriteMeshes.push_back(spriteMesh);
 
-    Game->systems.push_back(new PlayerSystem());
+    Game->systems.push_back(new PlayerSystem(Game));
 }
 
 void OnGameEnd(Game* Game)

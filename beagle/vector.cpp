@@ -1,4 +1,5 @@
 #include "vector.h"
+#include <math.h>
 
 Vector2D Vector::GetXY()
 {
@@ -33,6 +34,16 @@ Vector2D Vector2D::operator-()
 	return vector;
 }
 
+void Vector2D::Normalize()
+{
+	float magnitude = sqrtf(x * x + y * y);
+	if (magnitude > 0)
+	{
+		x /= magnitude;
+		y /= magnitude;
+	}
+}
+
 Vector2D operator+(Vector2D A, Vector2D B)
 {
 	return Vector2D{ A.x + B.x, A.y + B.y };
@@ -52,6 +63,27 @@ Vector2D operator*(float Scalar, Vector2D Point)
 {
 	return Vector2D{ Point.x * Scalar, Point.y * Scalar };
 }
+
+Vector operator+(Vector A, Vector B)
+{
+	return Vector{ A.x + B.x, A.y + B.y, A.z + B.z };
+}
+
+Vector operator-(Vector A, Vector B)
+{
+	return Vector{ A.x - B.x, A.y - B.y, A.z - B.z };
+}
+
+Vector operator*(Vector Point, float Scalar)
+{
+	return Vector{ Point.x * Scalar, Point.y * Scalar, Point.z * Scalar };
+}
+
+Vector operator*(float Scalar, Vector Point)
+{
+	return Vector{ Point.x * Scalar, Point.y * Scalar, Point.z * Scalar };
+}
+
 
 float GetDotProduct(Vector2D A, Vector2D B)
 {
