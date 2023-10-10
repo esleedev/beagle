@@ -13,8 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Sparky">
+    <Filter Include="Source Files\Woof">
       <UniqueIdentifier>{7eb9a8da-ff91-42e3-98a3-1ee139718dbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Woof\Systems">
+      <UniqueIdentifier>{263ea6d0-e471-4c4f-815e-a76e8b381b51}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,11 +51,14 @@
     <ClCompile Include="pointTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sparky.cpp">
-      <Filter>Source Files\Sparky</Filter>
-    </ClCompile>
     <ClCompile Include="graphicsTypes.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\entry.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\playerSystem.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +87,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pointTests.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\playerSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

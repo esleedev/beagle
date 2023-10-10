@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SDL.h>
-#include <vector>
 #include "graphicsTypes.h"
 #include "transform.h"
 
@@ -70,5 +69,5 @@ public:
 	void PushBackMesh(Mesh Mesh, int& Index);
 };
 
-void OnGameStart(Game* Game);
-void OnGameEnd(Game* Game);
+extern void OnGameStart(Game* Game);
+extern void OnGameEnd(Game* Game);

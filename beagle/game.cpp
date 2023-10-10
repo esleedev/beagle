@@ -1,5 +1,6 @@
 #include "game.h"
 #include "vector.h"
+#include <vector>
 #include <iostream>
 
 Game::Game()
@@ -119,7 +120,6 @@ void Game::Render()
             glBindVertexArray(meshes[objects[object]->mesh].vao);
             glUniformMatrix4fv(shaders[shader].objectMatrixUniform, 1, GL_TRUE, &objects[object]->transform.matrix.matrix[0][0]);
             glUniform1i(materials[objects[object]->material].texture, 0);
-            std::cout << meshes[objects[object]->mesh].indexCount << std::endl;
             glDrawElements(GL_TRIANGLES, meshes[objects[object]->mesh].indexCount, GL_UNSIGNED_INT, NULL);
             object++;
         }
@@ -148,8 +148,4 @@ Object::Object(short Mesh, short Material, Transform Transform, SpriteMesh* Spri
     transform = Transform;
     transform.shouldUpdateMatrix = true;
     spriteMesh = SpriteMesh;
-}
-
-void Start(Game& Game)
-{
 }

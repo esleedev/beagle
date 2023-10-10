@@ -133,13 +133,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="game\entry.cpp" />
+    <ClCompile Include="game\playerSystem.cpp" />
     <ClCompile Include="graphicsTypes.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="pointTests.cpp" />
     <ClCompile Include="shader.cpp" />
-    <ClCompile Include="sparky.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="transform.cpp" />
@@ -147,6 +148,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
+    <ClInclude Include="game\globals.h" />
+    <ClInclude Include="game\playerSystem.h" />
     <ClInclude Include="graphicsTypes.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
