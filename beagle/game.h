@@ -20,6 +20,9 @@ public:
 	short material;
 	Transform transform;
 	SpriteMesh* spriteMesh;
+
+	Object(short Mesh, short Material);
+	Object(short Mesh, short Material, Transform Transform, SpriteMesh* SpriteMesh);
 };
 
 class Input
@@ -48,6 +51,7 @@ public:
 	std::vector<Object*> objects;
 	std::vector<System*> systems;
 	std::vector<SpriteMesh*> spriteMeshes;
+	std::vector<DynamicMesh*> dynamicMeshes;
 
 	Matrix projectionMatrix;
 	Transform cameraTransform;
@@ -62,6 +66,8 @@ public:
 
 	void Update(float DeltaTime);
 	void Render();
+
+	void PushBackMesh(Mesh Mesh, int& Index);
 };
 
 void OnGameStart(Game* Game);

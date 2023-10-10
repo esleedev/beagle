@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gl/glew.h>
+#include <vector>
 #include "vector.h"
 
 struct Vertex
@@ -12,6 +13,7 @@ struct Vertex
 struct Mesh
 {
     GLuint vao, vbo, ibo;
+	unsigned short indexCount;
 };
 
 struct Shader
@@ -49,19 +51,31 @@ struct Sprite
 	Rectangle GetUVs();
 };
 
+class DynamicMesh
+{
+public:
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
+	Mesh* mesh;
+
+	DynamicMesh(Mesh* Mesh);
+};
+
 class SpriteMesh
 {
 public:
 	Sprite sprite;
+	Vector2D size;
+	Vector2D origin;
 	Vertex vertices[4];
 	GLuint vbo;
 
 	void UpdateVertices()
 	{
-		vertices[0].position = { 0 - 0.5, 0 - 0.5, 0 - 0.5 };
-		vertices[1].position = { 1 - 0.5, 0 - 0.5, 0 - 0.5 };
-		vertices[2].position = { 0 - 0.5, 1 - 0.5, 0 - 0.5 };
-		vertices[3].position = { 1 - 0.5, 1 - 0.5, 0 - 0.5 };
+		vertices[0].position = { 0 - origin.x, 0.0f - (size.y - origin.y), 0 };
+		vertices[1].position = { size.x - origin.x, 0.0f - (size.y - origin.y), 0 };
+		vertices[2].position = { 0 - origin.x, size.y - (size.y - origin.y), 0 };
+		vertices[3].position = { size.x - origin.x, size.y - (size.y - origin.y), 0 };
 
 		Rectangle uvs = sprite.GetUVs();
 		vertices[0].uv = { uvs.x, uvs.y + uvs.height };

@@ -22,6 +22,13 @@ Game::~Game()
 {
     OnGameEnd(this);
 
+    for (int mesh = 0; mesh < meshes.size(); mesh++)
+    {
+        glDeleteVertexArrays(1, &meshes[mesh].vao);
+        glDeleteBuffers(1, &meshes[mesh].vbo);
+        glDeleteBuffers(1, &meshes[mesh].ibo);
+    }
+
     for (int system = 0; system < systems.size(); system++)
     {
         delete systems[system];
@@ -64,8 +71,23 @@ void Game::Update(float DeltaTime)
 
         // update sprite mesh
         spriteMesh->UpdateVertices();
+        // glBindVertexArray(spriteMesh->mesh.vao);
         glBindBuffer(GL_ARRAY_BUFFER, spriteMesh->vbo);
         glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), spriteMesh->vertices, GL_STATIC_DRAW);
+    }
+
+    for (int mesh = 0; mesh < dynamicMeshes.size(); mesh++)
+    {
+        // update dynamic mesh vbos
+        DynamicMesh* dynamicMesh = dynamicMeshes[mesh];
+        // glBindVertexArray(dynamicMesh->mesh.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, dynamicMesh->mesh->vbo);
+        glBufferData(GL_ARRAY_BUFFER, dynamicMesh->vertices.size() * sizeof(Vertex), &dynamicMesh->vertices[0], GL_STATIC_DRAW);
+
+        dynamicMesh->mesh->indexCount = dynamicMesh->indices.size();
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dynamicMesh->mesh->ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, dynamicMesh->mesh->indexCount * sizeof(GLuint), &dynamicMesh->indices[0], GL_STATIC_DRAW);
     }
 
     cameraTransform.matrix.SetTranslationAndRotation(-cameraTransform.position, cameraTransform.yaw);
@@ -97,8 +119,37 @@ void Game::Render()
             glBindVertexArray(meshes[objects[object]->mesh].vao);
             glUniformMatrix4fv(shaders[shader].objectMatrixUniform, 1, GL_TRUE, &objects[object]->transform.matrix.matrix[0][0]);
             glUniform1i(materials[objects[object]->material].texture, 0);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+            std::cout << meshes[objects[object]->mesh].indexCount << std::endl;
+            glDrawElements(GL_TRIANGLES, meshes[objects[object]->mesh].indexCount, GL_UNSIGNED_INT, NULL);
             object++;
         }
     }
+}
+
+void Game::PushBackMesh(Mesh Mesh, int& Index)
+{
+    meshes.push_back(Mesh);
+    Index = meshes.size() - 1;
+}
+
+Object::Object(short Mesh, short Material)
+{
+    mesh = Mesh;
+    material = Material;
+    transform = {};
+    transform.shouldUpdateMatrix = true;
+    spriteMesh = nullptr;
+}
+
+Object::Object(short Mesh, short Material, Transform Transform, SpriteMesh* SpriteMesh)
+{
+    mesh = Mesh;
+    material = Material;
+    transform = Transform;
+    transform.shouldUpdateMatrix = true;
+    spriteMesh = SpriteMesh;
+}
+
+void Start(Game& Game)
+{
 }

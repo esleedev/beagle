@@ -51,6 +51,9 @@
     <ClCompile Include="sparky.cpp">
       <Filter>Source Files\Sparky</Filter>
     </ClCompile>
+    <ClCompile Include="graphicsTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h">
