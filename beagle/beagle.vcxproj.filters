@@ -48,7 +48,7 @@
     <ClCompile Include="texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pointTests.cpp">
+    <ClCompile Include="collisionTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="graphicsTypes.cpp">
@@ -86,7 +86,7 @@
     <ClInclude Include="graphicsTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pointTests.h">
+    <ClInclude Include="collisionTests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\globals.h">

@@ -2,7 +2,6 @@
 #include "../texture.h"
 #include "../shader.h"
 #include "../mesh.h"
-#include "../pointTests.h"
 
 // define globals
 #include "globals.h"
@@ -45,7 +44,8 @@ void OnGameStart(Game* Game)
     dynamicMesh = new DynamicMesh(&Game->meshes[meshIndex]);
     Game->dynamicMeshes.push_back(dynamicMesh);
 
-    game_globals::lines.push_back(Line2D{ { 2, -2 }, { 4, -1 }, 0.025f });
+    game_globals::lines.push_back(Line2D{ { 2.75f, -1 }, { 2.75f, 2 }, 0.025f });
+    game_globals::lines.push_back(Line2D{ { 2, -2 }, { 2.75f, -1 }, 0.025f });
     game_globals::lines.push_back(Line2D{ { -2, -1 }, { 2, -2 }, 0.025f });
     game_globals::lines.push_back(Line2D{ { -4, -1.25f }, { -2, -1 }, 0.025f });
 
