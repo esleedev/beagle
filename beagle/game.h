@@ -24,9 +24,18 @@ public:
 	Object(short Mesh, short Material, Transform Transform, SpriteMesh* SpriteMesh);
 };
 
+struct GamepadInput
+{
+	Vector2D leftStick, rightStick;
+	const static Uint8 MaximumButtonCount = 16;
+	bool isButtonPressed[MaximumButtonCount];
+	bool wasButtonPressed[MaximumButtonCount];
+};
+
 class Input
 {
 public:
+	// keyboard
 	bool isKeyPressed[SDL_NUM_SCANCODES];
 	bool wasKeyPressed[SDL_NUM_SCANCODES];
 
@@ -38,6 +47,20 @@ public:
 	bool IsKeyJustReleased(SDL_Scancode ScanCode)
 	{
 		return !isKeyPressed[ScanCode] && wasKeyPressed[ScanCode];
+	}
+
+	// gamepads
+	const static Uint8 MaximumGamepadCount = 6;
+	GamepadInput gamepadInputs[Input::MaximumGamepadCount];
+
+	bool IsButtonJustPressed(Uint8 GamepadDevice, Uint8 Button)
+	{
+		return gamepadInputs[GamepadDevice].isButtonPressed[Button] && !gamepadInputs[GamepadDevice].wasButtonPressed[Button];
+	}
+
+	bool IsButtonJustReleased(Uint8 GamepadDevice, Uint8 Button)
+	{
+		return !gamepadInputs[GamepadDevice].isButtonPressed[Button] && gamepadInputs[GamepadDevice].wasButtonPressed[Button];
 	}
 };
 
@@ -67,6 +90,11 @@ public:
 	void Render();
 
 	void PushBackMesh(Mesh Mesh, int& Index);
+	template <typename SystemType> SystemType* PushBackSystem(SystemType* System)
+	{
+		systems.push_back(System);
+		return System;
+	}
 };
 
 extern void OnGameStart(Game* Game);

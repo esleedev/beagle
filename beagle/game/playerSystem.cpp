@@ -7,20 +7,35 @@ void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
 {
     Game->cameraTransform.position.z = -10;
 
-    Vector2D playerPoint = Game->objects[0]->transform.position.GetXY();
+    Vector2D playerPoint = Game->objects[objectIndex]->transform.position.GetXY();
 
     // move
     velocity.x *= powf(0.05f, DeltaTime);
 
     float walkSpeed = 13.5f;
-    if (Game->input->isKeyPressed[SDL_SCANCODE_RIGHT])
+    float moveInputX = 0;
+    bool isJumpInputted = false;
+
+    if (deviceIndex < 0)
     {
+        if (Game->input->isKeyPressed[SDL_SCANCODE_RIGHT])
+            moveInputX = 1;
+        else if (Game->input->isKeyPressed[SDL_SCANCODE_LEFT])
+            moveInputX = -1;
+
+        isJumpInputted = Game->input->IsKeyJustPressed(SDL_SCANCODE_D);
+    }
+    else
+    {
+        moveInputX = Game->input->gamepadInputs[deviceIndex].leftStick.x;
+        isJumpInputted = Game->input->IsButtonJustPressed(deviceIndex, 0);
+    }
+
+    if (moveInputX > 0.5f)
         velocity.x += DeltaTime * walkSpeed;
-    }
-    else if (Game->input->isKeyPressed[SDL_SCANCODE_LEFT])
-    {
+    else if (moveInputX < -0.5f)
         velocity.x -= DeltaTime * walkSpeed;
-    }
+
     velocity.x = Clamp(velocity.x, -1.5f, 1.5f);
 
     // fall
@@ -70,13 +85,11 @@ void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
                 float hitPointX = hits.hitPoints[CardinalDirections::Top].x;
                 if (hitPointX < playerRectangle.x + playerRectangle.width)
                 {
-                    std::cout << playerRectangle.x + playerRectangle.width << " " << hits.hitPoints[CardinalDirections::Top].x << std::endl;
                     playerPoint.x -= (playerRectangle.x + playerRectangle.width) - hits.hitPoints[CardinalDirections::Top].x;
                     velocity.x = 0;
                 }
                 else if (hitPointX > playerRectangle.x)
                 {
-                    std::cout << playerRectangle.x << " " << hits.hitPoints[CardinalDirections::Top].x << std::endl;
                     playerPoint.x += hits.hitPoints[CardinalDirections::Top].x - playerRectangle.x;
                     velocity.x = 0;
                 }
@@ -84,13 +97,13 @@ void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
         }
     }
 
-    if (isOnGround && Game->input->IsKeyJustPressed(SDL_SCANCODE_D))
+    if (isOnGround && isJumpInputted)
     {
         // queue jump vel
         velocity.y = 2.18f;
     }
 
     // update position
-    Game->objects[0]->transform.position.Set(playerPoint);
-    Game->objects[0]->transform.shouldUpdateMatrix = true;
+    Game->objects[objectIndex]->transform.position.Set(playerPoint);
+    Game->objects[objectIndex]->transform.shouldUpdateMatrix = true;
 }

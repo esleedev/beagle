@@ -45,6 +45,14 @@ Game::~Game()
 
 void Game::Update(float DeltaTime)
 {
+    for (Uint8 device = 0; device < Input::MaximumGamepadCount; device++)
+    {
+        std::cout << (int)device << ": left stick (" << input->gamepadInputs[device].leftStick.x << ", " <<
+            input->gamepadInputs[device].leftStick.y << ") right stick (" <<
+            input->gamepadInputs[device].rightStick.x << ", " <<
+            input->gamepadInputs[device].rightStick.y << ")" << std::endl;
+    }
+
     for (int system = 0; system < systems.size(); system++)
     {
         systems[system]->Update(DeltaTime, this);

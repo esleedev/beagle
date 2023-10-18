@@ -15,9 +15,6 @@ void OnGameStart(Game* Game)
     Shader shader = GetShaderWithLocations(shaderProgram);
     Game->shaders.push_back(shader);
 
-    Mesh playerMesh = GenerateQuad({ 1.0, 1.0 });
-    Game->meshes.push_back(playerMesh);
-
     GLuint playerTexture = LoadTexture("textures/spriteSheet.png");
     Game->materials.push_back({ playerTexture });
 
@@ -25,16 +22,24 @@ void OnGameStart(Game* Game)
     playerTransform.position = { 0.0f, 0.0f, 0.0f };
     playerTransform.shouldUpdateMatrix = true;
 
-    SpriteMesh* spriteMesh = new SpriteMesh();
-    spriteMesh->sprite.frameUVSize = { 0.5f, 0.5f };
-    spriteMesh->vbo = playerMesh.vbo;
-    spriteMesh->size = { 1.0, 1.0 };
-    spriteMesh->origin = { 0.5, 1.0 };
-    spriteMesh->sprite.SetClip({ 0, 1, 1.0f }, true);
-    Game->objects.push_back(new Object{ 0, 0, playerTransform, spriteMesh });
-    Game->spriteMeshes.push_back(spriteMesh);
+    for (Sint16 player = 0; player < 2; player++)
+    {
+        Mesh playerMesh = GenerateQuad({ 1.0, 1.0 });
+        Game->meshes.push_back(playerMesh);
 
-    Game->systems.push_back(new game_systems::PlayerSystem());
+        SpriteMesh* spriteMesh = new SpriteMesh();
+        spriteMesh->sprite.frameUVSize = { 0.5f, 0.5f };
+        spriteMesh->vbo = playerMesh.vbo;
+        spriteMesh->size = { 1.0, 1.0 };
+        spriteMesh->origin = { 0.5, 1.0 };
+        spriteMesh->sprite.SetClip({ 0, 1, 1.0f }, true);
+        Game->objects.push_back(new Object{ player, 0, playerTransform, spriteMesh });
+        Game->spriteMeshes.push_back(spriteMesh);
+
+        game_systems::PlayerSystem* playerSystem = Game->PushBackSystem(new game_systems::PlayerSystem());
+        playerSystem->objectIndex = player;
+        playerSystem->deviceIndex = (Sint16)(player - 1);
+    }
 
     DynamicMesh* dynamicMesh;
     int meshIndex;
