@@ -147,6 +147,7 @@
     <ClCompile Include="vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="stringParser.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="game\globals.h" />
     <ClInclude Include="game\playerSystem.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="game\testWorld.txt" />
     <Text Include="shaders\fragmentShader.txt" />
     <Text Include="shaders\vertexShader.txt" />
   </ItemGroup>

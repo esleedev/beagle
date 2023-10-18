@@ -2,12 +2,17 @@
 #include "../texture.h"
 #include "../shader.h"
 #include "../mesh.h"
+#include "../stringParser.h"
+#include <fstream>
+#include <iostream>
 
 // define globals
 #include "globals.h"
 std::vector<Line2D> game_globals::lines;
 
 #include "playerSystem.h"
+
+void LoadWorld(std::string FileName);
 
 void OnGameStart(Game* Game)
 {
@@ -32,6 +37,8 @@ void OnGameStart(Game* Game)
         playerSystem->deviceIndex = (Sint16)(player - 1);
     }
 
+    LoadWorld("game/testWorld.txt");
+
     DynamicMesh* dynamicMesh;
     int meshIndex;
     Game->AddMesh(GenerateEmptyMesh(), meshIndex);
@@ -40,11 +47,6 @@ void OnGameStart(Game* Game)
     dynamicMesh = new DynamicMesh(&Game->meshes[meshIndex]);
     Game->dynamicMeshes.push_back(dynamicMesh);
 
-    game_globals::lines.push_back(Line2D{ { 2.75f, -1 }, { 2.75f, 2 }, 0.025f });
-    game_globals::lines.push_back(Line2D{ { 2, -2 }, { 2.75f, -1 }, 0.025f });
-    game_globals::lines.push_back(Line2D{ { -2, -1 }, { 2, -2 }, 0.025f });
-    game_globals::lines.push_back(Line2D{ { -4, -1.25f }, { -2, -1 }, 0.025f });
-
     for (int line = 0; line < game_globals::lines.size(); line++)
         AddLineToMesh(game_globals::lines[line], dynamicMesh);
 }
@@ -52,4 +54,36 @@ void OnGameStart(Game* Game)
 void OnGameEnd(Game* Game)
 {
 
+}
+
+void LoadWorld(std::string FileName)
+{
+    // load world
+    std::ifstream file;
+    file.open(FileName);
+    if (file.is_open())
+    {
+        std::string line;
+        int sectionCount = 0;
+        while (std::getline(file, line))
+        {
+            if (sectionCount <= 0)
+                sectionCount = std::stoi(line);
+            else
+            {
+                std::vector<std::string> values;
+                FindValuesInLine(line, values);
+                if (values.size() >= 4)
+                {
+                    Line2D line = {};
+                    line.pointA = { std::stof(values[0]), std::stof(values[1]) };
+                    line.pointB = { std::stof(values[2]), std::stof(values[3]) };
+                    line.width = 0.025f;
+                    game_globals::lines.push_back(line);
+                }
+                sectionCount--;
+            }
+        }
+        file.close();
+    }
 }

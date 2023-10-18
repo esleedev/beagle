@@ -95,6 +95,9 @@
     <ClInclude Include="game\playerSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stringParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaders\fragmentShader.txt">
@@ -103,6 +106,7 @@
     <Text Include="shaders\vertexShader.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="game\testWorld.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\spriteSheet.png">
