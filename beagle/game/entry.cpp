@@ -24,26 +24,17 @@ void OnGameStart(Game* Game)
 
     for (Sint16 player = 0; player < 2; player++)
     {
-        Mesh playerMesh = GenerateQuad({ 1.0, 1.0 });
-        Game->meshes.push_back(playerMesh);
-
-        SpriteMesh* spriteMesh = new SpriteMesh();
-        spriteMesh->sprite.frameUVSize = { 0.5f, 0.5f };
-        spriteMesh->vbo = playerMesh.vbo;
-        spriteMesh->size = { 1.0, 1.0 };
-        spriteMesh->origin = { 0.5, 1.0 };
-        spriteMesh->sprite.SetClip({ 0, 1, 1.0f }, true);
+        SpriteMesh* spriteMesh = Game->AddNewSpriteMesh({ 1.0, 1.0 }, { 0.5, 1.0 }, { 0.5f, 0.5f });
         Game->objects.push_back(new Object{ player, 0, playerTransform, spriteMesh });
-        Game->spriteMeshes.push_back(spriteMesh);
 
-        game_systems::PlayerSystem* playerSystem = Game->PushBackSystem(new game_systems::PlayerSystem());
+        game_systems::PlayerSystem* playerSystem = Game->AddNewSystem<game_systems::PlayerSystem>();
         playerSystem->objectIndex = player;
         playerSystem->deviceIndex = (Sint16)(player - 1);
     }
 
     DynamicMesh* dynamicMesh;
     int meshIndex;
-    Game->PushBackMesh(GenerateEmptyMesh(), meshIndex);
+    Game->AddMesh(GenerateEmptyMesh(), meshIndex);
     Game->objects.push_back(new Object(meshIndex, 0));
 
     dynamicMesh = new DynamicMesh(&Game->meshes[meshIndex]);

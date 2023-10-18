@@ -1,5 +1,6 @@
 #include "game.h"
 #include "vector.h"
+#include "mesh.h"
 #include <vector>
 #include <iostream>
 
@@ -134,7 +135,23 @@ void Game::Render()
     }
 }
 
-void Game::PushBackMesh(Mesh Mesh, int& Index)
+SpriteMesh* Game::AddNewSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize)
+{
+    Mesh mesh = GenerateQuad();
+    meshes.push_back(mesh);
+
+    SpriteMesh* spriteMesh = new SpriteMesh();
+    spriteMesh->vbo = mesh.vbo;
+    spriteMesh->size = Size;
+    spriteMesh->origin = Origin;
+    spriteMesh->sprite.frameUVSize = FrameUVSize;
+    spriteMesh->sprite.SetClip({ 0, 1, 1.0f }, true);
+    spriteMeshes.push_back(spriteMesh);
+
+    return spriteMesh;
+}
+
+void Game::AddMesh(Mesh Mesh, int& Index)
 {
     meshes.push_back(Mesh);
     Index = meshes.size() - 1;

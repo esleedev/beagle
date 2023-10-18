@@ -89,12 +89,14 @@ public:
 	void Update(float DeltaTime);
 	void Render();
 
-	void PushBackMesh(Mesh Mesh, int& Index);
-	template <typename SystemType> SystemType* PushBackSystem(SystemType* System)
+	void AddMesh(Mesh Mesh, int& Index);
+	template <typename SystemType> SystemType* AddNewSystem()
 	{
-		systems.push_back(System);
-		return System;
+		SystemType* system = new SystemType();
+		systems.push_back(system);
+		return system;
 	}
+	SpriteMesh* AddNewSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize);
 };
 
 extern void OnGameStart(Game* Game);
