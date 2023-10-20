@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="game\cameraSystem.cpp" />
     <ClCompile Include="game\entry.cpp" />
     <ClCompile Include="game\playerSystem.cpp" />
     <ClCompile Include="graphicsTypes.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="game\cameraSystem.h" />
     <ClInclude Include="stringParser.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="game\globals.h" />

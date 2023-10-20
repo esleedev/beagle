@@ -9,8 +9,10 @@
 // define globals
 #include "globals.h"
 std::vector<Line2D> game_globals::lines;
+const Uint16 game_globals::MaximumPlayerCount = 2;
 
 #include "playerSystem.h"
+#include "cameraSystem.h"
 
 void LoadWorld(std::string FileName);
 
@@ -27,7 +29,7 @@ void OnGameStart(Game* Game)
     playerTransform.position = { 0.0f, 0.0f, 0.0f };
     playerTransform.shouldUpdateMatrix = true;
 
-    for (Sint16 player = 0; player < 2; player++)
+    for (Sint16 player = 0; player < game_globals::MaximumPlayerCount; player++)
     {
         SpriteMesh* spriteMesh = Game->AddNewSpriteMesh({ 1.0, 1.0 }, { 0.5, 1.0 }, { 0.5f, 0.5f });
         Game->objects.push_back(new Object{ player, 0, playerTransform, spriteMesh });
@@ -36,6 +38,9 @@ void OnGameStart(Game* Game)
         playerSystem->objectIndex = player;
         playerSystem->deviceIndex = (Sint16)(player - 1);
     }
+
+    auto cameraSystem = Game->AddNewSystem<game_systems::CameraSystem>();
+    cameraSystem->player0ObjectIndex = 0;
 
     LoadWorld("game/testWorld.txt");
 
@@ -49,6 +54,7 @@ void OnGameStart(Game* Game)
 
     for (int line = 0; line < game_globals::lines.size(); line++)
         AddLineToMesh(game_globals::lines[line], dynamicMesh);
+
 }
 
 void OnGameEnd(Game* Game)
@@ -58,27 +64,32 @@ void OnGameEnd(Game* Game)
 
 void LoadWorld(std::string FileName)
 {
-    // load world
     std::ifstream file;
     file.open(FileName);
     if (file.is_open())
     {
         std::string line;
+        std::string sectionName;
         int sectionCount = 0;
         while (std::getline(file, line))
         {
             if (sectionCount <= 0)
-                sectionCount = std::stoi(line);
+            {
+                std::vector<std::string> values;
+                FindValuesInLine(line, values);
+                sectionName = values[0];
+                sectionCount = std::stoi(values[1]);
+            }
             else
             {
                 std::vector<std::string> values;
                 FindValuesInLine(line, values);
-                if (values.size() >= 4)
+                if (sectionName == "lines" && values.size() >= 4)
                 {
                     Line2D line = {};
                     line.pointA = { std::stof(values[0]), std::stof(values[1]) };
                     line.pointB = { std::stof(values[2]), std::stof(values[3]) };
-                    line.width = 0.025f;
+                    line.width = 0.075f;
                     game_globals::lines.push_back(line);
                 }
                 sectionCount--;

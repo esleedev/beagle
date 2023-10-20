@@ -6,6 +6,7 @@ struct Vector2D
 
 	Vector2D operator-();
 	void Normalize();
+	float GetMagnitude();
 };
 
 struct Vector

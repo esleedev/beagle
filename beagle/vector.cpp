@@ -36,12 +36,17 @@ Vector2D Vector2D::operator-()
 
 void Vector2D::Normalize()
 {
-	float magnitude = sqrtf(x * x + y * y);
+	float magnitude = GetMagnitude();
 	if (magnitude > 0)
 	{
 		x /= magnitude;
 		y /= magnitude;
 	}
+}
+
+float Vector2D::GetMagnitude()
+{
+	return sqrtf(x * x + y * y);
 }
 
 Vector2D operator+(Vector2D A, Vector2D B)

@@ -5,8 +5,6 @@
 
 void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
 {
-    Game->cameraTransform.position.z = -10;
-
     Vector2D playerPoint = Game->objects[objectIndex]->transform.position.GetXY();
 
     // move
