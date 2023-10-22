@@ -73,17 +73,17 @@ void LoadWorld(std::string FileName)
         int sectionCount = 0;
         while (std::getline(file, line))
         {
+            std::vector<std::string> values;
+
             if (sectionCount <= 0)
             {
-                std::vector<std::string> values;
-                FindValuesInLine(line, values);
+                FindValuesInLine(line, values, ' ');
                 sectionName = values[0];
                 sectionCount = std::stoi(values[1]);
             }
             else
             {
-                std::vector<std::string> values;
-                FindValuesInLine(line, values);
+                FindValuesInLine(line, values, ',');
                 if (sectionName == "lines" && values.size() >= 4)
                 {
                     Line2D line = {};
