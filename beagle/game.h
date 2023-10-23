@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL.h>
+#include <string>
 #include "graphicsTypes.h"
 #include "transform.h"
 
@@ -97,6 +98,8 @@ public:
 		return system;
 	}
 	SpriteMesh* AddNewSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize);
+	// index received can be different from shader program handle that opengl returns. it is mainly used for materials to know what shader in the list to use.
+	void AddNewShader(std::string VertexShaderFilePath, std::string FragmentShaderFilePath, int& Index);
 };
 
 extern void OnGameStart(Game* Game);

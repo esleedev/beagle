@@ -18,12 +18,11 @@ void LoadWorld(std::string FileName);
 
 void OnGameStart(Game* Game)
 {
-    GLuint shaderProgram = CreateShaderProgram("shaders/vertexShader.txt", "shaders/fragmentShader.txt");
-    Shader shader = GetShaderWithLocations(shaderProgram);
-    Game->shaders.push_back(shader);
+    int shaderIndex;
+    Game->AddNewShader("shaders/vertexShader.txt", "shaders/fragmentShader.txt", shaderIndex);
 
     GLuint playerTexture = LoadTexture("textures/spriteSheet.png");
-    Game->materials.push_back({ playerTexture });
+    Game->materials.push_back({ playerTexture, shaderIndex });
 
     Transform playerTransform = {};
     playerTransform.position = { 0.0f, 0.0f, 0.0f };

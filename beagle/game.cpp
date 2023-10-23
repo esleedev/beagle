@@ -1,6 +1,7 @@
 #include "game.h"
 #include "vector.h"
 #include "mesh.h"
+#include "shader.h"
 #include <vector>
 #include <iostream>
 
@@ -149,6 +150,14 @@ SpriteMesh* Game::AddNewSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D Fram
     spriteMeshes.push_back(spriteMesh);
 
     return spriteMesh;
+}
+
+void Game::AddNewShader(std::string VertexShaderFilePath, std::string FragmentShaderFilePath, int& Index)
+{
+    GLuint program = CreateShaderProgram(VertexShaderFilePath, FragmentShaderFilePath);
+    Shader shader = GetShaderWithLocations(program);
+    shaders.push_back(shader);
+    Index = shaders.size() - 1;
 }
 
 void Game::AddMesh(Mesh Mesh, int& Index)
