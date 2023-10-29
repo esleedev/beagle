@@ -19,4 +19,5 @@ enum CardinalDirections
 Vector2D GetPointClosestToPointInLine(Vector2D Point, Vector2D LinePointA, Vector2D LinePointB, float& Time);
 bool IsLineIntersectingRectangle(Vector2D LinePointA, Vector2D LinePointB, Rectangle Rectangle, LineHitRectangle& Hits);
 bool IsLineIntersectingLine(Vector2D LineAPointA, Vector2D LineAPointB, Vector2D LineBPointA, Vector2D LineBPointB, Vector2D& Intersection);
+bool IsPointInRectangle(Vector2D Point, Rectangle Rectangle);
 

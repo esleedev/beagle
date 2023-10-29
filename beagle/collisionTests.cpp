@@ -65,3 +65,8 @@ bool IsLineIntersectingLine(Vector2D LineAPointOne, Vector2D LineAPointTwo, Vect
 	return false;
 }
 
+bool IsPointInRectangle(Vector2D Point, Rectangle Rectangle)
+{
+	return !(Point.x < Rectangle.x || Point.y < Rectangle.y || Point.x > Rectangle.x + Rectangle.width || Point.y > Rectangle.y + Rectangle.height);
+}
+
