@@ -10,5 +10,8 @@ struct Transform
 	Matrix matrix;
 	bool shouldUpdateMatrix;
 
+	Transform();
 	void UpdateMatrix();
+	void SetPosition(Vector Position);
+	void SetPosition(Vector2D Position);
 };
