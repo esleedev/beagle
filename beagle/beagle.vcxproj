@@ -136,6 +136,8 @@
     <ClCompile Include="game\cameraSystem.cpp" />
     <ClCompile Include="game\entry.cpp" />
     <ClCompile Include="game\playerSystem.cpp" />
+    <ClCompile Include="game\triggerSystem.cpp" />
+    <ClCompile Include="game\world.cpp" />
     <ClCompile Include="graphicsTypes.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="main.cpp" />
@@ -143,12 +145,15 @@
     <ClCompile Include="collisionTests.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="sprite.cpp" />
+    <ClCompile Include="stringParser.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="transform.cpp" />
     <ClCompile Include="vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game\cameraSystem.h" />
+    <ClInclude Include="game\triggerSystem.h" />
+    <ClInclude Include="game\world.h" />
     <ClInclude Include="stringParser.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="game\globals.h" />
@@ -160,10 +165,12 @@
     <ClInclude Include="shader.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="transform.h" />
+    <ClInclude Include="game\triggers.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="game\testWorld.txt" />
+    <Text Include="game\testWorld2.txt" />
     <Text Include="shaders\fragmentShader.txt" />
     <Text Include="shaders\vertexShader.txt" />
   </ItemGroup>

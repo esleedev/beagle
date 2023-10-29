@@ -45,10 +45,10 @@ void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
 
     std::vector<Line2D> wallsToCheck;
     bool isOnGround = false;
-    for (int line = 0; line < game_globals::lines.size(); line++)
+    for (int line = 0; line < game_globals::world->lines.size(); line++)
     {
         float time;
-        Line2D thisLine = game_globals::lines[line];
+        Line2D thisLine = game_globals::world->lines[line];
 
         // check if the line is ground
         Vector2D bToA = thisLine.pointA - thisLine.pointB;
@@ -62,11 +62,23 @@ void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
         }
 
         Vector2D pointInLine = GetPointClosestToPointInLine(playerPoint, thisLine.pointA, thisLine.pointB, time);
-        if (time >= 0 && time <= 1 && playerPoint.y - 0.008f + velocity.y * DeltaTime * 2.0f <= pointInLine.y)
+        if (time >= 0 && time <= 1)
         {
-            velocity.y = 0;
-            playerPoint.y = pointInLine.y;
-            isOnGround = true;
+            bool canLand = false;
+            if (velocity.y >= -0.125f)
+            {
+                canLand = playerPoint.y + 0.0025f <= pointInLine.y && playerPoint.y + 0.25f >= pointInLine.y;
+            }
+            else
+            {
+                canLand = playerPoint.y + 0.125f >= pointInLine.y && playerPoint.y - 0.125f <= pointInLine.y;
+            }
+            if (canLand)
+            {
+                velocity.y = 0;
+                playerPoint.y = pointInLine.y;
+                isOnGround = true;
+            }
         }
     }
 
@@ -104,4 +116,19 @@ void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
     // update position
     Game->objects[objectIndex]->transform.position.Set(playerPoint);
     Game->objects[objectIndex]->transform.shouldUpdateMatrix = true;
+
+    // check go to triggers
+    for (int trigger = 0; trigger < game_globals::world->goToTriggers.size(); trigger++)
+    {
+        if (IsPointInRectangle(playerPoint, game_globals::world->goToTriggers[trigger].area))
+        {
+            if (Game->input->IsKeyJustPressed(SDL_SCANCODE_F))
+            {
+                TriggerEvent triggerEvent;
+                triggerEvent.id = game_globals::world->goToTriggers[trigger].id;
+                triggerEvent.value = game_globals::world->goToTriggers[trigger].value;
+                game_globals::goToEvent = triggerEvent;
+            }
+        }
+    }
 }

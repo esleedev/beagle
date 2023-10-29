@@ -63,6 +63,15 @@
     <ClCompile Include="game\cameraSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game\triggerSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game\world.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stringParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h">
@@ -104,6 +113,15 @@
     <ClInclude Include="game\cameraSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="game\triggers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\triggerSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\world.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaders\fragmentShader.txt">
@@ -113,6 +131,7 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="game\testWorld.txt" />
+    <Text Include="game\testWorld2.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\spriteSheet.png">

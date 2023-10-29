@@ -8,13 +8,14 @@
 
 // define globals
 #include "globals.h"
-std::vector<Line2D> game_globals::lines;
+World* game_globals::world;
+TriggerEvent game_globals::goToEvent = {};
+DynamicMesh* game_globals::dynamicLinesMesh;
 const Uint16 game_globals::MaximumPlayerCount = 2;
 
 #include "playerSystem.h"
 #include "cameraSystem.h"
-
-void LoadWorld(std::string FileName);
+#include "triggerSystem.h"
 
 void OnGameStart(Game* Game)
 {
@@ -24,9 +25,7 @@ void OnGameStart(Game* Game)
     GLuint playerTexture = LoadTexture("textures/spriteSheet.png");
     Game->materials.push_back({ playerTexture, shaderIndex });
 
-    Transform playerTransform = {};
-    playerTransform.position = { 0.0f, 0.0f, 0.0f };
-    playerTransform.shouldUpdateMatrix = true;
+    Transform playerTransform = Transform();
 
     for (Sint16 player = 0; player < game_globals::MaximumPlayerCount; player++)
     {
@@ -38,22 +37,22 @@ void OnGameStart(Game* Game)
         playerSystem->deviceIndex = (Sint16)(player - 1);
     }
 
+    game_systems::TriggerSystem* triggerSystem = Game->AddNewSystem<game_systems::TriggerSystem>();
+    triggerSystem->player0ObjectIndex = 0;
+
     auto cameraSystem = Game->AddNewSystem<game_systems::CameraSystem>();
     cameraSystem->player0ObjectIndex = 0;
 
-    LoadWorld("game/testWorld.txt");
+    game_globals::LoadWorld("game/testWorld.txt");
 
-    DynamicMesh* dynamicMesh;
-    int meshIndex;
-    Game->AddMesh(GenerateEmptyMesh(), meshIndex);
-    Game->objects.push_back(new Object(meshIndex, 0));
+    int linesMeshIndex;
+    Game->AddMesh(GenerateEmptyMesh(), linesMeshIndex);
+    Game->objects.push_back(new Object(linesMeshIndex, 0));
 
-    dynamicMesh = new DynamicMesh(&Game->meshes[meshIndex]);
-    Game->dynamicMeshes.push_back(dynamicMesh);
+    game_globals::dynamicLinesMesh = new DynamicMesh(&Game->meshes[linesMeshIndex]);
+    Game->dynamicMeshes.push_back(game_globals::dynamicLinesMesh);
 
-    for (int line = 0; line < game_globals::lines.size(); line++)
-        AddLineToMesh(game_globals::lines[line], dynamicMesh);
-
+    game_globals::UpdateWorldMeshes();
 }
 
 void OnGameEnd(Game* Game)
@@ -61,39 +60,19 @@ void OnGameEnd(Game* Game)
 
 }
 
-void LoadWorld(std::string FileName)
+void game_globals::UpdateWorldMeshes()
 {
-    std::ifstream file;
-    file.open(FileName);
-    if (file.is_open())
-    {
-        std::string line;
-        std::string sectionName;
-        int sectionCount = 0;
-        while (std::getline(file, line))
-        {
-            std::vector<std::string> values;
+    game_globals::dynamicLinesMesh->vertices.clear();
+    game_globals::dynamicLinesMesh->indices.clear();
 
-            if (sectionCount <= 0)
-            {
-                FindValuesInLine(line, values, ' ');
-                sectionName = values[0];
-                sectionCount = std::stoi(values[1]);
-            }
-            else
-            {
-                FindValuesInLine(line, values, ',');
-                if (sectionName == "lines" && values.size() >= 4)
-                {
-                    Line2D line = {};
-                    line.pointA = { std::stof(values[0]), std::stof(values[1]) };
-                    line.pointB = { std::stof(values[2]), std::stof(values[3]) };
-                    line.width = 0.075f;
-                    game_globals::lines.push_back(line);
-                }
-                sectionCount--;
-            }
-        }
-        file.close();
-    }
+    for (int line = 0; line < game_globals::world->lines.size(); line++)
+        AddLineToMesh(game_globals::world->lines[line], game_globals::dynamicLinesMesh);
+}
+
+void game_globals::LoadWorld(std::string FileName)
+{
+    if (game_globals::world == nullptr)
+        game_globals::world = new World();
+
+    game_globals::world->LoadWorld(FileName);
 }

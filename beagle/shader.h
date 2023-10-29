@@ -10,4 +10,3 @@ GLuint CreateShaderProgram(std::string VertexShaderFilePath, std::string Fragmen
 void DeleteShaderProgram(GLuint ShaderProgram);
 
 Shader GetShaderWithLocations(GLuint ShaderProgram);
-
