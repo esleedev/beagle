@@ -154,6 +154,7 @@
     <ClInclude Include="game\cameraSystem.h" />
     <ClInclude Include="game\triggerSystem.h" />
     <ClInclude Include="game\world.h" />
+    <ClInclude Include="piece.h" />
     <ClInclude Include="stringParser.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="game\globals.h" />
@@ -171,10 +172,12 @@
   <ItemGroup>
     <Text Include="game\testWorld.txt" />
     <Text Include="game\testWorld2.txt" />
+    <Text Include="shaders\checkerboardVertexShader.txt" />
     <Text Include="shaders\fragmentShader.txt" />
     <Text Include="shaders\vertexShader.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="textures\checkerboard.png" />
     <Image Include="textures\spriteSheet.png" />
     <Image Include="textures\spritesheet2.png" />
   </ItemGroup>

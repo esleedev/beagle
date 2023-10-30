@@ -11,6 +11,7 @@
 World* game_globals::world;
 TriggerEvent game_globals::goToEvent = {};
 DynamicMesh* game_globals::dynamicLinesMesh;
+DynamicMesh* game_globals::dynamicPiecesMesh;
 const Uint16 game_globals::MaximumPlayerCount = 2;
 
 #include "playerSystem.h"
@@ -19,11 +20,15 @@ const Uint16 game_globals::MaximumPlayerCount = 2;
 
 void OnGameStart(Game* Game)
 {
-    int shaderIndex;
+    int shaderIndex, checkerboardShaderIndex;
     Game->AddNewShader("shaders/vertexShader.txt", "shaders/fragmentShader.txt", shaderIndex);
+    Game->AddNewShader("shaders/checkerboardVertexShader.txt", "shaders/fragmentShader.txt", checkerboardShaderIndex);
 
     GLuint playerTexture = LoadTexture("textures/spriteSheet.png");
     Game->materials.push_back({ playerTexture, shaderIndex });
+
+    GLuint checkerboardTexture = LoadTexture("textures/checkerboard.png");
+    Game->materials.push_back({ checkerboardTexture, checkerboardShaderIndex });
 
     Transform playerTransform = Transform();
 
@@ -45,11 +50,18 @@ void OnGameStart(Game* Game)
 
     game_globals::LoadWorld("game/testWorld.txt");
 
-    int linesMeshIndex;
-    Game->AddMesh(GenerateEmptyMesh(), linesMeshIndex);
-    Game->objects.push_back(new Object(linesMeshIndex, 0));
+    int piecesMeshIndex;
+    Game->AddMesh(GenerateNewEmptyMesh(), piecesMeshIndex);
+    Game->objects.push_back(new Object(piecesMeshIndex, 0));
 
-    game_globals::dynamicLinesMesh = new DynamicMesh(&Game->meshes[linesMeshIndex]);
+    game_globals::dynamicPiecesMesh = new DynamicMesh(Game->meshes[piecesMeshIndex]);
+    Game->dynamicMeshes.push_back(game_globals::dynamicPiecesMesh);
+
+    int linesMeshIndex;
+    Game->AddMesh(GenerateNewEmptyMesh(), linesMeshIndex);
+    Game->objects.push_back(new Object(linesMeshIndex, 1));
+
+    game_globals::dynamicLinesMesh = new DynamicMesh(Game->meshes[linesMeshIndex]);
     Game->dynamicMeshes.push_back(game_globals::dynamicLinesMesh);
 
     game_globals::UpdateWorldMeshes();
@@ -67,6 +79,12 @@ void game_globals::UpdateWorldMeshes()
 
     for (int line = 0; line < game_globals::world->lines.size(); line++)
         AddLineToMesh(game_globals::world->lines[line], game_globals::dynamicLinesMesh);
+
+    game_globals::dynamicPiecesMesh->vertices.clear();
+    game_globals::dynamicPiecesMesh->indices.clear();
+
+    for (int piece = 0; piece < game_globals::world->pieces.size(); piece++)
+        AddPieceToMesh(game_globals::world->pieces[piece], game_globals::dynamicPiecesMesh);
 }
 
 void game_globals::LoadWorld(std::string FileName)

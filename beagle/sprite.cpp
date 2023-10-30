@@ -36,3 +36,18 @@ Rectangle Sprite::GetUVs()
 		frameUVSize.y
 	};
 }
+
+Rectangle Tile::GetUVs()
+{
+	int xCount = floor(1.0f / uvSize.x);
+	int xFrame = frame % xCount;
+	int yFrame = floor(frame / xCount);
+
+	return
+	{
+		xFrame * uvSize.x,
+		yFrame * uvSize.y,
+		uvSize.x,
+		uvSize.y
+	};
+}

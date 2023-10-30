@@ -1,0 +1,14 @@
+#version 330
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 objectMatrix;
+layout(location = 0) in vec3 inPosition;
+layout(location = 1) in vec2 inUV;
+out vec2 uv;
+
+void main()
+{
+	gl_Position = projectionMatrix * viewMatrix * objectMatrix * vec4(inPosition.x, inPosition.y, inPosition.z, 1);
+	uv = (objectMatrix * vec4(inPosition.x, inPosition.y, 0, 1)).xy;
+}

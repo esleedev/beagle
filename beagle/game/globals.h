@@ -8,6 +8,7 @@ namespace game_globals
 
 	extern TriggerEvent goToEvent;
 	extern DynamicMesh* dynamicLinesMesh;
+	extern DynamicMesh* dynamicPiecesMesh;
 	extern const Uint16 MaximumPlayerCount;
 
 	extern void LoadWorld(std::string FileName);

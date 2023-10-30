@@ -51,6 +51,14 @@ struct Sprite
 	Rectangle GetUVs();
 };
 
+struct Tile
+{
+	short frame;
+	Vector2D uvSize;
+
+	Rectangle GetUVs();
+};
+
 class DynamicMesh
 {
 public:

@@ -122,6 +122,9 @@
     <ClInclude Include="game\world.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="piece.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaders\fragmentShader.txt">
@@ -132,12 +135,16 @@
     </Text>
     <Text Include="game\testWorld.txt" />
     <Text Include="game\testWorld2.txt" />
+    <Text Include="shaders\checkerboardVertexShader.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\spriteSheet.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="textures\spritesheet2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\checkerboard.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

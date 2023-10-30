@@ -5,6 +5,7 @@
 void World::LoadWorld(std::string FileName)
 {
     lines.clear();
+    pieces.clear();
     goToTriggers.clear();
     spawnPoints.clear();
 
@@ -34,7 +35,21 @@ void World::LoadWorld(std::string FileName)
                     line.pointA = { std::stof(values[0]), std::stof(values[1]) };
                     line.pointB = { std::stof(values[2]), std::stof(values[3]) };
                     line.width = 0.075f;
+
                     lines.push_back(line);
+                }
+                else if (sectionName == "pieces" && values.size() >= 9)
+                {
+                    Piece piece = {};
+                    piece.tile.uvSize.x = std::stof(values[0]);
+                    piece.tile.uvSize.y = std::stof(values[1]);
+                    piece.tile.frame = std::stoi(values[2]);
+
+                    piece.position = { std::stof(values[3]), std::stof(values[4]) };
+                    piece.size =     { std::stof(values[5]), std::stof(values[6]) };
+                    piece.origin =   { std::stof(values[7]), std::stof(values[8]) };
+
+                    pieces.push_back(piece);
                 }
                 else if (sectionName == "go_to" && values.size() >= 6)
                 {

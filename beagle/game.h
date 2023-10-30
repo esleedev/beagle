@@ -68,7 +68,7 @@ public:
 class Game
 {
 public:
-	std::vector<Mesh> meshes;
+	std::vector<Mesh*> meshes;
 	std::vector<Material> materials;
 	std::vector<Shader> shaders;
 	std::vector<Object*> objects;
@@ -90,7 +90,7 @@ public:
 	void Update(float DeltaTime);
 	void Render();
 
-	void AddMesh(Mesh Mesh, int& Index);
+	void AddMesh(Mesh* Mesh, int& Index);
 	template <typename SystemType> SystemType* AddNewSystem()
 	{
 		SystemType* system = new SystemType();
