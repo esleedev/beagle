@@ -69,7 +69,6 @@ void OnGameStart(Game* Game)
 
 void OnGameEnd(Game* Game)
 {
-
 }
 
 void game_globals::UpdateWorldMeshes()

@@ -30,6 +30,18 @@ Game::~Game()
         glDeleteVertexArrays(1, &meshes[mesh]->vao);
         glDeleteBuffers(1, &meshes[mesh]->vbo);
         glDeleteBuffers(1, &meshes[mesh]->ibo);
+
+        delete meshes[mesh];
+    }
+
+    for (int mesh = 0; mesh < dynamicMeshes.size(); mesh++)
+    {
+        delete dynamicMeshes[mesh];
+    }
+
+    for (int mesh = 0; mesh < spriteMeshes.size(); mesh++)
+    {
+        delete spriteMeshes[mesh];
     }
 
     for (int system = 0; system < systems.size(); system++)
