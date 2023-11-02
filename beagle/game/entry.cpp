@@ -8,12 +8,14 @@
 
 // define globals
 #include "globals.h"
+game_globals::AppMode game_globals::appMode = game_globals::AppMode::Game;
 World* game_globals::world;
 TriggerEvent game_globals::goToEvent = {};
 DynamicMesh* game_globals::dynamicLinesMesh;
 DynamicMesh* game_globals::dynamicPiecesMesh;
 const Uint16 game_globals::MaximumPlayerCount = 2;
 
+#include "editorSystem.h"
 #include "playerSystem.h"
 #include "cameraSystem.h"
 #include "triggerSystem.h"
@@ -25,17 +27,19 @@ void OnGameStart(Game* Game)
     Game->AddNewShader("shaders/checkerboardVertexShader.txt", "shaders/fragmentShader.txt", checkerboardShaderIndex);
 
     GLuint playerTexture = LoadTexture("textures/spriteSheet.png");
-    Game->materials.push_back({ playerTexture, shaderIndex });
+    short playerMaterial;
+    Game->AddMaterial(playerTexture, shaderIndex, playerMaterial);
 
     GLuint checkerboardTexture = LoadTexture("textures/checkerboard.png");
-    Game->materials.push_back({ checkerboardTexture, checkerboardShaderIndex });
+    short checkerboardMaterial;
+    Game->AddMaterial(checkerboardTexture, checkerboardShaderIndex, checkerboardMaterial);
 
     Transform playerTransform = Transform();
 
     for (Sint16 player = 0; player < game_globals::MaximumPlayerCount; player++)
     {
         SpriteMesh* spriteMesh = Game->AddNewSpriteMesh({ 1.0, 1.0 }, { 0.5, 1.0 }, { 0.5f, 0.5f });
-        Game->objects.push_back(new Object{ player, 0, playerTransform, spriteMesh });
+        Game->objects.push_back(new Object{ player, playerMaterial, playerTransform, spriteMesh });
 
         game_systems::PlayerSystem* playerSystem = Game->AddNewSystem<game_systems::PlayerSystem>();
         playerSystem->objectIndex = player;
@@ -52,19 +56,21 @@ void OnGameStart(Game* Game)
 
     int piecesMeshIndex;
     Game->AddMesh(GenerateNewEmptyMesh(), piecesMeshIndex);
-    Game->objects.push_back(new Object(piecesMeshIndex, 0));
+    Game->objects.push_back(new Object(piecesMeshIndex, playerMaterial));
 
     game_globals::dynamicPiecesMesh = new DynamicMesh(Game->meshes[piecesMeshIndex]);
     Game->dynamicMeshes.push_back(game_globals::dynamicPiecesMesh);
 
     int linesMeshIndex;
     Game->AddMesh(GenerateNewEmptyMesh(), linesMeshIndex);
-    Game->objects.push_back(new Object(linesMeshIndex, 1));
+    Game->objects.push_back(new Object(linesMeshIndex, checkerboardMaterial));
 
     game_globals::dynamicLinesMesh = new DynamicMesh(Game->meshes[linesMeshIndex]);
     Game->dynamicMeshes.push_back(game_globals::dynamicLinesMesh);
 
     game_globals::UpdateWorldMeshes();
+
+    Game->AddNewSystem<game_systems::EditorSystem>();
 }
 
 void OnGameEnd(Game* Game)

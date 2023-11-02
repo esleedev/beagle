@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClCompile Include="game.cpp" />
     <ClCompile Include="game\cameraSystem.cpp" />
+    <ClCompile Include="game\editorSystem.cpp" />
     <ClCompile Include="game\entry.cpp" />
     <ClCompile Include="game\playerSystem.cpp" />
     <ClCompile Include="game\triggerSystem.cpp" />
@@ -152,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game\cameraSystem.h" />
+    <ClInclude Include="game\editorSystem.h" />
     <ClInclude Include="game\triggerSystem.h" />
     <ClInclude Include="game\world.h" />
     <ClInclude Include="piece.h" />
@@ -174,10 +176,13 @@
     <Text Include="game\testWorld2.txt" />
     <Text Include="shaders\checkerboardVertexShader.txt" />
     <Text Include="shaders\fragmentShader.txt" />
+    <Text Include="shaders\screenFragmentShader.txt" />
+    <Text Include="shaders\screenVertexShader.txt" />
     <Text Include="shaders\vertexShader.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\checkerboard.png" />
+    <Image Include="textures\editorIcons.png" />
     <Image Include="textures\spriteSheet.png" />
     <Image Include="textures\spritesheet2.png" />
   </ItemGroup>

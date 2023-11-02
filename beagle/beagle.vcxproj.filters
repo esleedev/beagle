@@ -72,6 +72,9 @@
     <ClCompile Include="stringParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game\editorSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h">
@@ -125,6 +128,9 @@
     <ClInclude Include="piece.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="game\editorSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaders\fragmentShader.txt">
@@ -136,6 +142,8 @@
     <Text Include="game\testWorld.txt" />
     <Text Include="game\testWorld2.txt" />
     <Text Include="shaders\checkerboardVertexShader.txt" />
+    <Text Include="shaders\screenFragmentShader.txt" />
+    <Text Include="shaders\screenVertexShader.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\spriteSheet.png">
@@ -145,6 +153,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="textures\checkerboard.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\editorIcons.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

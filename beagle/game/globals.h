@@ -4,6 +4,14 @@
 
 namespace game_globals
 {
+	enum AppMode
+	{
+		Game = 0,
+		WorldEditor = 1
+	};
+
+	extern AppMode appMode;
+
 	extern World* world;
 
 	extern TriggerEvent goToEvent;
@@ -13,9 +21,4 @@ namespace game_globals
 
 	extern void LoadWorld(std::string FileName);
 	extern void UpdateWorldMeshes();
-
-	enum TriggerTypes
-	{
-		GoToWorld = 0
-	};
 }
