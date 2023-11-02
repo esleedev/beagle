@@ -3,22 +3,23 @@
 #include "../texture.h"
 #include <iostream>
 
-void game_systems::EditorSystem::InitializeObjects(Game* Game)
+void game_systems::EditorSystem::InitializeAssetsAndObjects(Game* Game)
 {
-	int shaderIndex;
-	Game->AddNewShader("shaders/screenVertexShader.txt", "shaders/screenFragmentShader.txt", shaderIndex);
-
-	GLuint editorIconsTexture = LoadTexture("textures/editorIcons.png");
 	short material;
-	Game->AddMaterial(editorIconsTexture, shaderIndex, material);
-
-	Transform indicatorTransform = Transform();
-	indicatorTransform.SetPosition(Vector2D{ -0.5, 0.5 });
+	Game->AddMaterial
+	(
+		LoadTexture("textures/editorIcons.png"),
+		Game->AddNewShader("shaders/screenVertexShader.txt", "shaders/screenFragmentShader.txt"),
+		material
+	);
 
 	SpriteMesh* spriteMesh = Game->AddNewSpriteMesh({ 0.25, 0.25 }, { 0.125, 0.125 }, { 0.25f, 0.5f });
 	spriteMesh->sprite.SetClip(AnimationClip{ 0, 1, 1 });
 
-	Game->objects.push_back(new Object{ (short)(Game->meshes.size() - 1), material, indicatorTransform, spriteMesh });
+	Transform indicatorTransform = Transform();
+	indicatorTransform.SetPosition(Vector2D{ -0.5, 0.5 });
+	Game->objects.push_back(new Object((short)(Game->meshes.size() - 1), material, indicatorTransform, spriteMesh));
+	indicatorObjectIndex = Game->objects.size() - 1;
 }
 
 void game_systems::EditorSystem::Update(float DeltaTime, Game* Game)
@@ -29,8 +30,21 @@ void game_systems::EditorSystem::Update(float DeltaTime, Game* Game)
 		Game->input->isKeyPressed[SDL_SCANCODE_LCTRL]
 	)
 	{
-		game_globals::appMode = game_globals::WorldEditor;
-		InitializeObjects(Game);
-		std::cout << "App mode: world editor" << std::endl;
+		if (game_globals::appMode == game_globals::AppMode::Game)
+		{
+			if (!wasInitialized)
+				InitializeAssetsAndObjects(Game);
+			wasInitialized = true;
+
+			game_globals::appMode = game_globals::AppMode::WorldEditor;
+			std::cout << "App mode: world editor" << std::endl;
+		}
+		else if (game_globals::appMode == game_globals::AppMode::WorldEditor)
+		{
+			game_globals::appMode = game_globals::AppMode::Game;
+			std::cout << "App mode: game" << std::endl;
+		}
+
+		Game->objects[indicatorObjectIndex]->isEnabled = game_globals::appMode == game_globals::AppMode::WorldEditor;
 	}
 }

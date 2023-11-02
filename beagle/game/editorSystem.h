@@ -6,8 +6,10 @@ namespace game_systems
 {
 	class EditorSystem : public System
 	{
+		bool wasInitialized = false;
+		void InitializeAssetsAndObjects(Game* Game);
 	public:
-		void InitializeObjects(Game* Game);
+		int indicatorObjectIndex;
 		void Update(float DeltaTime, Game* Game);
 	};
 }

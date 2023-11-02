@@ -21,8 +21,10 @@ public:
 	Transform transform;
 	SpriteMesh* spriteMesh;
 
-	Object(short Mesh, short Material);
-	Object(short Mesh, short Material, Transform Transform, SpriteMesh* SpriteMesh);
+	bool isEnabled;
+
+	Object(short Mesh, short Material, bool IsEnabled = true);
+	Object(short Mesh, short Material, Transform Transform, SpriteMesh* SpriteMesh, bool IsEnabled = true);
 };
 
 struct GamepadInput
@@ -100,6 +102,8 @@ public:
 	SpriteMesh* AddNewSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize);
 	// index received can be different from shader program handle that opengl returns. it is mainly used for materials to know what shader in the list to use.
 	void AddNewShader(std::string VertexShaderFilePath, std::string FragmentShaderFilePath, int& Index);
+	int AddNewShader(std::string VertexShaderFilePath, std::string FragmentShaderFilePath);
+
 	void AddMaterial(GLuint Texture, int Shader, short& Index);
 };
 

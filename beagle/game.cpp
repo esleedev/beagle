@@ -138,11 +138,14 @@ void Game::Render()
         // objects assumed to be sorted by order of shaders
         while (object < objects.size() && materials[objects[object]->material].shader == shader)
         {
-            glBindTexture(GL_TEXTURE_2D, materials[objects[object]->material].texture);
-            glBindVertexArray(meshes[objects[object]->mesh]->vao);
-            glUniformMatrix4fv(shaders[shader].objectMatrixUniform, 1, GL_TRUE, &objects[object]->transform.matrix.matrix[0][0]);
-            glUniform1i(materials[objects[object]->material].texture, 0);
-            glDrawElements(GL_TRIANGLES, meshes[objects[object]->mesh]->indexCount, GL_UNSIGNED_INT, NULL);
+            if (objects[object]->isEnabled)
+            {
+                glBindTexture(GL_TEXTURE_2D, materials[objects[object]->material].texture);
+                glBindVertexArray(meshes[objects[object]->mesh]->vao);
+                glUniformMatrix4fv(shaders[shader].objectMatrixUniform, 1, GL_TRUE, &objects[object]->transform.matrix.matrix[0][0]);
+                glUniform1i(materials[objects[object]->material].texture, 0);
+                glDrawElements(GL_TRIANGLES, meshes[objects[object]->mesh]->indexCount, GL_UNSIGNED_INT, NULL);
+            }
             object++;
         }
     }
@@ -172,6 +175,14 @@ void Game::AddNewShader(std::string VertexShaderFilePath, std::string FragmentSh
     Index = shaders.size() - 1;
 }
 
+int Game::AddNewShader(std::string VertexShaderFilePath, std::string FragmentShaderFilePath)
+{
+    GLuint program = CreateShaderProgram(VertexShaderFilePath, FragmentShaderFilePath);
+    Shader shader = GetShaderWithLocations(program);
+    shaders.push_back(shader);
+    return shaders.size() - 1;
+}
+
 void Game::AddMaterial(GLuint Texture, int Shader, short& Index)
 {
     materials.push_back(Material{ Texture, Shader });
@@ -184,20 +195,22 @@ void Game::AddMesh(Mesh* Mesh, int& Index)
     Index = meshes.size() - 1;
 }
 
-Object::Object(short Mesh, short Material)
+Object::Object(short Mesh, short Material, bool IsEnabled)
 {
     mesh = Mesh;
     material = Material;
     transform = {};
     transform.shouldUpdateMatrix = true;
     spriteMesh = nullptr;
+    isEnabled = IsEnabled;
 }
 
-Object::Object(short Mesh, short Material, Transform Transform, SpriteMesh* SpriteMesh)
+Object::Object(short Mesh, short Material, Transform Transform, SpriteMesh* SpriteMesh, bool IsEnabled)
 {
     mesh = Mesh;
     material = Material;
     transform = Transform;
     transform.shouldUpdateMatrix = true;
     spriteMesh = SpriteMesh;
+    isEnabled = IsEnabled;
 }

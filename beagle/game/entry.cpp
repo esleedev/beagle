@@ -39,7 +39,7 @@ void OnGameStart(Game* Game)
     for (Sint16 player = 0; player < game_globals::MaximumPlayerCount; player++)
     {
         SpriteMesh* spriteMesh = Game->AddNewSpriteMesh({ 1.0, 1.0 }, { 0.5, 1.0 }, { 0.5f, 0.5f });
-        Game->objects.push_back(new Object{ player, playerMaterial, playerTransform, spriteMesh });
+        Game->objects.push_back(new Object(player, playerMaterial, playerTransform, spriteMesh));
 
         game_systems::PlayerSystem* playerSystem = Game->AddNewSystem<game_systems::PlayerSystem>();
         playerSystem->objectIndex = player;
