@@ -172,6 +172,12 @@ void Game::AddNewShader(std::string VertexShaderFilePath, std::string FragmentSh
     Index = shaders.size() - 1;
 }
 
+void Game::AddMaterial(GLuint Texture, int Shader, short& Index)
+{
+    materials.push_back(Material{ Texture, Shader });
+    Index = materials.size() - 1;
+}
+
 void Game::AddMesh(Mesh* Mesh, int& Index)
 {
     meshes.push_back(Mesh);
