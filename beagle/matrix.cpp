@@ -31,16 +31,26 @@ void Matrix::SetRotation(float YawInDegrees)
 	matrix[2][2] = cosOfAngle;
 }
 
-void Matrix::SetTranslationAndRotation
+void Matrix::SetScale(Vector Scale)
+{
+	SetIdentity();
+	matrix[0][0] = Scale.x;
+	matrix[1][1] = Scale.y;
+	matrix[2][2] = Scale.z;
+}
+
+void Matrix::SetTranslationAndRotationAndScale
 (
 	Vector Position,
-	float YawInDegrees
+	float YawInDegrees,
+	Vector Scale
 )
 {
-	Matrix translationMatrix, rotationMatrix;
+	Matrix translationMatrix, rotationMatrix, scaleMatrix;
 	translationMatrix.SetTranslation(Position);
 	rotationMatrix.SetRotation(YawInDegrees);
-	*this = rotationMatrix * translationMatrix;
+	scaleMatrix.SetScale(Scale);
+	*this = translationMatrix * scaleMatrix * rotationMatrix;
 }
 
 Matrix Matrix::operator*(const Matrix& OtherMatrix)

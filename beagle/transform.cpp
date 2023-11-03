@@ -5,6 +5,7 @@
 Transform::Transform()
 {
 	position = { 0, 0, 0 };
+	scale = { 1, 1, 1 };
 	yaw = 0;
 	matrix.SetIdentity();
 	shouldUpdateMatrix = false;
@@ -12,7 +13,7 @@ Transform::Transform()
 
 void Transform::UpdateMatrix()
 {
-	matrix.SetTranslationAndRotation(position, yaw);
+	matrix.SetTranslationAndRotationAndScale(position, yaw, scale);
 }
 
 void Transform::SetPosition(Vector Position)
@@ -25,5 +26,12 @@ void Transform::SetPosition(Vector2D Position)
 {
 	position.x = Position.x;
 	position.y = Position.y;
+	shouldUpdateMatrix = true;
+}
+
+void Transform::SetPositionAndScale(Vector Position, Vector Scale)
+{
+	position = Position;
+	scale = Scale;
 	shouldUpdateMatrix = true;
 }

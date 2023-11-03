@@ -6,6 +6,7 @@
 struct Transform
 {
 	Vector position;
+	Vector scale;
 	float yaw;
 	Matrix matrix;
 	bool shouldUpdateMatrix;
@@ -14,4 +15,5 @@ struct Transform
 	void UpdateMatrix();
 	void SetPosition(Vector Position);
 	void SetPosition(Vector2D Position);
+	void SetPositionAndScale(Vector Position, Vector Scale);
 };

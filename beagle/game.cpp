@@ -113,7 +113,7 @@ void Game::Update(float DeltaTime)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, dynamicMesh->mesh->indexCount * sizeof(GLuint), (isEmpty) ? nullptr : &dynamicMesh->indices[0], GL_STATIC_DRAW);
     }
 
-    cameraTransform.matrix.SetTranslationAndRotation(-cameraTransform.position, cameraTransform.yaw);
+    cameraTransform.matrix.SetTranslationAndRotationAndScale(-cameraTransform.position, cameraTransform.yaw, { 1, 1, 1 });
 
     // update projection matrix
     float projectionAngleHalved = tan(verticalFieldOfViewInDegrees * 0.5f * 0.0174532925199f);

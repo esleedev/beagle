@@ -17,7 +17,7 @@ void game_systems::EditorSystem::InitializeAssetsAndObjects(Game* Game)
 	spriteMesh->sprite.SetClip(AnimationClip{ 0, 1, 1 });
 
 	Transform indicatorTransform = Transform();
-	indicatorTransform.SetPosition(Vector2D{ -0.5, 0.5 });
+	indicatorTransform.SetPositionAndScale({ -0.5, 0.5, 0 }, { 3.0f / 4.0f, 1 });
 	Game->objects.push_back(new Object((short)(Game->meshes.size() - 1), material, indicatorTransform, spriteMesh));
 	indicatorObjectIndex = Game->objects.size() - 1;
 }
