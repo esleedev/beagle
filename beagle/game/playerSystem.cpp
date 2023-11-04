@@ -30,9 +30,15 @@ void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
     }
 
     if (moveInputX > 0.5f)
+    {
         velocity.x += DeltaTime * walkSpeed;
+        isMirrored = false;
+    }
     else if (moveInputX < -0.5f)
+    {
         velocity.x -= DeltaTime * walkSpeed;
+        isMirrored = true;
+    }
 
     velocity.x = Clamp(velocity.x, -1.5f, 1.5f);
 
@@ -113,7 +119,8 @@ void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
         velocity.y = 2.18f;
     }
 
-    // update position
+    // update transform
+    Game->objects[objectIndex]->transform.scale.Set(isMirrored ? -1 : 1, 1, 1);
     Game->objects[objectIndex]->transform.position.Set(playerPoint);
     Game->objects[objectIndex]->transform.shouldUpdateMatrix = true;
 
