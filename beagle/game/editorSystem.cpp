@@ -18,7 +18,7 @@ void game_systems::EditorSystem::InitializeAssetsAndObjects(Game* Game)
 
 	Transform indicatorTransform = Transform();
 	indicatorTransform.SetPositionAndScale({ -0.5, 0.5, 0 }, { 3.0f / 4.0f, 1 });
-	Game->objects.push_back(new Object((short)(Game->meshes.size() - 1), material, indicatorTransform, spriteMesh));
+	Game->objects.push_back(new Object(spriteMesh->meshIndex, material, indicatorTransform, spriteMesh));
 	indicatorObjectIndex = Game->objects.size() - 1;
 }
 

@@ -94,7 +94,7 @@ void Game::Update(float DeltaTime)
 
         // update sprite mesh
         spriteMesh->UpdateVertices();
-        glBindBuffer(GL_ARRAY_BUFFER, spriteMesh->vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, meshes[spriteMesh->meshIndex]->vbo);
         glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), spriteMesh->vertices, GL_STATIC_DRAW);
     }
 
@@ -157,7 +157,7 @@ SpriteMesh* Game::AddNewSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D Fram
     meshes.push_back(mesh);
 
     SpriteMesh* spriteMesh = new SpriteMesh();
-    spriteMesh->vbo = mesh->vbo;
+    spriteMesh->meshIndex = meshes.size() - 1;
     spriteMesh->size = Size;
     spriteMesh->origin = Origin;
     spriteMesh->sprite.frameUVSize = FrameUVSize;

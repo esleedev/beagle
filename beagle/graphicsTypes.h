@@ -76,7 +76,7 @@ public:
 	Vector2D size;
 	Vector2D origin;
 	Vertex vertices[4];
-	GLuint vbo;
+	uint16_t meshIndex;
 
 	void UpdateVertices()
 	{
