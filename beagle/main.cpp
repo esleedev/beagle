@@ -138,7 +138,14 @@ int main(int argc, char* args[])
 
 		Uint32 currentTime = SDL_GetTicks();
 
-		game->Update(0.001 * (currentTime - lastTime));
+		const float MaximumDeltaTime = 0.05f;
+		float totalDeltaTime = 0.001 * (currentTime - lastTime);
+		while (totalDeltaTime > 0.0)
+		{
+			float deltaTime = fminf(totalDeltaTime, MaximumDeltaTime);
+			game->Update(deltaTime);
+			totalDeltaTime -= deltaTime;
+		}
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.25f, 0.25f, 0.2f, 1.0f);
