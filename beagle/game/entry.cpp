@@ -38,8 +38,8 @@ void OnGameStart(Game* Game)
 
     for (Sint16 player = 0; player < game_globals::MaximumPlayerCount; player++)
     {
-        SpriteMesh* spriteMesh = Game->AddNewSpriteMesh({ 1.0, 1.0 }, { 0.5, 1.0 }, { 0.5f, 0.5f });
-        Game->objects.push_back(new Object(player, playerMaterial, playerTransform));
+        std::shared_ptr<SpriteMesh> spriteMesh = Game->AddSpriteMesh({ 1.0, 1.0 }, { 0.5, 1.0 }, { 0.5f, 0.5f });
+        Game->objects.push_back(new Object(spriteMesh->meshIndex, playerMaterial, playerTransform));
 
         game_systems::PlayerSystem* playerSystem = Game->AddNewSystem<game_systems::PlayerSystem>();
         playerSystem->objectIndex = player;

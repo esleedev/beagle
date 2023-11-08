@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include <string>
+#include <memory>
 #include "graphicsTypes.h"
 #include "transform.h"
 
@@ -74,7 +75,7 @@ public:
 	std::vector<Shader> shaders;
 	std::vector<Object*> objects;
 	std::vector<System*> systems;
-	std::vector<SpriteMesh*> spriteMeshes;
+	std::vector<std::shared_ptr<SpriteMesh>> spriteMeshes;
 	std::vector<DynamicMesh*> dynamicMeshes;
 
 	Matrix projectionMatrix;
@@ -98,7 +99,7 @@ public:
 		systems.push_back(system);
 		return system;
 	}
-	SpriteMesh* AddNewSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize);
+	std::shared_ptr<SpriteMesh> AddSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize);
 	// index received can be different from shader program handle that opengl returns. it is mainly used for materials to know what shader in the list to use.
 	void AddNewShader(std::string VertexShaderFilePath, std::string FragmentShaderFilePath, int& Index);
 	int AddNewShader(std::string VertexShaderFilePath, std::string FragmentShaderFilePath);

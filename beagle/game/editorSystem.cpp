@@ -1,6 +1,7 @@
 #include "editorSystem.h"
 #include "globals.h"
 #include "../texture.h"
+#include <memory>
 #include <iostream>
 
 void game_systems::EditorSystem::InitializeAssetsAndObjects(Game* Game)
@@ -13,12 +14,12 @@ void game_systems::EditorSystem::InitializeAssetsAndObjects(Game* Game)
 		material
 	);
 
-	SpriteMesh* spriteMesh = Game->AddNewSpriteMesh({ 0.25, 0.25 }, { 0.125, 0.125 }, { 0.25f, 0.5f });
+	std::shared_ptr<SpriteMesh> spriteMesh = Game->AddSpriteMesh({ 0.25, 0.25 }, { 0.125, 0.125 }, { 0.25f, 0.5f });
 	spriteMesh->sprite.SetClip(AnimationClip{ 0, 1, 1 });
 
 	Transform indicatorTransform = Transform();
 	indicatorTransform.SetPositionAndScale({ -0.5, 0.5, 0 }, { 3.0f / 4.0f, 1 });
-	Game->objects.push_back(new Object(spriteMesh->meshIndex, material, indicatorTransform, spriteMesh));
+	Game->objects.push_back(new Object(spriteMesh->meshIndex, material, indicatorTransform));
 	indicatorObjectIndex = Game->objects.size() - 1;
 }
 

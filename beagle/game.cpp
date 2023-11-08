@@ -37,11 +37,6 @@ Game::~Game()
         delete dynamicMeshes[mesh];
     }
 
-    for (int mesh = 0; mesh < spriteMeshes.size(); mesh++)
-    {
-        delete spriteMeshes[mesh];
-    }
-
     for (int system = 0; system < systems.size(); system++)
     {
         delete systems[system];
@@ -81,8 +76,9 @@ void Game::Update(float DeltaTime)
 
     for (int mesh = 0; mesh < spriteMeshes.size(); mesh++)
     {
+        std::shared_ptr<SpriteMesh> spriteMesh = spriteMeshes[mesh];
+
         // update sprite animation
-        SpriteMesh* spriteMesh = spriteMeshes[mesh];
         spriteMesh->sprite.time += DeltaTime * spriteMesh->sprite.clip.speed;
         if (spriteMesh->sprite.time >= spriteMesh->sprite.clip.frameCount)
         {
@@ -152,12 +148,12 @@ void Game::Render()
     }
 }
 
-SpriteMesh* Game::AddNewSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize)
+std::shared_ptr<SpriteMesh> Game::AddSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize)
 {
     Mesh mesh = GenerateQuadObject();
     meshes.push_back(mesh);
 
-    SpriteMesh* spriteMesh = new SpriteMesh();
+    std::shared_ptr<SpriteMesh> spriteMesh = std::make_shared<SpriteMesh>();
     spriteMesh->meshIndex = meshes.size() - 1;
     spriteMesh->size = Size;
     spriteMesh->origin = Origin;
