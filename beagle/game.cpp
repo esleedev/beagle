@@ -104,13 +104,13 @@ void Game::Update(float DeltaTime)
         DynamicMesh* dynamicMesh = dynamicMeshes[mesh];
 
         bool isEmpty = (dynamicMesh->vertices.size() == 0);
-        glBindBuffer(GL_ARRAY_BUFFER, dynamicMesh->mesh->vbo);
+        Mesh* thisMesh = meshes[dynamicMesh->meshIndex];
+        glBindBuffer(GL_ARRAY_BUFFER, thisMesh->vbo);
         glBufferData(GL_ARRAY_BUFFER, dynamicMesh->vertices.size() * sizeof(Vertex), (isEmpty) ? nullptr : &dynamicMesh->vertices[0], GL_STATIC_DRAW);
 
-        dynamicMesh->mesh->indexCount = dynamicMesh->indices.size();
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dynamicMesh->mesh->ibo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, dynamicMesh->mesh->indexCount * sizeof(GLuint), (isEmpty) ? nullptr : &dynamicMesh->indices[0], GL_STATIC_DRAW);
+        thisMesh->indexCount = dynamicMesh->indices.size();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, thisMesh->ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, thisMesh->indexCount * sizeof(GLuint), (isEmpty) ? nullptr : &dynamicMesh->indices[0], GL_STATIC_DRAW);
     }
 
     cameraTransform.matrix.SetTranslationAndRotationAndScale(-cameraTransform.position, cameraTransform.yaw, { 1, 1, 1 });

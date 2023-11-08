@@ -64,9 +64,9 @@ class DynamicMesh
 public:
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
-	Mesh* mesh;
+	uint16_t meshIndex;
 
-	DynamicMesh(Mesh* Mesh);
+	DynamicMesh(uint16_t MeshIndex);
 };
 
 class SpriteMesh

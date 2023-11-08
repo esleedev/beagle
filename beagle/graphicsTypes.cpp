@@ -1,7 +1,7 @@
 #include "graphicsTypes.h"
 #include "piece.h"
 
-DynamicMesh::DynamicMesh(Mesh* Mesh)
+DynamicMesh::DynamicMesh(uint16_t MeshIndex)
 {
-	mesh = Mesh;
+	meshIndex = MeshIndex;
 }
