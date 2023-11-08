@@ -202,16 +202,14 @@ Object::Object(short Mesh, short Material, bool IsEnabled)
     material = Material;
     transform = {};
     transform.shouldUpdateMatrix = true;
-    spriteMesh = nullptr;
     isEnabled = IsEnabled;
 }
 
-Object::Object(short Mesh, short Material, Transform Transform, SpriteMesh* SpriteMesh, bool IsEnabled)
+Object::Object(short Mesh, short Material, Transform Transform, bool IsEnabled)
 {
     mesh = Mesh;
     material = Material;
     transform = Transform;
     transform.shouldUpdateMatrix = true;
-    spriteMesh = SpriteMesh;
     isEnabled = IsEnabled;
 }

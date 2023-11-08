@@ -19,12 +19,11 @@ public:
 	short mesh;
 	short material;
 	Transform transform;
-	SpriteMesh* spriteMesh;
 
 	bool isEnabled;
 
 	Object(short Mesh, short Material, bool IsEnabled = true);
-	Object(short Mesh, short Material, Transform Transform, SpriteMesh* SpriteMesh, bool IsEnabled = true);
+	Object(short Mesh, short Material, Transform Transform, bool IsEnabled = true);
 };
 
 struct GamepadInput
