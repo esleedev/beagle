@@ -57,6 +57,39 @@ Mesh GenerateEmptyMeshObject()
     return mesh;
 }
 
+void AddLinesToMesh(std::vector<Line2D> Lines, DynamicMesh* Mesh)
+{
+    int lastVertexCount = Mesh->vertices.size();
+    for (int line = 0; line < Lines.size(); line++)
+    {
+        // get offset to create width
+        Vector2D bToA = Lines[line].pointA - Lines[line].pointB;
+        bToA.Normalize();
+        Vector right = { bToA.y, -bToA.x, 0 }; // rotate vector clockwise
+        float halfWidth = (Lines[line].width * 0.5);
+
+        // make line
+        Vertex vertices[] =
+        {
+            Vertex{ Vector{ Lines[line].pointA.x, Lines[line].pointA.y, 0 } - right * halfWidth, { 0, 1 } },
+            Vertex{ Vector{ Lines[line].pointA.x, Lines[line].pointA.y, 0 } + right * halfWidth, { 0, 0 } },
+            Vertex{ Vector{ Lines[line].pointB.x, Lines[line].pointB.y, 0 } - right * halfWidth, { 1, 1 } },
+            Vertex{ Vector{ Lines[line].pointB.x, Lines[line].pointB.y, 0 } + right * halfWidth, { 1, 0 } }
+        };
+        GLuint indices[] =
+        {
+            lastVertexCount, lastVertexCount + 1, lastVertexCount + 2,
+            lastVertexCount + 1, lastVertexCount + 3, lastVertexCount + 2
+        };
+
+        // add line to mesh
+        Mesh->indices.insert(Mesh->indices.end(), indices, indices + 6);
+        Mesh->vertices.insert(Mesh->vertices.end(), vertices, vertices + 4);
+
+        lastVertexCount += 4;
+    }
+}
+
 void AddLineToMesh(Line2D Line, DynamicMesh* Mesh)
 {
     // get offset to create width
@@ -66,7 +99,6 @@ void AddLineToMesh(Line2D Line, DynamicMesh* Mesh)
     float halfWidth = (Line.width * 0.5);
 
     // make line
-
     Vertex vertices[] =
     {
         Vertex{ Vector{ Line.pointA.x, Line.pointA.y, 0 } - right * halfWidth, { 0, 1 } },

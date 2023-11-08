@@ -82,8 +82,7 @@ void game_globals::UpdateWorldMeshes()
     game_globals::dynamicLinesMesh->vertices.clear();
     game_globals::dynamicLinesMesh->indices.clear();
 
-    for (int line = 0; line < game_globals::world->lines.size(); line++)
-        AddLineToMesh(game_globals::world->lines[line], game_globals::dynamicLinesMesh);
+    AddLinesToMesh(game_globals::world->lines, game_globals::dynamicLinesMesh);
 
     game_globals::dynamicPiecesMesh->vertices.clear();
     game_globals::dynamicPiecesMesh->indices.clear();
