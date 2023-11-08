@@ -27,11 +27,9 @@ Game::~Game()
 
     for (int mesh = 0; mesh < meshes.size(); mesh++)
     {
-        glDeleteVertexArrays(1, &meshes[mesh]->vao);
-        glDeleteBuffers(1, &meshes[mesh]->vbo);
-        glDeleteBuffers(1, &meshes[mesh]->ibo);
-
-        delete meshes[mesh];
+        glDeleteVertexArrays(1, &meshes[mesh].vao);
+        glDeleteBuffers(1,      &meshes[mesh].vbo);
+        glDeleteBuffers(1,      &meshes[mesh].ibo);
     }
 
     for (int mesh = 0; mesh < dynamicMeshes.size(); mesh++)
@@ -94,7 +92,7 @@ void Game::Update(float DeltaTime)
 
         // update sprite mesh
         spriteMesh->UpdateVertices();
-        glBindBuffer(GL_ARRAY_BUFFER, meshes[spriteMesh->meshIndex]->vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, meshes[spriteMesh->meshIndex].vbo);
         glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), spriteMesh->vertices, GL_STATIC_DRAW);
     }
 
@@ -103,14 +101,17 @@ void Game::Update(float DeltaTime)
         // update dynamic mesh vbos
         DynamicMesh* dynamicMesh = dynamicMeshes[mesh];
 
+        Mesh thisMesh = meshes[dynamicMesh->meshIndex];
         bool isEmpty = (dynamicMesh->vertices.size() == 0);
-        Mesh* thisMesh = meshes[dynamicMesh->meshIndex];
-        glBindBuffer(GL_ARRAY_BUFFER, thisMesh->vbo);
-        glBufferData(GL_ARRAY_BUFFER, dynamicMesh->vertices.size() * sizeof(Vertex), (isEmpty) ? nullptr : &dynamicMesh->vertices[0], GL_STATIC_DRAW);
 
-        thisMesh->indexCount = dynamicMesh->indices.size();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, thisMesh->ibo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, thisMesh->indexCount * sizeof(GLuint), (isEmpty) ? nullptr : &dynamicMesh->indices[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, thisMesh.vbo);
+        glBufferData(GL_ARRAY_BUFFER, dynamicMesh->vertices.size() * sizeof(Vertex), (isEmpty) ? nullptr : &dynamicMesh->vertices[0], GL_STATIC_DRAW);
+        
+        thisMesh.indexCount = dynamicMesh->indices.size();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, thisMesh.ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, thisMesh.indexCount * sizeof(GLuint), (isEmpty) ? nullptr : &dynamicMesh->indices[0], GL_STATIC_DRAW);
+        
+        meshes[dynamicMesh->meshIndex] = thisMesh;
     }
 
     cameraTransform.matrix.SetTranslationAndRotationAndScale(-cameraTransform.position, cameraTransform.yaw, { 1, 1, 1 });
@@ -141,10 +142,10 @@ void Game::Render()
             if (objects[object]->isEnabled)
             {
                 glBindTexture(GL_TEXTURE_2D, materials[objects[object]->material].texture);
-                glBindVertexArray(meshes[objects[object]->mesh]->vao);
+                glBindVertexArray(meshes[objects[object]->mesh].vao);
                 glUniformMatrix4fv(shaders[shader].objectMatrixUniform, 1, GL_TRUE, &objects[object]->transform.matrix.matrix[0][0]);
                 glUniform1i(materials[objects[object]->material].texture, 0);
-                glDrawElements(GL_TRIANGLES, meshes[objects[object]->mesh]->indexCount, GL_UNSIGNED_INT, NULL);
+                glDrawElements(GL_TRIANGLES, meshes[objects[object]->mesh].indexCount, GL_UNSIGNED_INT, NULL);
             }
             object++;
         }
@@ -153,7 +154,7 @@ void Game::Render()
 
 SpriteMesh* Game::AddNewSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize)
 {
-    Mesh* mesh = GenerateNewQuad();
+    Mesh mesh = GenerateQuadObject();
     meshes.push_back(mesh);
 
     SpriteMesh* spriteMesh = new SpriteMesh();
@@ -189,7 +190,7 @@ void Game::AddMaterial(GLuint Texture, int Shader, short& Index)
     Index = materials.size() - 1;
 }
 
-void Game::AddMesh(Mesh* Mesh, int& Index)
+void Game::AddMesh(Mesh Mesh, int& Index)
 {
     meshes.push_back(Mesh);
     Index = meshes.size() - 1;

@@ -55,14 +55,14 @@ void OnGameStart(Game* Game)
     game_globals::LoadWorld("game/testWorld.txt");
 
     int piecesMeshIndex;
-    Game->AddMesh(GenerateNewEmptyMesh(), piecesMeshIndex);
+    Game->AddMesh(GenerateEmptyMeshObject(), piecesMeshIndex);
     Game->objects.push_back(new Object(piecesMeshIndex, playerMaterial));
 
     game_globals::dynamicPiecesMesh = new DynamicMesh(piecesMeshIndex);
     Game->dynamicMeshes.push_back(game_globals::dynamicPiecesMesh);
 
     int linesMeshIndex;
-    Game->AddMesh(GenerateNewEmptyMesh(), linesMeshIndex);
+    Game->AddMesh(GenerateEmptyMeshObject(), linesMeshIndex);
     Game->objects.push_back(new Object(linesMeshIndex, checkerboardMaterial));
 
     game_globals::dynamicLinesMesh = new DynamicMesh(linesMeshIndex);
