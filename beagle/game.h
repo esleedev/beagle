@@ -73,7 +73,7 @@ public:
 	std::vector<Mesh> meshes;
 	std::vector<Material> materials;
 	std::vector<Shader> shaders;
-	std::vector<Object*> objects;
+	std::vector<std::shared_ptr<Object>> objects;
 	std::vector<System*> systems;
 	std::vector<std::shared_ptr<SpriteMesh>> spriteMeshes;
 	std::vector<DynamicMesh*> dynamicMeshes;
@@ -99,6 +99,8 @@ public:
 		systems.push_back(system);
 		return system;
 	}
+	std::shared_ptr<Object> AddObject(short Mesh, short Material, bool IsEnabled = true);
+	std::shared_ptr<Object> AddObject(short Mesh, short Material, Transform Transform, bool IsEnabled = true);
 	std::shared_ptr<SpriteMesh> AddSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize);
 	// index received can be different from shader program handle that opengl returns. it is mainly used for materials to know what shader in the list to use.
 	void AddNewShader(std::string VertexShaderFilePath, std::string FragmentShaderFilePath, int& Index);

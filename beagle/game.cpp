@@ -42,11 +42,6 @@ Game::~Game()
         delete systems[system];
     }
 
-    for (int object = 0; object < objects.size(); object++)
-    {
-        delete objects[object];
-    }
-
     delete input;
 }
 
@@ -146,6 +141,20 @@ void Game::Render()
             object++;
         }
     }
+}
+
+std::shared_ptr<Object> Game::AddObject(short Mesh, short Material, bool IsEnabled)
+{
+    std::shared_ptr<Object> object = std::make_shared<Object>(Mesh, Material, IsEnabled);
+    objects.push_back(object);
+    return object;
+}
+
+std::shared_ptr<Object> Game::AddObject(short Mesh, short Material, Transform Transform, bool IsEnabled)
+{
+    std::shared_ptr<Object> object = std::make_shared<Object>(Mesh, Material, Transform, IsEnabled);
+    objects.push_back(object);
+    return object;
 }
 
 std::shared_ptr<SpriteMesh> Game::AddSpriteMesh(Vector2D Size, Vector2D Origin, Vector2D FrameUVSize)

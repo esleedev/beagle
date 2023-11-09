@@ -7,10 +7,11 @@ namespace game_systems
 	class PlayerSystem : public System
 	{
 	public:
-		bool isMirrored;
-		Uint16 objectIndex;
-		Sint16 deviceIndex;
+		std::shared_ptr<Object> object;
+		short deviceIndex;
 		Vector2D velocity;
+		bool isMirrored;
+
 		void Update(float DeltaTime, Game* Game);
 	};
 }

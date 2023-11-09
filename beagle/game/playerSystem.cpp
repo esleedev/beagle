@@ -5,7 +5,7 @@
 
 void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
 {
-    Vector2D playerPoint = Game->objects[objectIndex]->transform.position.GetXY();
+    Vector2D playerPoint = object->transform.position.GetXY();
 
     // move
     velocity.x *= powf(0.05f, DeltaTime);
@@ -120,9 +120,9 @@ void game_systems::PlayerSystem::Update(float DeltaTime, Game* Game)
     }
 
     // update transform
-    Game->objects[objectIndex]->transform.scale.Set(isMirrored ? -1 : 1, 1, 1);
-    Game->objects[objectIndex]->transform.position.Set(playerPoint);
-    Game->objects[objectIndex]->transform.shouldUpdateMatrix = true;
+    object->transform.scale.Set(isMirrored ? -1 : 1, 1, 1);
+    object->transform.position.Set(playerPoint);
+    object->transform.shouldUpdateMatrix = true;
 
     // check go to triggers
     for (int trigger = 0; trigger < game_globals::world->goToTriggers.size(); trigger++)

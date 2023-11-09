@@ -17,14 +17,14 @@ void game_systems::EditorSystem::InitializeAssetsAndObjects(Game* Game)
 	std::shared_ptr<SpriteMesh> spriteMesh = Game->AddSpriteMesh({ 0.25, 0.25 }, { 0.125, 0.125 }, { 0.25f, 0.5f });
 	spriteMesh->sprite.SetClip(AnimationClip{ 0, 1, 1 });
 
-	Transform indicatorTransform = Transform();
-	indicatorTransform.SetPositionAndScale({ -0.5, 0.5, 0 }, { 3.0f / 4.0f, 1 });
-	Game->objects.push_back(new Object(spriteMesh->meshIndex, material, indicatorTransform));
-	indicatorObjectIndex = Game->objects.size() - 1;
+	Transform cursorTransform = Transform();
+	cursorTransform.SetPositionAndScale({ -0.5, 0.5, 0 }, { 3.0f / 4.0f, 1 });
+	cursorObject = Game->AddObject(spriteMesh->meshIndex, material, cursorTransform);
 }
 
 void game_systems::EditorSystem::Update(float DeltaTime, Game* Game)
 {
+	// Toggle editor
 	if
 	(
 		Game->input->IsKeyJustPressed(SDL_SCANCODE_E) &&
@@ -46,6 +46,14 @@ void game_systems::EditorSystem::Update(float DeltaTime, Game* Game)
 			std::cout << "App mode: game" << std::endl;
 		}
 
-		Game->objects[indicatorObjectIndex]->isEnabled = game_globals::appMode == game_globals::AppMode::WorldEditor;
+		cursorObject->isEnabled = game_globals::appMode == game_globals::AppMode::WorldEditor;
+	}
+
+	// exit early if it's not in editor mode
+	if (game_globals::appMode != game_globals::AppMode::WorldEditor)
+		return;
+
+	if (tool == game_systems::EditorTools::Line)
+	{
 	}
 }

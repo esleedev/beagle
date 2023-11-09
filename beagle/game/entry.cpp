@@ -39,10 +39,10 @@ void OnGameStart(Game* Game)
     for (Sint16 player = 0; player < game_globals::MaximumPlayerCount; player++)
     {
         std::shared_ptr<SpriteMesh> spriteMesh = Game->AddSpriteMesh({ 1.0, 1.0 }, { 0.5, 1.0 }, { 0.5f, 0.5f });
-        Game->objects.push_back(new Object(spriteMesh->meshIndex, playerMaterial, playerTransform));
+        std::shared_ptr<Object> playerObject = Game->AddObject(spriteMesh->meshIndex, playerMaterial, playerTransform);
 
         game_systems::PlayerSystem* playerSystem = Game->AddNewSystem<game_systems::PlayerSystem>();
-        playerSystem->objectIndex = player;
+        playerSystem->object = playerObject;
         playerSystem->deviceIndex = (Sint16)(player - 1);
     }
 
@@ -56,14 +56,14 @@ void OnGameStart(Game* Game)
 
     int piecesMeshIndex;
     Game->AddMesh(GenerateEmptyMeshObject(), piecesMeshIndex);
-    Game->objects.push_back(new Object(piecesMeshIndex, playerMaterial));
+    Game->AddObject(piecesMeshIndex, playerMaterial);
 
     game_globals::dynamicPiecesMesh = new DynamicMesh(piecesMeshIndex);
     Game->dynamicMeshes.push_back(game_globals::dynamicPiecesMesh);
 
     int linesMeshIndex;
     Game->AddMesh(GenerateEmptyMeshObject(), linesMeshIndex);
-    Game->objects.push_back(new Object(linesMeshIndex, checkerboardMaterial));
+    Game->AddObject(linesMeshIndex, checkerboardMaterial);
 
     game_globals::dynamicLinesMesh = new DynamicMesh(linesMeshIndex);
     Game->dynamicMeshes.push_back(game_globals::dynamicLinesMesh);
