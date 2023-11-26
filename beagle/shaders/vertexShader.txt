@@ -9,6 +9,6 @@ out vec2 uv;
 
 void main()
 {
-	gl_Position = projectionMatrix * viewMatrix * objectMatrix * vec4(inPosition.x, inPosition.y, inPosition.z, 1);
+	gl_Position = projectionMatrix * viewMatrix * objectMatrix * vec4(inPosition.xyz, 1);
 	uv = inUV;
 }

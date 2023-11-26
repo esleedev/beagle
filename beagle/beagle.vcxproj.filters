@@ -13,150 +13,75 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Woof">
-      <UniqueIdentifier>{7eb9a8da-ff91-42e3-98a3-1ee139718dbd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Woof\Systems">
-      <UniqueIdentifier>{263ea6d0-e471-4c4f-815e-a76e8b381b51}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game.cpp">
+    <ClCompile Include="input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shader.cpp">
+    <ClCompile Include="render_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="matrix.cpp">
+    <ClCompile Include="mesh_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vector.cpp">
+    <ClCompile Include="shader_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="transform.cpp">
+    <ClCompile Include="resource_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mesh.cpp">
+    <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sprite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="collisionTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="graphicsTypes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\entry.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\playerSystem.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\cameraSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\triggerSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\world.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stringParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="game\editorSystem.cpp">
+    <ClCompile Include="game\game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="game.h">
+    <ClInclude Include="input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
+    <ClInclude Include="common_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="matrix.h">
+    <ClInclude Include="resource_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vector.h">
+    <ClInclude Include="render_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="texture.h">
+    <ClInclude Include="camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mesh.h">
+    <ClInclude Include="mesh_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="graphicsTypes.h">
+    <ClInclude Include="vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="collisionTests.h">
+    <ClInclude Include="shader_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\globals.h">
+    <ClInclude Include="resource_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game\playerSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stringParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\cameraSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\triggers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\triggerSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\world.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="piece.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="game\editorSystem.h">
+    <ClInclude Include="game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="shaders\fragmentShader.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="shaders\vertexShader.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="game\testWorld.txt" />
-    <Text Include="game\testWorld2.txt" />
-    <Text Include="shaders\checkerboardVertexShader.txt" />
-    <Text Include="shaders\screenFragmentShader.txt" />
-    <Text Include="shaders\screenVertexShader.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="textures\spriteSheet.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="textures\spritesheet2.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="textures\checkerboard.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="textures\editorIcons.png">
-      <Filter>Resource Files</Filter>
-    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shaders\fragmentShader.txt" />
+    <Text Include="shaders\vertexShader.txt" />
   </ItemGroup>
 </Project>

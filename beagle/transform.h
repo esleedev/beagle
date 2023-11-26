@@ -1,19 +1,13 @@
 #pragma once
 
-#include "vector.h"
-#include "matrix.h"
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 
-struct Transform
+namespace esl
 {
-	Vector position;
-	Vector scale;
-	float yaw;
-	Matrix matrix;
-	bool shouldUpdateMatrix;
-
-	Transform();
-	void UpdateMatrix();
-	void SetPosition(Vector Position);
-	void SetPosition(Vector2D Position);
-	void SetPositionAndScale(Vector Position, Vector Scale);
-};
+	struct Transform
+	{
+		glm::vec3 position;
+		glm::mat4x4 matrix;
+	};
+}

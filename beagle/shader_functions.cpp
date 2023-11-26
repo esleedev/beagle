@@ -1,22 +1,22 @@
-#include "shader.h"
-#include <SDL_opengl.h>
+#include <gl/glew.h>
+
 #include <fstream>
 #include <iostream>
 
-std::string GetSourceStringFromFile(std::string FilePath)
+#include "shader_functions.h"
+
+std::string esl::GetSourceFromFile(std::string FilePath)
 {
 	std::string line, lines;
 	std::ifstream file;
 	file.open(FilePath);
 	if (file.is_open())
 	{
-		std::cout << "Opened file: " << FilePath << std::endl;
 		while (std::getline(file, line))
 		{
 			lines += line + "\n";
 		}
 		file.close();
-		std::cout << "Source loaded:\n" << lines << std::endl;
 	}
 	else
 	{
@@ -26,30 +26,33 @@ std::string GetSourceStringFromFile(std::string FilePath)
 	return lines;
 }
 
-GLuint CreateShaderProgram(std::string VertexShaderFilePath, std::string FragmentShaderFilePath)
+esl::uint esl::CreateShaderProgram(std::string VertexShaderFilePath, std::string FragmentShaderFilePath)
 {
-	GLuint shaderProgram;
-	shaderProgram = glCreateProgram();
+	esl::uint shaderProgram = glCreateProgram();
 
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSourceString = GetSourceStringFromFile(VertexShaderFilePath);
-	const GLchar* vertexShaderSource = vertexShaderSourceString.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+	// load vertex shader
+	esl::uint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	std::string vertexShaderSource = esl::GetSourceFromFile(VertexShaderFilePath);
+	const char* vertexShaderCString = vertexShaderSource.c_str();
+	glShaderSource(vertexShader, 1, &vertexShaderCString, nullptr);
+	
+	// compile vertex shader
 	glCompileShader(vertexShader);
 
-	GLint hasShaderCompiled = GL_FALSE;
+	int hasShaderCompiled = GL_FALSE;
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &hasShaderCompiled);
 	if (hasShaderCompiled != GL_TRUE)
 	{
 		std::cout << "Vertex shader failed to compile" << std::endl;
 	}
 
-	glAttachShader(shaderProgram, vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	std::string fragmentShaderSourceString = GetSourceStringFromFile(FragmentShaderFilePath);
-	const GLchar* fragmentShaderSource = fragmentShaderSourceString.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+	// load fragment shader
+	esl::uint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	std::string fragmentShaderSource = GetSourceFromFile(FragmentShaderFilePath);
+	const char* fragmentShaderCString = fragmentShaderSource.c_str();
+	glShaderSource(fragmentShader, 1, &fragmentShaderCString, nullptr);
+	
+	// compile fragment shader
 	glCompileShader(fragmentShader);
 
 	hasShaderCompiled = GL_FALSE;
@@ -59,37 +62,38 @@ GLuint CreateShaderProgram(std::string VertexShaderFilePath, std::string Fragmen
 		std::cout << "Fragment shader failed to compile" << std::endl;
 	}
 
+	// attach vertex and fragment shaders to program
+	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 
+	// link shaders
 	glLinkProgram(shaderProgram);
 
-	GLint hasLinked = GL_FALSE;
+	int hasLinked = GL_FALSE;
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &hasLinked);
 	if (hasLinked != GL_TRUE)
 	{
 		std::cout << "Shader program failed to link" << std::endl;
 	}
 
-	// free to detach and delete after linking
+	// free to detach and delete vertex and fragment shaders after linking
 	glDetachShader(shaderProgram, vertexShader);
 	glDetachShader(shaderProgram, fragmentShader);
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	std::cout << "Shader program created" << std::endl;
-
 	return shaderProgram;
 }
 
-void DeleteShaderProgram(GLuint ShaderProgram)
+void esl::DeleteShaderProgram(esl::uint ShaderProgram)
 {
 	glDeleteProgram(ShaderProgram);
 }
 
-Shader GetShaderWithLocations(GLuint ShaderProgram)
+esl::Shader esl::GetShaderWithLocations(esl::uint ShaderProgram)
 {
-	Shader shader;
-	shader.shaderProgram = ShaderProgram;
+	esl::Shader shader;
+	shader.program = ShaderProgram;
 	shader.objectMatrixUniform = glGetUniformLocation(ShaderProgram, "objectMatrix");
 	shader.projectionMatrixUniform = glGetUniformLocation(ShaderProgram, "projectionMatrix");
 	shader.viewMatrixUniform = glGetUniformLocation(ShaderProgram, "viewMatrix");

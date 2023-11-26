@@ -1,24 +1,109 @@
-#include <stdio.h>
 #include <SDL.h>
 #include <SDL_joystick.h>
+
 #include <gl/glew.h>
 #include <SDL_opengl.h>
+
+#include <iostream>
+#include <memory>
 #include <algorithm>
+
+#include "common_types.h"
+#include "render_system.h"
+#include "mesh_functions.h"
+#include "shader_functions.h"
+#include "input.h"
 #include "game.h"
 
-int GetGamepadDeviceIndex(SDL_Joystick* joysticks[], int InstanceID)
+#include "resource_functions.h"
+
+namespace esl_main
 {
-	for (Uint8 device = 0; device < Input::MaximumGamepadCount; device++)
-	{
-		if (joysticks[device] != nullptr && SDL_JoystickInstanceID(joysticks[device]) == InstanceID)
-		{
-			return device;
-		}
-	}
-	return -1;
+	void CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext);
+	void DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext);
+	void HandleEvent(SDL_Event SDLEvent, std::unique_ptr<esl::Input>& const Input, bool& IsRunning);
 }
 
-int main(int argc, char* args[])
+int main(int Count, char* Values[])
+{
+	// initialize gl and sdl
+	SDL_Window* sdlWindow;
+	SDL_GLContext sdlGLContext;
+	esl_main::CreateWindow(sdlWindow, sdlGLContext);
+
+	SDL_GL_SetSwapInterval(1);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	std::unique_ptr<esl::Input> input = std::make_unique<esl::Input>();
+	std::shared_ptr<esl::Resources> resources = std::make_shared<esl::Resources>();
+	std::unique_ptr<esl::RenderSystem> renderSystem = std::make_unique<esl::RenderSystem>();
+
+	SDL_Event sdlEvent;
+	esl::uint lastTime = 0;
+	bool isRunning = true;
+
+	resources->camera.SetProjectionSettings(4.0f / 3.0f, 60.0f, 0.1f, 100.0f);
+	resources->camera.SetViewSettings(glm::vec3(0, 0, -10), glm::vec3(0));
+
+	esl_main::OnGameStart(resources);
+
+	while (isRunning)
+	{
+		input->RecycleState();
+
+		while (SDL_PollEvent(&sdlEvent) != 0)
+		{
+			esl_main::HandleEvent(sdlEvent, input, isRunning);
+		}
+
+		esl::uint currentTime = SDL_GetTicks();
+
+		const float MaximumDeltaTime = 0.05f;
+		float totalDeltaTime = 0.001f * (currentTime - lastTime);
+		while (totalDeltaTime > 0.0f)
+		{
+			float deltaTime = std::min(totalDeltaTime, MaximumDeltaTime);
+
+			for (int system = 0; system < resources->systems.size(); system++)
+			{
+				resources->systems[system]->Update(deltaTime, input, resources);
+			}
+			
+			totalDeltaTime -= deltaTime;
+		}
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.75f, 0.75f, 0.75f, 1.0f);
+
+		renderSystem->RenderObjects(resources);
+
+		SDL_GL_SwapWindow(sdlWindow);
+
+		lastTime = currentTime;
+	}
+
+	for (int texture = 0; texture < resources->textures.size(); texture++)
+	{
+		glDeleteTextures(1, &resources->textures[texture].name);
+	}
+	for (int shader = 0; shader < resources->shaders.size(); shader++)
+	{
+		esl::DeleteShaderProgram(resources->shaders[shader].program);
+	}
+	esl::DeleteMeshes(resources->meshes);
+
+	input.reset();
+	resources.reset();
+	renderSystem.reset();
+
+	esl_main::DestroyWindow(sdlWindow, sdlGLContext);
+
+	return 0;
+}
+
+void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
 
@@ -26,142 +111,33 @@ int main(int argc, char* args[])
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-	SDL_Window* sdlWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-	SDL_GLContext sdlGLContext = SDL_GL_CreateContext(sdlWindow);
+	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	SDLGLContext = SDL_GL_CreateContext(SDLWindow);
 
-	// glewExperimental = GL_TRUE;
 	GLenum glewInitState = glewInit();
 	if (glewInitState != GLEW_OK)
-		printf("Error initializing GLEW: %s\n", glewGetErrorString(glewInitState));
+		std::cout << "Error initializing GLEW: " << glewGetErrorString(glewInitState) << std::endl;
+}
 
-	SDL_GL_SetSwapInterval(1);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	Game* game = new Game();
-	Uint32 lastTime = 0;
-
-	SDL_Event sdlEvent;
-	bool isRunning = true;
-	
-	SDL_Joystick* gamepads[Input::MaximumGamepadCount];
-
-	while (isRunning)
-	{
-		for (int key = 0; key < SDL_NUM_SCANCODES; key++)
-		{
-			game->input->wasKeyPressed[key] = game->input->isKeyPressed[key];
-		}
-
-		for (Uint8 device = 0; device < Input::MaximumGamepadCount; device++)
-		{
-			for (Uint8 button = 0; button < GamepadInput::MaximumButtonCount; button++)
-			{
-				game->input->gamepadInputs[device].wasButtonPressed[button] = game->input->gamepadInputs[device].isButtonPressed[button];
-			}
-			//game->input->gamepadInputs[device].leftStick.x = 0;
-			//game->input->gamepadInputs[device].leftStick.y = 0;
-			//game->input->gamepadInputs[device].rightStick.x = 0;
-			//game->input->gamepadInputs[device].rightStick.y = 0;
-		}
-
-		while (SDL_PollEvent(&sdlEvent) != 0)
-		{
-			switch (sdlEvent.type)
-			{
-				case SDL_QUIT:
-					isRunning = false;
-					break;
-				case SDL_KEYDOWN:
-					game->input->isKeyPressed[sdlEvent.key.keysym.scancode] = true;
-					break;
-				case SDL_KEYUP:
-					game->input->isKeyPressed[sdlEvent.key.keysym.scancode] = false;
-					break;
-
-				// gamepad events
-				case SDL_JOYDEVICEADDED:
-				{
-					int deviceIndex = sdlEvent.jdevice.which;
-					if (deviceIndex >= 0 && deviceIndex < Input::MaximumGamepadCount)
-					{
-						gamepads[deviceIndex] = SDL_JoystickOpen(deviceIndex);
-					}
-					break;
-				}
-				case SDL_JOYAXISMOTION:
-				{
-					int instanceID = sdlEvent.jdevice.which;
-					int deviceIndex = GetGamepadDeviceIndex(gamepads, instanceID);
-					if (deviceIndex >= 0 && gamepads[deviceIndex] != nullptr && SDL_JoystickInstanceID(gamepads[deviceIndex]) == instanceID)
-					{
-						float axisValue;
-						if (sdlEvent.jaxis.value >= 0)
-							axisValue = (float)sdlEvent.jaxis.value / 32767.0f;
-						else
-							axisValue = (float)sdlEvent.jaxis.value / 32768.0f;
-
-						if (sdlEvent.jaxis.axis == 0)
-							game->input->gamepadInputs[deviceIndex].leftStick.x = axisValue;
-						else if (sdlEvent.jaxis.axis == 1)
-							game->input->gamepadInputs[deviceIndex].leftStick.y = axisValue;
-						else if (sdlEvent.jaxis.axis == 2)
-							game->input->gamepadInputs[deviceIndex].rightStick.x = axisValue;
-						else if (sdlEvent.jaxis.axis == 3)
-							game->input->gamepadInputs[deviceIndex].rightStick.y = axisValue;
-					}
-					break;
-				}
-				case SDL_JOYBUTTONDOWN:
-				{
-					int instanceID = sdlEvent.jdevice.which;
-					int deviceIndex = GetGamepadDeviceIndex(gamepads, instanceID);
-					if (deviceIndex >= 0 && sdlEvent.jbutton.button < GamepadInput::MaximumButtonCount)
-					{
-						game->input->gamepadInputs[deviceIndex].isButtonPressed[sdlEvent.jbutton.button] = true;
-					}
-					break;
-				}
-				case SDL_JOYBUTTONUP:
-				{
-					int instanceID = sdlEvent.jdevice.which;
-					int deviceIndex = GetGamepadDeviceIndex(gamepads, instanceID);
-					if (deviceIndex >= 0 && sdlEvent.jbutton.button < GamepadInput::MaximumButtonCount)
-					{
-						game->input->gamepadInputs[deviceIndex].isButtonPressed[sdlEvent.jbutton.button] = false;
-					}
-					break;
-				}
-			}
-		}
-
-		Uint32 currentTime = SDL_GetTicks();
-
-		const float MaximumDeltaTime = 0.05f;
-		float totalDeltaTime = 0.001 * (currentTime - lastTime);
-		while (totalDeltaTime > 0.0)
-		{
-			float deltaTime = fminf(totalDeltaTime, MaximumDeltaTime);
-			game->Update(deltaTime);
-			totalDeltaTime -= deltaTime;
-		}
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.25f, 0.25f, 0.2f, 1.0f);
-
-		game->Render();
-
-		SDL_GL_SwapWindow(sdlWindow);
-
-		lastTime = currentTime;
-	}
-
-	delete game;
-
-	SDL_GL_DeleteContext(sdlGLContext);
-	SDL_DestroyWindow(sdlWindow);
+void esl_main::DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext)
+{
+	SDL_GL_DeleteContext(SDLGLContext);
+	SDL_DestroyWindow(SDLWindow);
 	SDL_Quit();
+}
 
-	return 0;
+void esl_main::HandleEvent(SDL_Event SDLEvent, std::unique_ptr<esl::Input>& const Input, bool& IsRunning)
+{
+	switch (SDLEvent.type)
+	{
+	case SDL_QUIT:
+		IsRunning = false;
+		break;
+	case SDL_KEYDOWN:
+		Input->keyboard.isKeyPressed[SDLEvent.key.keysym.scancode] = true;
+		break;
+	case SDL_KEYUP:
+		Input->keyboard.isKeyPressed[SDLEvent.key.keysym.scancode] = false;
+		break;
+	}
 }

@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\evajo\Documents\Libraries\SDL2-2.24.0\include;C:\Users\evajo\Documents\Libraries\SDL2_image-2.6.3\include;C:\Users\evajo\Documents\Libraries\glew-2.1.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\evajo\Documents\Libraries\SDL2-2.24.0\include;C:\Users\evajo\Documents\Libraries\SDL2_image-2.6.3\include;C:\Users\evajo\Documents\Libraries\glew-2.1.0\include;C:\Users\evajo\Documents\Libraries\glm;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\evajo\Documents\Libraries\SDL2-2.24.0\lib\x64;C:\Users\evajo\Documents\Libraries\SDL2_image-2.6.3\lib\x64;C:\Users\evajo\Documents\Libraries\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -132,59 +132,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="game.cpp" />
-    <ClCompile Include="game\cameraSystem.cpp" />
-    <ClCompile Include="game\editorSystem.cpp" />
-    <ClCompile Include="game\entry.cpp" />
-    <ClCompile Include="game\playerSystem.cpp" />
-    <ClCompile Include="game\triggerSystem.cpp" />
-    <ClCompile Include="game\world.cpp" />
-    <ClCompile Include="graphicsTypes.cpp" />
-    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="game\game.cpp" />
+    <ClCompile Include="mesh_functions.cpp" />
+    <ClCompile Include="render_system.cpp" />
+    <ClCompile Include="input.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="matrix.cpp" />
-    <ClCompile Include="collisionTests.cpp" />
-    <ClCompile Include="shader.cpp" />
-    <ClCompile Include="sprite.cpp" />
-    <ClCompile Include="stringParser.cpp" />
-    <ClCompile Include="texture.cpp" />
-    <ClCompile Include="transform.cpp" />
-    <ClCompile Include="vector.cpp" />
+    <ClCompile Include="resource_functions.cpp" />
+    <ClCompile Include="shader_functions.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="game\cameraSystem.h" />
-    <ClInclude Include="game\editorSystem.h" />
-    <ClInclude Include="game\triggerSystem.h" />
-    <ClInclude Include="game\world.h" />
-    <ClInclude Include="piece.h" />
-    <ClInclude Include="stringParser.h" />
+    <ClInclude Include="common_types.h" />
+    <ClInclude Include="camera.h" />
     <ClInclude Include="game.h" />
-    <ClInclude Include="game\globals.h" />
-    <ClInclude Include="game\playerSystem.h" />
-    <ClInclude Include="graphicsTypes.h" />
-    <ClInclude Include="matrix.h" />
-    <ClInclude Include="mesh.h" />
-    <ClInclude Include="collisionTests.h" />
-    <ClInclude Include="shader.h" />
-    <ClInclude Include="texture.h" />
+    <ClInclude Include="mesh_functions.h" />
+    <ClInclude Include="render_system.h" />
+    <ClInclude Include="resource_functions.h" />
+    <ClInclude Include="resource_types.h" />
+    <ClInclude Include="input.h" />
+    <ClInclude Include="shader_functions.h" />
     <ClInclude Include="transform.h" />
-    <ClInclude Include="game\triggers.h" />
-    <ClInclude Include="vector.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="game\testWorld.txt" />
-    <Text Include="game\testWorld2.txt" />
-    <Text Include="shaders\checkerboardVertexShader.txt" />
-    <Text Include="shaders\fragmentShader.txt" />
-    <Text Include="shaders\screenFragmentShader.txt" />
-    <Text Include="shaders\screenVertexShader.txt" />
-    <Text Include="shaders\vertexShader.txt" />
+    <ClInclude Include="vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\checkerboard.png" />
-    <Image Include="textures\editorIcons.png" />
-    <Image Include="textures\spriteSheet.png" />
-    <Image Include="textures\spritesheet2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shaders\fragmentShader.txt" />
+    <Text Include="shaders\vertexShader.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
