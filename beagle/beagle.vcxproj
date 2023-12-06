@@ -24,6 +24,7 @@
     <ProjectGuid>{67a2facd-0fcc-458b-9780-ff3fd3509ed6}</ProjectGuid>
     <RootNamespace>beagle</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>beagle</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -140,10 +141,15 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="resource_functions.cpp" />
     <ClCompile Include="shader_functions.cpp" />
+    <ClCompile Include="sprite_functions.cpp" />
+    <ClCompile Include="sprite_system.cpp" />
+    <ClCompile Include="transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common_types.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="sprite_functions.h" />
+    <ClInclude Include="sprite_system.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="mesh_functions.h" />
     <ClInclude Include="render_system.h" />

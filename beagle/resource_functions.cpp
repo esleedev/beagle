@@ -3,7 +3,6 @@
 
 #include "resource_functions.h"
 #include "shader_functions.h"
-#include "common_types.h"
 
 short esl::AddShader
 (
@@ -34,7 +33,7 @@ short esl::AddTexture(std::shared_ptr<esl::Resources> Resources, const char* Fil
 		image->format->BytesPerPixel == 4 ? GL_RGBA : GL_RGB,
 		GL_UNSIGNED_BYTE, image->pixels
 	);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	SDL_FreeSurface(image);
@@ -57,6 +56,17 @@ short esl::AddMesh(std::shared_ptr<esl::Resources> Resources, esl::Mesh Mesh)
 {
 	Resources->meshes.push_back(Mesh);
 	return Resources->meshes.size() - 1;
+}
+
+std::shared_ptr<esl::Sprite> esl::AddSprite(std::shared_ptr<esl::Resources> Resources, short Mesh, glm::vec2 FrameUVSize, esl::AnimationClip InitialClip)
+{
+	std::shared_ptr<esl::Sprite> sprite = std::make_shared<esl::Sprite>
+	(
+		Mesh, FrameUVSize, InitialClip, esl::AnimationClip(-1, 0, 0)
+	);
+
+	Resources->sprites.push_back(sprite);
+	return sprite;
 }
 
 std::shared_ptr<esl::Object> esl::AddObject(std::shared_ptr<esl::Resources> Resources, short Mesh, short Material, esl::Transform Transform)

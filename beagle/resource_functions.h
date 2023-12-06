@@ -33,6 +33,14 @@ namespace esl
 		esl::Mesh Mesh
 	);
 
+	std::shared_ptr<esl::Sprite> AddSprite
+	(
+		std::shared_ptr<esl::Resources> Resources,
+		short Mesh,
+		glm::vec2 FrameUVSize,
+		esl::AnimationClip InitialClip = esl::AnimationClip(0, 1, 0)
+	);
+
 	std::shared_ptr<esl::Object> AddObject
 	(
 		std::shared_ptr<esl::Resources> Resources,
@@ -41,13 +49,17 @@ namespace esl
 		esl::Transform Transform
 	);
 
-	template <typename SystemType> std::shared_ptr<SystemType> AddNewSystem
+	template <typename SystemType> std::shared_ptr<SystemType> AddSystem
 	(
 		std::shared_ptr<esl::Resources> Resources
 	)
 	{
 		std::shared_ptr<SystemType> system = std::make_shared<SystemType>();
-		Resources->systems.push_back(system);
+
+		std::shared_ptr<esl::System> castedSystem = std::static_pointer_cast<esl::System>(system);
+		castedSystem->Start(Resources);
+
+		Resources->systems.push_back(castedSystem);
 		return system;
 	}
 }

@@ -22,7 +22,7 @@ bool esl::Input::IsButtonJustReleased(esl::ubyte GamepadDevice, esl::ubyte Butto
 
 void esl::Input::RecycleState()
 {
-	for (int key = 0; key < SDL_NUM_SCANCODES; key++)
+	for (int key = 0; key < SDL_Scancode::SDL_NUM_SCANCODES; key++)
 	{
 		keyboard.wasKeyPressed[key] = keyboard.isKeyPressed[key];
 	}

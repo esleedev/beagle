@@ -7,21 +7,21 @@ esl::Mesh esl::GenerateQuadMesh(glm::vec2 Size, glm::vec2 Origin)
 {
     esl::Mesh mesh = {};
 
-    esl::Vertex vertices[] =
+    mesh.vertices =
     {
         esl::Vertex(glm::vec3(0.0f - Origin.x,   0.0f - Origin.y,   0.0f), glm::vec2( 0.0f, 1.0f )),
         esl::Vertex(glm::vec3(Size.x - Origin.x, 0.0f - Origin.y,   0.0f), glm::vec2( 1.0f, 1.0f )),
         esl::Vertex(glm::vec3(0.0f - Origin.x,   Size.y - Origin.y, 0.0f), glm::vec2( 0.0f, 0.0f )),
         esl::Vertex(glm::vec3(Size.x - Origin.x, Size.y - Origin.y, 0.0f), glm::vec2( 1.0f, 0.0f ))
     };
-    esl::uint indices[] = { 0, 2, 1, 1, 2, 3 };
+    mesh.indices = { 0, 2, 1, 1, 2, 3 };
 
     glGenVertexArrays(1, &mesh.vao);
     glBindVertexArray(mesh.vao);
 
     glGenBuffers(1, &mesh.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
-    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(esl::Vertex), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(esl::Vertex), &mesh.vertices[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(esl::PositionAttribute);
     glEnableVertexAttribArray(esl::UVAttribute);
@@ -30,20 +30,10 @@ esl::Mesh esl::GenerateQuadMesh(glm::vec2 Size, glm::vec2 Origin)
 
     glGenBuffers(1, &mesh.ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(esl::uint), indices, GL_STATIC_DRAW);
-
-    mesh.indexCount = 6;
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(esl::uint), &mesh.indices[0], GL_STATIC_DRAW);
 
     return mesh;
 }
-
-void esl::DeleteMesh(esl::Mesh Mesh)
-{
-    glDeleteVertexArrays(1, &Mesh.vao);
-    glDeleteBuffers(1, &Mesh.vbo);
-    glDeleteBuffers(1, &Mesh.ibo);
-}
-
 
 void esl::DeleteMeshes(std::vector<esl::Mesh> Meshes)
 {

@@ -8,8 +8,9 @@ void esl::Camera::SetProjectionSettings(float AspectRatio, float VerticalFieldOf
 	far = Far;
 }
 
-void esl::Camera::SetViewSettings(glm::vec3 Position, glm::vec3 LookAt)
+void esl::Camera::SetViewSettings(glm::vec3 Position, float Yaw, float Pitch)
 {
 	position = Position;
-	lookAt = LookAt;
+	yaw = Yaw;
+	pitch = Pitch;
 }

@@ -19,8 +19,8 @@ namespace esl
 
 	struct Keyboard
 	{
-		bool isKeyPressed[SDL_NUM_SCANCODES];
-		bool wasKeyPressed[SDL_NUM_SCANCODES];
+		bool isKeyPressed[SDL_Scancode::SDL_NUM_SCANCODES];
+		bool wasKeyPressed[SDL_Scancode::SDL_NUM_SCANCODES];
 	};
 
 	class Input
