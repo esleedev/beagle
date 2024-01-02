@@ -7,8 +7,6 @@
 
 namespace esl
 {
-	std::string GetSourceFromFile(std::string FilePath);
-
 	esl::uint CreateShaderProgram(std::string VertexShaderFilePath, std::string FragmentShaderFilePath);
 	void DeleteShaderProgram(esl::uint ShaderProgram);
 

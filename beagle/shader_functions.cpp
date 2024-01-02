@@ -4,27 +4,7 @@
 #include <iostream>
 
 #include "shader_functions.h"
-
-std::string esl::GetSourceFromFile(std::string FilePath)
-{
-	std::string line, lines;
-	std::ifstream file;
-	file.open(FilePath);
-	if (file.is_open())
-	{
-		while (std::getline(file, line))
-		{
-			lines += line + "\n";
-		}
-		file.close();
-	}
-	else
-	{
-		std::cout << "File not found: " << FilePath << std::endl;
-	}
-
-	return lines;
-}
+#include "file_functions.h"
 
 esl::uint esl::CreateShaderProgram(std::string VertexShaderFilePath, std::string FragmentShaderFilePath)
 {
@@ -32,7 +12,7 @@ esl::uint esl::CreateShaderProgram(std::string VertexShaderFilePath, std::string
 
 	// load vertex shader
 	esl::uint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = esl::GetSourceFromFile(VertexShaderFilePath);
+	std::string vertexShaderSource = esl::GetFileSource(VertexShaderFilePath);
 	const char* vertexShaderCString = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderCString, nullptr);
 	
@@ -48,7 +28,7 @@ esl::uint esl::CreateShaderProgram(std::string VertexShaderFilePath, std::string
 
 	// load fragment shader
 	esl::uint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	std::string fragmentShaderSource = GetSourceFromFile(FragmentShaderFilePath);
+	std::string fragmentShaderSource = esl::GetFileSource(FragmentShaderFilePath);
 	const char* fragmentShaderCString = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderCString, nullptr);
 	
