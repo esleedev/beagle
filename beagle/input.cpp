@@ -10,6 +10,18 @@ bool esl::Input::IsKeyJustReleased(SDL_Scancode ScanCode)
 	return !keyboard.isKeyPressed[ScanCode] && keyboard.wasKeyPressed[ScanCode];
 }
 
+bool esl::Input::IsMouseButtonJustPressed(esl::MouseButtonType MouseButtonType)
+{
+	esl::ubyte mouseButtonType = static_cast<esl::ubyte>(MouseButtonType);
+	return mouse.isButtonPressed[mouseButtonType] && !mouse.wasButtonPressed[mouseButtonType];
+}
+
+bool esl::Input::IsMouseButtonJustReleased(esl::MouseButtonType MouseButtonType)
+{
+	esl::ubyte mouseButtonType = static_cast<esl::ubyte>(MouseButtonType);
+	return !mouse.isButtonPressed[mouseButtonType] && mouse.wasButtonPressed[mouseButtonType];
+}
+
 bool esl::Input::IsButtonJustPressed(esl::ubyte GamepadDevice, esl::ubyte Button)
 {
 	return gamepads[GamepadDevice].isButtonPressed[Button] && !gamepads[GamepadDevice].wasButtonPressed[Button];
@@ -25,6 +37,11 @@ void esl::Input::RecycleState()
 	for (int key = 0; key < SDL_Scancode::SDL_NUM_SCANCODES; key++)
 	{
 		keyboard.wasKeyPressed[key] = keyboard.isKeyPressed[key];
+	}
+
+	for (esl::ubyte button = 0; button < esl::Mouse::MaximumButtonCount; button++)
+	{
+		mouse.wasButtonPressed[button] = mouse.isButtonPressed[button];
 	}
 
 	for (esl::ubyte device = 0; device < esl::Gamepad::MaximumCount; device++)

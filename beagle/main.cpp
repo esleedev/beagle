@@ -144,5 +144,20 @@ void esl_main::HandleEvent(SDL_Event SDLEvent, std::unique_ptr<esl::Input>& cons
 	case SDL_EventType::SDL_KEYUP:
 		Input->keyboard.isKeyPressed[SDLEvent.key.keysym.scancode] = false;
 		break;
+	case SDL_EventType::SDL_MOUSEBUTTONDOWN:
+		if (SDLEvent.button.button >= 1 && SDLEvent.button.button <= 3)
+		{
+			Input->mouse.isButtonPressed[SDLEvent.button.button - 1] = true;
+		}
+		break;
+	case SDL_EventType::SDL_MOUSEBUTTONUP:
+		if (SDLEvent.button.button >= 1 && SDLEvent.button.button <= 3)
+		{
+			Input->mouse.isButtonPressed[SDLEvent.button.button - 1] = false;
+		}
+		break;
+	case SDL_EventType::SDL_MOUSEMOTION:
+		Input->mouse.position = glm::vec2(SDLEvent.motion.x, SDLEvent.motion.y);
+		break;
 	}
 }

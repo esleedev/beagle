@@ -21,17 +21,38 @@ namespace esl
 	{
 		bool isKeyPressed[SDL_Scancode::SDL_NUM_SCANCODES];
 		bool wasKeyPressed[SDL_Scancode::SDL_NUM_SCANCODES];
+
+	struct Mouse
+	{
+		static const esl::ubyte MaximumButtonCount = 3;
+
+		bool isButtonPressed[MaximumButtonCount];
+		bool wasButtonPressed[MaximumButtonCount];
+		glm::vec2 position;
+	};
+
+	enum class MouseButtonType : esl::ubyte
+	{
+		Left = 0,
+		Middle = 1,
+		Right = 2
 	};
 
 	class Input
 	{
 	public:
-		Keyboard keyboard;
+		esl::Keyboard keyboard;
 
 		bool IsKeyJustPressed(SDL_Scancode ScanCode);
 		bool IsKeyJustReleased(SDL_Scancode ScanCode);
 
-		Gamepad gamepads[Gamepad::MaximumCount];
+
+		esl::Mouse mouse;
+		
+		bool IsMouseButtonJustPressed(esl::MouseButtonType MouseButtonType);
+		bool IsMouseButtonJustReleased(esl::MouseButtonType MouseButtonType);
+
+		esl::Gamepad gamepads[esl::Gamepad::MaximumCount];
 
 		bool IsButtonJustPressed(esl::ubyte GamepadDevice, esl::ubyte Button);
 		bool IsButtonJustReleased(esl::ubyte GamepadDevice, esl::ubyte Button);
