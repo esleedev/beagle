@@ -10,6 +10,7 @@ namespace esl
 	{
 		glm::vec3 position;
 		float yaw, pitch;
+		glm::vec3 scale = glm::vec3(1);
 
 		glm::quat rotation;
 		glm::mat4x4 matrix;

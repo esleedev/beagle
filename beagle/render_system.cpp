@@ -32,10 +32,10 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
     // calculate object matricies
     for (int object = 0; object < Resources->objects.size(); object++)
     {
-        Resources->objects[object]->transform.matrix = glm::mat4x4(1);
-        Resources->objects[object]->transform.matrix = glm::translate(Resources->objects[object]->transform.matrix, Resources->objects[object]->transform.position);
+        Resources->objects[object]->transform.matrix = glm::translate(glm::mat4x4(1), Resources->objects[object]->transform.position);
         Resources->objects[object]->transform.CalculateRotation();
         Resources->objects[object]->transform.matrix *= glm::toMat4(Resources->objects[object]->transform.rotation);
+        Resources->objects[object]->transform.matrix *= glm::scale(glm::mat4x4(1), Resources->objects[object]->transform.scale);
     }
 
     // sort objects by order of materials
