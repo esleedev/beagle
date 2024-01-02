@@ -34,8 +34,10 @@ void esl::SpriteSystem::UpdateSprites(std::shared_ptr<esl::Resources> Resources,
             Resources->meshes[thisSprite->mesh].vertices[2].uv = { uvX, uvY };
             Resources->meshes[thisSprite->mesh].vertices[3].uv = { uvX + uvWidth, uvY };
 
+            glBindVertexArray(Resources->meshes[thisSprite->mesh].vao);
             glBindBuffer(GL_ARRAY_BUFFER, Resources->meshes[thisSprite->mesh].vbo);
             glBufferData(GL_ARRAY_BUFFER, Resources->meshes[thisSprite->mesh].vertices.size() * sizeof(esl::Vertex), &Resources->meshes[thisSprite->mesh].vertices[0], GL_STATIC_DRAW);
+            glBindVertexArray(0);
 
             thisSprite->shouldUpdateMesh = false;
         }
