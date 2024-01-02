@@ -78,5 +78,6 @@ esl::Shader esl::GetShaderWithLocations(esl::uint ShaderProgram)
 	shader.projectionMatrixUniform = glGetUniformLocation(ShaderProgram, "projectionMatrix");
 	shader.viewMatrixUniform = glGetUniformLocation(ShaderProgram, "viewMatrix");
 	shader.textureUniform = glGetUniformLocation(ShaderProgram, "texture");
+	shader.colorUniform = glGetUniformLocation(ShaderProgram, "color");
 	return shader;
 }

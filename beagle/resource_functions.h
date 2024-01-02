@@ -46,7 +46,8 @@ namespace esl
 		std::shared_ptr<esl::Resources> Resources,
 		short Mesh,
 		short Material,
-		esl::Transform Transform
+		esl::Transform Transform,
+		glm::vec4 Color = glm::vec4(1)
 	);
 
 	template <typename SystemType> std::shared_ptr<SystemType> AddSystem

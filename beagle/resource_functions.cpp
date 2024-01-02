@@ -69,12 +69,14 @@ std::shared_ptr<esl::Sprite> esl::AddSprite(std::shared_ptr<esl::Resources> Reso
 	return sprite;
 }
 
-std::shared_ptr<esl::Object> esl::AddObject(std::shared_ptr<esl::Resources> Resources, short Mesh, short Material, esl::Transform Transform)
+
+std::shared_ptr<esl::Object> esl::AddObject(std::shared_ptr<esl::Resources> Resources, short Mesh, std::shared_ptr<esl::Material> Material, esl::Transform Transform, glm::vec4 Color)
 {
 	std::shared_ptr<esl::Object> object = std::make_shared<esl::Object>();
 	object->mesh = Mesh;
 	object->material = Material;
 	object->transform = Transform;
+	object->color = Color;
 	Resources->objects.push_back(object);
 	return object;
 }

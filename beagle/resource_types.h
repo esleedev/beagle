@@ -28,6 +28,7 @@ namespace esl
 		int projectionMatrixUniform;
 		int viewMatrixUniform;
 		int textureUniform;
+		int colorUniform;
 	};
 
 	struct Texture
@@ -71,6 +72,7 @@ namespace esl
 		short mesh;
 		short material;
 		esl::Transform transform;
+		glm::vec4 color;
 	};
 
 	class Resources;

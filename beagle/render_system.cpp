@@ -61,7 +61,7 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
             glBindTexture(GL_TEXTURE_2D, Resources->textures[Resources->materials[material].texture].name);
             glBindVertexArray(Resources->meshes[mesh].vao);
             glUniformMatrix4fv(Resources->shaders[shader].objectMatrixUniform, 1, GL_FALSE, &Resources->objects[object]->transform.matrix[0][0]);
-            glUniform1i(Resources->materials[material].texture, 0);
+            glUniform4fv(Resources->shaders[shader].colorUniform, 1, &Resources->objects[object]->color[0]);
             glDrawElements(GL_TRIANGLES, Resources->meshes[mesh].indices.size(), GL_UNSIGNED_INT, 0);
             object++;
         }
