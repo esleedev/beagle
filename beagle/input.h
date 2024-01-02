@@ -22,6 +22,11 @@ namespace esl
 		bool isKeyPressed[SDL_Scancode::SDL_NUM_SCANCODES];
 		bool wasKeyPressed[SDL_Scancode::SDL_NUM_SCANCODES];
 
+		static const char LowerCaseLetters[26];
+		static const char Numbers[10];
+		static const char MiscellaneousCharacters[13];
+	};
+
 	struct Mouse
 	{
 		static const esl::ubyte MaximumButtonCount = 3;
@@ -46,6 +51,7 @@ namespace esl
 		bool IsKeyJustPressed(SDL_Scancode ScanCode);
 		bool IsKeyJustReleased(SDL_Scancode ScanCode);
 
+		char GetCharacterFromKey(SDL_Scancode ScanCode);
 
 		esl::Mouse mouse;
 		
