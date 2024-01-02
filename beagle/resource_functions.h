@@ -21,10 +21,10 @@ namespace esl
 		const char* FilePath
 	);
 
-	short AddMaterial
+	std::shared_ptr<esl::Material> AddMaterial
 	(
 		std::shared_ptr<esl::Resources> Resources,
-		short Texture, short Shader
+		short Texture, short Shader, short RenderOrder = 0
 	);
 
 	short AddMesh
@@ -45,7 +45,7 @@ namespace esl
 	(
 		std::shared_ptr<esl::Resources> Resources,
 		short Mesh,
-		short Material,
+		std::shared_ptr<esl::Material> Material,
 		esl::Transform Transform,
 		glm::vec4 Color = glm::vec4(1)
 	);

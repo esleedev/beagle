@@ -14,6 +14,8 @@ namespace esl
 	static const int PositionAttribute = 0;
 	static const int UVAttribute = 1;
 
+	static const short TransparentRenderOrder = 1024;
+
 	struct Mesh
 	{
 		esl::uint vao, vbo, ibo;
@@ -36,12 +38,14 @@ namespace esl
 		esl::uint name;
 	};
 
-	struct Material
+	class Material
 	{
+	public:
 		short texture;
 		short shader;
+		short renderOrder;
 
-		Material(short Texture, short Shader) : texture(Texture), shader(Shader) {}
+		Material(short Texture, short Shader, short RenderOrder) : texture(Texture), shader(Shader), renderOrder(RenderOrder) {}
 	};
 
 	struct AnimationClip
@@ -70,7 +74,7 @@ namespace esl
 	{
 	public:
 		short mesh;
-		short material;
+		std::shared_ptr<esl::Material> material;
 		esl::Transform transform;
 		glm::vec4 color;
 	};
@@ -96,7 +100,7 @@ namespace esl
 		std::vector<esl::Mesh> meshes;
 		std::vector<esl::Shader> shaders;
 		std::vector<esl::Texture> textures;
-		std::vector<esl::Material> materials;
+		std::vector<std::shared_ptr<esl::Material>> materials;
 		std::vector<std::shared_ptr<esl::Sprite>> sprites;
 		std::vector<std::shared_ptr<esl::Object>> objects;
 		std::vector<std::shared_ptr<esl::System>> systems;

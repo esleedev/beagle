@@ -33,9 +33,6 @@ int main(int Count, char* Values[])
 	esl_main::CreateWindow(sdlWindow, sdlGLContext);
 
 	SDL_GL_SetSwapInterval(1);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	std::unique_ptr<esl::Input> input = std::make_unique<esl::Input>();
 	std::shared_ptr<esl::Resources> resources = std::make_shared<esl::Resources>();

@@ -42,14 +42,18 @@ short esl::AddTexture(std::shared_ptr<esl::Resources> Resources, const char* Fil
 	return Resources->textures.size() - 1;
 }
 
-short esl::AddMaterial
+std::shared_ptr<esl::Material> esl::AddMaterial
 (
 	std::shared_ptr<esl::Resources> Resources,
-	short Texture, short Shader
+	short Texture, short Shader, short RenderOrder
 )
 {
-	Resources->materials.push_back(Material(Texture, Shader));
-	return Resources->materials.size() - 1;
+	std::shared_ptr<esl::Material> material = std::make_shared<esl::Material>
+	(
+		Texture, Shader, RenderOrder
+	);
+	Resources->materials.push_back(material);
+	return material;
 }
 
 short esl::AddMesh(std::shared_ptr<esl::Resources> Resources, esl::Mesh Mesh)
