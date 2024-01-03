@@ -63,11 +63,11 @@ namespace esl
 		float time;
 		short mesh;
 		glm::vec2 frameUVSize;
-		AnimationClip clip;
-		AnimationClip queuedClip;
+		esl::AnimationClip clip;
+		esl::AnimationClip queuedClip;
 		bool shouldUpdateMesh;
 
-		Sprite(short Mesh, glm::vec2 FrameUVSize, AnimationClip Clip, AnimationClip QueuedClip) : time(0), mesh(Mesh), frameUVSize(FrameUVSize), clip(Clip), queuedClip(QueuedClip), shouldUpdateMesh(true) {}
+		Sprite(short Mesh, glm::vec2 FrameUVSize, esl::AnimationClip Clip, esl::AnimationClip QueuedClip) : time(0), mesh(Mesh), frameUVSize(FrameUVSize), clip(Clip), queuedClip(QueuedClip), shouldUpdateMesh(true) {}
 	};
 
 	class Object
