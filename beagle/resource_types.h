@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 
 #include "common_types.h"
 #include "vertex.h"
@@ -70,6 +71,22 @@ namespace esl
 		Sprite(short Mesh, glm::vec2 FrameUVSize, esl::AnimationClip Clip, esl::AnimationClip QueuedClip) : time(0), mesh(Mesh), frameUVSize(FrameUVSize), clip(Clip), queuedClip(QueuedClip), shouldUpdateMesh(true) {}
 	};
 
+	enum class TextAlignment : char
+	{
+		Left = 0,
+		Right = 1
+	};
+
+	struct Text
+	{
+		short sharedMesh;
+		glm::vec2 position;
+		std::string text;
+		esl::TextAlignment alignment;
+		float letterSpacing;
+		float size;
+	};
+
 	class Object
 	{
 	public:
@@ -102,6 +119,7 @@ namespace esl
 		std::vector<esl::Texture> textures;
 		std::vector<std::shared_ptr<esl::Material>> materials;
 		std::vector<std::shared_ptr<esl::Sprite>> sprites;
+		std::vector<std::shared_ptr<esl::Text>> texts;
 		std::vector<std::shared_ptr<esl::Object>> objects;
 		std::vector<std::shared_ptr<esl::System>> systems;
 	};

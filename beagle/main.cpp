@@ -10,13 +10,13 @@
 
 #include "common_types.h"
 #include "sprite_system.h"
+#include "text_system.h"
 #include "render_system.h"
 #include "mesh_functions.h"
 #include "shader_functions.h"
+#include "resource_functions.h"
 #include "input.h"
 #include "game.h"
-
-#include "resource_functions.h"
 
 namespace esl_main
 {
@@ -37,6 +37,7 @@ int main(int Count, char* Values[])
 	std::unique_ptr<esl::Input> input = std::make_unique<esl::Input>();
 	std::shared_ptr<esl::Resources> resources = std::make_shared<esl::Resources>();
 	std::unique_ptr<esl::SpriteSystem> spriteSystem = std::make_unique<esl::SpriteSystem>();
+	std::unique_ptr<esl::TextSystem> textSystem = std::make_unique<esl::TextSystem>();
 	std::unique_ptr<esl::RenderSystem> renderSystem = std::make_unique<esl::RenderSystem>();
 
 	SDL_Event sdlEvent;
@@ -75,6 +76,8 @@ int main(int Count, char* Values[])
 			totalDeltaTime -= deltaTime;
 		}
 
+		textSystem->UpdateTexts(resources);
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.75f, 0.75f, 0.75f, 1.0f);
 
@@ -97,8 +100,9 @@ int main(int Count, char* Values[])
 
 	input.reset();
 	resources.reset();
-	renderSystem.reset();
 	spriteSystem.reset();
+	textSystem.reset();
+	renderSystem.reset();
 
 	esl_main::DestroyWindow(sdlWindow, sdlGLContext);
 

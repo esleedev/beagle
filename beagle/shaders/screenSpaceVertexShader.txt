@@ -1,0 +1,12 @@
+#version 330
+
+uniform mat4 objectMatrix;
+layout(location = 0) in vec3 inPosition;
+layout(location = 1) in vec2 inUV;
+out vec2 uv;
+
+void main()
+{
+	gl_Position = objectMatrix * vec4(inPosition.xyz, 1);
+	uv = inUV;
+}

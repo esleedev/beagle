@@ -41,6 +41,17 @@ namespace esl
 		esl::AnimationClip InitialClip = esl::AnimationClip(0, 1, 0)
 	);
 
+	std::shared_ptr<esl::Text> AddText
+	(
+		std::shared_ptr<esl::Resources> Resources,
+		short SharedMesh,
+		glm::vec2 Position,
+		std::string Text,
+		esl::TextAlignment Alignment = esl::TextAlignment::Left,
+		float LetterSpacing = 0.0f,
+		float Size = 0.08f
+	);
+
 	std::shared_ptr<esl::Object> AddObject
 	(
 		std::shared_ptr<esl::Resources> Resources,

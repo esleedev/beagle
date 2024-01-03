@@ -73,6 +73,18 @@ std::shared_ptr<esl::Sprite> esl::AddSprite(std::shared_ptr<esl::Resources> Reso
 	return sprite;
 }
 
+std::shared_ptr<esl::Text> esl::AddText(std::shared_ptr<esl::Resources> Resources, short SharedMesh, glm::vec2 Position, std::string Text, esl::TextAlignment Alignment, float LetterSpacing, float Size)
+{
+	std::shared_ptr<esl::Text> text = std::make_shared<esl::Text>();
+	text->position = Position;
+	text->sharedMesh = SharedMesh;
+	text->text = Text;
+	text->alignment = Alignment;
+	text->letterSpacing = LetterSpacing;
+	text->size = Size;
+	Resources->texts.push_back(text);
+	return text;
+}
 
 std::shared_ptr<esl::Object> esl::AddObject(std::shared_ptr<esl::Resources> Resources, short Mesh, std::shared_ptr<esl::Material> Material, esl::Transform Transform, glm::vec4 Color)
 {
