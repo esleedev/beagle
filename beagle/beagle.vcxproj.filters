@@ -48,6 +48,15 @@
     <ClCompile Include="sprite_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="file_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="text_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="collision_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input.h">
@@ -89,14 +98,31 @@
     <ClInclude Include="sprite_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="file_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="text_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shape_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="collision_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\checkerboard.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\font.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaders\fragmentShader.txt" />
     <Text Include="shaders\vertexShader.txt" />
+    <Text Include="shaders\screenSpaceVertexShader.txt" />
+    <Text Include="shaders\transparentFragmentShader.txt" />
   </ItemGroup>
 </Project>

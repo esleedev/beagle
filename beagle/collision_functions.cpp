@@ -1,4 +1,5 @@
 #include <glm/geometric.hpp>
+#include <algorithm>
 #include <iostream>
 
 #include "collision_functions.h"
@@ -47,4 +48,167 @@ bool esl::DoesRayIntersectWithSpheres
     }
 
     return (HitSphereIndex > -1);
+}
+
+// Returns true if there are any hits. Hits are sorted based on hit distance, closest first
+bool esl::DoesCircleSweepIntersectWithLines
+(
+    glm::vec2 Origin, glm::vec2 Velocity, float Radius,
+    std::vector<esl::Line> Lines,
+    std::vector<esl::SweepHitWithLine>& Hits
+)
+{
+    Hits.clear();
+
+    glm::vec2 sweepEndPoint = Origin + Velocity;
+    glm::vec2 sweepDirection = glm::normalize(Velocity);
+    float sweepDistance = glm::length(Velocity);
+
+    for (int line = 0; line < Lines.size(); line++)
+    {
+        glm::vec2 linePointA = { Lines[line].pointA.x, Lines[line].pointA.z };
+        glm::vec2 linePointB = { Lines[line].pointB.x, Lines[line].pointB.z };
+        glm::vec2 aToB = (linePointB - linePointA);
+        float lineLength = glm::distance(linePointA, linePointB);
+
+        // find nearest point on the static line to the circle sweep's origin
+        float time = (((Origin.x - linePointA.x) * aToB.x) + ((Origin.y - linePointA.y) * aToB.y)) / (lineLength * lineLength);
+        glm::vec2 closestToOrigin = linePointA + (time * aToB);
+
+        // test line with sweep
+        float lineSweepDeterminant = aToB.y * -Velocity.x - Velocity.y * -aToB.x;
+        // lines are parallel, exit early
+        if (lineSweepDeterminant == 0.0f)
+            continue;
+
+        bool canCollide = false;
+
+        // find point of intersection between static line and sweep line
+        glm::vec2 lineSweepHitPoint;
+        lineSweepHitPoint.x = (-Velocity.x * (aToB.y * linePointA.x + -aToB.x * linePointA.y) - -aToB.x * (Velocity.y * Origin.x + -Velocity.x * Origin.y)) / lineSweepDeterminant;
+        lineSweepHitPoint.y = (aToB.y * (Velocity.y * Origin.x + -Velocity.x * Origin.y) - Velocity.y * (aToB.y * linePointA.x + -aToB.x * linePointA.y)) / lineSweepDeterminant;
+
+        if
+        (
+            lineSweepHitPoint.x - 0.0001f >= glm::min(linePointA.x, linePointB.x) &&
+            lineSweepHitPoint.x + 0.0001f <= glm::max(linePointA.x, linePointB.x) &&
+            lineSweepHitPoint.x - 0.0001f >= glm::min(Origin.x, sweepEndPoint.x) &&
+            lineSweepHitPoint.x + 0.0001f <= glm::max(Origin.x, sweepEndPoint.x) &&
+            lineSweepHitPoint.y - 0.0001f >= glm::min(linePointA.y, linePointB.y) &&
+            lineSweepHitPoint.y + 0.0001f <= glm::max(linePointA.y, linePointB.y) &&
+            lineSweepHitPoint.y - 0.0001f >= glm::min(Origin.y, sweepEndPoint.y) &&
+            lineSweepHitPoint.y + 0.0001f <= glm::max(Origin.y, sweepEndPoint.y)
+        )
+        {
+            canCollide = true;
+        }
+
+        // find nearest point on static line to the sweep end point
+        time = (((sweepEndPoint.x - linePointA.x) * aToB.x) + ((sweepEndPoint.y - linePointA.y) * aToB.y)) / (lineLength * lineLength);
+        glm::vec2 lineSweepEndHitPoint = linePointA + (time * aToB);
+        if (glm::distance(lineSweepEndHitPoint, sweepEndPoint) <= Radius + 0.001f && time >= 0.0f - 0.01f && time <= 1.0f + 0.001f)
+        {
+            canCollide = true;
+        }
+
+        // find nearest point on sweep line to static point A
+        time = (((linePointA.x - Origin.x) * Velocity.x) + ((linePointA.y - Origin.y) * Velocity.y)) / (sweepDistance * sweepDistance);
+        glm::vec2 pointAHitPoint = Origin + (time * Velocity);
+        if (time >= -0.0001f && time <= 1.0f + Radius / sweepDistance + 0.05f && glm::distance(pointAHitPoint, linePointA) <= Radius + 0.005f)
+        {
+            canCollide = true;
+        }
+
+        // find nearest point on sweep line to static point B
+        time = (((linePointB.x - Origin.x) * Velocity.x) + ((linePointB.y - Origin.y) * Velocity.y)) / (sweepDistance * sweepDistance);
+        glm::vec2 pointBHitPoint = Origin + (time * Velocity);
+        if (time >= -0.0001f && time <= 1.0f + Radius / sweepDistance + 0.05f && glm::distance(pointBHitPoint, linePointB) <= Radius + 0.005f)
+        {
+            canCollide = true;
+        }
+
+        if (!canCollide) continue;
+
+        // new origin after sweep
+        glm::vec2 newOrigin = lineSweepHitPoint - sweepDirection * (Radius * (glm::distance(Origin, lineSweepHitPoint) / glm::distance(Origin, closestToOrigin)));
+        std::cout << newOrigin.x << ", " << newOrigin.y << std::endl;
+
+        // find where the nearest point is on the static line to the new origin
+        time = (((newOrigin.x - linePointA.x) * aToB.x) + ((newOrigin.y - linePointA.y) * aToB.y)) / (lineLength * lineLength);
+
+        if (time >= 0.0f && time <= 1.0f)
+        {
+            // nearest point to new origin is on the static line
+            esl::SweepHitWithLine hit;
+            hit.hitPoint = linePointA + (time * aToB);
+            hit.hitDistance = glm::distance(hit.hitPoint, Origin);
+            hit.newOrigin = newOrigin;
+            hit.lineNormal = glm::normalize(glm::vec2(-aToB.y, aToB.x));
+            hit.isHitAnEndPoint = false;
+            Hits.push_back(hit);
+        }
+        else
+        {
+            // nearest point to new origin is on an end point
+            glm::vec2 endPointHitPoint = (time <= 0.0f) ? pointAHitPoint : pointBHitPoint;
+            glm::vec2 endPoint = (time <= 0.0f) ? linePointA : linePointB;
+            float distanceToEndPoint = glm::distance(endPointHitPoint, endPoint);
+            float distanceToMoveBackFromHitPoint = glm::sqrt(Radius * Radius - distanceToEndPoint * distanceToEndPoint);
+
+            newOrigin = endPointHitPoint - sweepDirection * distanceToMoveBackFromHitPoint;
+
+            esl::SweepHitWithLine hit;
+            hit.hitPoint = endPoint;
+            hit.hitDistance = glm::distance(hit.hitPoint, Origin);
+            hit.newOrigin = newOrigin;
+            hit.lineNormal = glm::normalize(glm::vec2(-aToB.y, aToB.x));
+            hit.isHitAnEndPoint = true;
+            Hits.push_back(hit);
+        }
+    }
+
+    // sort hits based on hit distance
+    std::sort
+    (
+        Hits.begin(), Hits.end(),
+        [](esl::SweepHitWithLine const& A, esl::SweepHitWithLine const& B) { return A.hitDistance < B.hitDistance; }
+    );
+
+    return Hits.size() > 0;
+}
+
+glm::vec2 esl::GetPositionAfterCircleSweep
+(
+    glm::vec2 Origin, glm::vec2 Velocity,
+    esl::SweepHitWithLine Hit
+)
+{
+    const float Epsilon = 0.01f;
+
+    glm::vec2 direction = glm::normalize(Velocity);
+    float distanceToNewOrigin = glm::distance(Hit.newOrigin, Origin);
+    float distanceRemaining = glm::distance(Velocity, { 0, 0 }) - distanceToNewOrigin;
+    if (distanceRemaining >= -Epsilon)
+    {
+        glm::vec2 position = Hit.newOrigin;
+
+        float lineNormalSweepDeterminant = Hit.lineNormal.y * -Velocity.x - Velocity.y * -Hit.lineNormal.x;
+        if (lineNormalSweepDeterminant != 0.0f)
+        {
+            distanceRemaining = glm::max(Epsilon, distanceRemaining);
+
+            glm::vec2 slideVelocity = direction * distanceRemaining;
+            slideVelocity -= Hit.lineNormal * glm::dot(Velocity, Hit.lineNormal);
+
+            // todo: test wall ahead of slide
+
+            position += slideVelocity;
+        }
+
+        return position;
+    }
+    else
+    {
+        return Origin + Velocity;
+    }
 }
