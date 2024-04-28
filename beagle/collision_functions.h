@@ -17,6 +17,7 @@ namespace esl
 	{
 		glm::vec2 newOrigin;
 		glm::vec2 hitPoint;
+		glm::vec2 hitNormal;
 		glm::vec2 lineNormal;
 		float hitDistance;
 		bool isHitAnEndPoint;

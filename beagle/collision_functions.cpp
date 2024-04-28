@@ -131,7 +131,6 @@ bool esl::DoesCircleSweepIntersectWithLines
 
         // new origin after sweep
         glm::vec2 newOrigin = lineSweepHitPoint - sweepDirection * (Radius * (glm::distance(Origin, lineSweepHitPoint) / glm::distance(Origin, closestToOrigin)));
-        std::cout << newOrigin.x << ", " << newOrigin.y << std::endl;
 
         // find where the nearest point is on the static line to the new origin
         time = (((newOrigin.x - linePointA.x) * aToB.x) + ((newOrigin.y - linePointA.y) * aToB.y)) / (lineLength * lineLength);
@@ -143,7 +142,7 @@ bool esl::DoesCircleSweepIntersectWithLines
             hit.hitPoint = linePointA + (time * aToB);
             hit.hitDistance = glm::distance(hit.hitPoint, Origin);
             hit.newOrigin = newOrigin;
-            hit.lineNormal = glm::normalize(glm::vec2(-aToB.y, aToB.x));
+            hit.lineNormal = hit.hitNormal = glm::normalize(glm::vec2(-aToB.y, aToB.x));
             hit.isHitAnEndPoint = false;
             Hits.push_back(hit);
         }
@@ -162,6 +161,7 @@ bool esl::DoesCircleSweepIntersectWithLines
             hit.hitDistance = glm::distance(hit.hitPoint, Origin);
             hit.newOrigin = newOrigin;
             hit.lineNormal = glm::normalize(glm::vec2(-aToB.y, aToB.x));
+            hit.hitNormal = glm::normalize(hit.newOrigin - hit.hitPoint);
             hit.isHitAnEndPoint = true;
             Hits.push_back(hit);
         }
@@ -183,7 +183,7 @@ glm::vec2 esl::GetPositionAfterCircleSweep
     esl::SweepHitWithLine Hit
 )
 {
-    const float Epsilon = 0.01f;
+    const float Epsilon = 0.025f;
 
     glm::vec2 direction = glm::normalize(Velocity);
     float distanceToNewOrigin = glm::distance(Hit.newOrigin, Origin);
@@ -192,17 +192,19 @@ glm::vec2 esl::GetPositionAfterCircleSweep
     {
         glm::vec2 position = Hit.newOrigin;
 
-        float lineNormalSweepDeterminant = Hit.lineNormal.y * -Velocity.x - Velocity.y * -Hit.lineNormal.x;
-        if (lineNormalSweepDeterminant != 0.0f)
+        float hitNormalSweepDeterminant = Hit.hitNormal.y * -Velocity.x - Velocity.y * -Hit.hitNormal.x;
+        if (hitNormalSweepDeterminant != 0.0f)
         {
             distanceRemaining = glm::max(Epsilon, distanceRemaining);
 
             glm::vec2 slideVelocity = direction * distanceRemaining;
-            slideVelocity -= Hit.lineNormal * glm::dot(Velocity, Hit.lineNormal);
+            slideVelocity -= Hit.hitNormal * glm::dot(Velocity, Hit.hitNormal);
 
             // todo: test wall ahead of slide
 
             position += slideVelocity;
+
+            std::cout << "slide ";
         }
 
         return position;
