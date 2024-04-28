@@ -73,26 +73,42 @@ std::shared_ptr<esl::Sprite> esl::AddSprite(std::shared_ptr<esl::Resources> Reso
 	return sprite;
 }
 
-std::shared_ptr<esl::Text> esl::AddText(std::shared_ptr<esl::Resources> Resources, short SharedMesh, glm::vec2 Position, std::string Text, esl::TextAlignment Alignment, float LetterSpacing, float Size)
+std::shared_ptr<esl::Text> esl::AddText
+(
+	std::shared_ptr<esl::Resources> Resources, short SharedMesh,
+	glm::vec2 Position, glm::vec3 Color, std::string Text,
+	esl::HorizontalTextAlignment HorizontalAlignment, esl::VerticalTextAlignment VerticalAlignment,
+	float LetterSpacing, float Size
+)
 {
 	std::shared_ptr<esl::Text> text = std::make_shared<esl::Text>();
-	text->position = Position;
 	text->sharedMesh = SharedMesh;
+	text->position = Position;
+	text->color = Color;
 	text->text = Text;
-	text->alignment = Alignment;
+	text->horizontalAlignment = HorizontalAlignment;
+	text->verticalAlignment = VerticalAlignment;
 	text->letterSpacing = LetterSpacing;
 	text->size = Size;
 	Resources->texts.push_back(text);
 	return text;
 }
 
-std::shared_ptr<esl::Object> esl::AddObject(std::shared_ptr<esl::Resources> Resources, short Mesh, std::shared_ptr<esl::Material> Material, esl::Transform Transform, glm::vec4 Color)
+std::shared_ptr<esl::Object> esl::AddObject(std::shared_ptr<esl::Resources> Resources, short Mesh, std::shared_ptr<esl::Material> Material, esl::Transform Transform, glm::vec4 DiffuseColor)
 {
 	std::shared_ptr<esl::Object> object = std::make_shared<esl::Object>();
 	object->mesh = Mesh;
 	object->material = Material;
 	object->transform = Transform;
-	object->color = Color;
+	object->diffuseColor = DiffuseColor;
 	Resources->objects.push_back(object);
 	return object;
+}
+
+void esl::CallEvents(std::shared_ptr<esl::Resources> Resources, esl::System* System, esl::ushort Id)
+{
+	for (int index = 0; index < Resources->events.size(); index++)
+	{
+		Resources->events[index]->OnEvent(System, Id);
+	}
 }

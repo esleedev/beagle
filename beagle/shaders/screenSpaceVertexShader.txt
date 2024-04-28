@@ -3,10 +3,13 @@
 uniform mat4 objectMatrix;
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec2 inUV;
+layout(location = 2) in vec3 inColor;
 out vec2 uv;
+out vec3 color;
 
 void main()
 {
 	gl_Position = objectMatrix * vec4(inPosition.xyz, 1);
 	uv = inUV;
+	color = inColor;
 }

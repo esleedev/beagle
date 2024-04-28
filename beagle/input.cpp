@@ -67,6 +67,7 @@ void esl::Input::RecycleState()
 		keyboard.wasKeyPressed[key] = keyboard.isKeyPressed[key];
 	}
 
+	mouse.relativeMotion = glm::vec2(0);
 	for (esl::ubyte button = 0; button < esl::Mouse::MaximumButtonCount; button++)
 	{
 		mouse.wasButtonPressed[button] = mouse.isButtonPressed[button];

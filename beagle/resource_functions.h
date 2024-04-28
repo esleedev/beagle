@@ -46,8 +46,10 @@ namespace esl
 		std::shared_ptr<esl::Resources> Resources,
 		short SharedMesh,
 		glm::vec2 Position,
+		glm::vec3 Color,
 		std::string Text,
-		esl::TextAlignment Alignment = esl::TextAlignment::Left,
+		esl::HorizontalTextAlignment HorizontalAlignment = esl::HorizontalTextAlignment::Left,
+		esl::VerticalTextAlignment VerticalAlignment = esl::VerticalTextAlignment::Bottom,
 		float LetterSpacing = 0.0f,
 		float Size = 0.08f
 	);
@@ -58,20 +60,42 @@ namespace esl
 		short Mesh,
 		std::shared_ptr<esl::Material> Material,
 		esl::Transform Transform,
-		glm::vec4 Color = glm::vec4(1)
+		glm::vec4 DiffuseColor = glm::vec4(1)
 	);
 
 	template <typename SystemType> std::shared_ptr<SystemType> AddSystem
 	(
-		std::shared_ptr<esl::Resources> Resources
+		std::shared_ptr<esl::Resources> Resources, bool ShouldStartImmediately = true
 	)
 	{
 		std::shared_ptr<SystemType> system = std::make_shared<SystemType>();
 
 		std::shared_ptr<esl::System> castedSystem = std::static_pointer_cast<esl::System>(system);
-		castedSystem->Start(Resources);
+		if (ShouldStartImmediately)
+		{
+			castedSystem->Start(Resources);
+			Resources->systems.push_back(castedSystem);
+		}
+		else
+		{
+			Resources->queuedSystems.push_back(castedSystem);
+		}
 
-		Resources->systems.push_back(castedSystem);
 		return system;
 	}
+
+	template <typename EventType> std::shared_ptr<EventType> AddEvent
+	(
+		std::shared_ptr<esl::Resources> Resources
+	)
+	{
+		std::shared_ptr<EventType> event = std::make_shared<EventType>();
+
+		std::shared_ptr<esl::Event> castedEvent = std::static_pointer_cast<esl::Event>(event);
+
+		Resources->events.push_back(castedEvent);
+		return event;
+	}
+
+	void CallEvents(std::shared_ptr<esl::Resources> Resources, esl::System* System, esl::ushort Id);
 }

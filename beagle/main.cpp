@@ -20,9 +20,11 @@
 
 namespace esl_main
 {
+	glm::vec2 windowSize = glm::vec2(1280, 720);
+
 	void CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext);
 	void DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext);
-	void HandleEvent(SDL_Event SDLEvent, std::unique_ptr<esl::Input>& const Input, bool& IsRunning);
+	void HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, bool& IsRunning);
 }
 
 int main(int Count, char* Values[])
@@ -51,20 +53,29 @@ int main(int Count, char* Values[])
 
 	while (isRunning)
 	{
-		input->RecycleState();
-
-		while (SDL_PollEvent(&sdlEvent) != 0)
-		{
-			esl_main::HandleEvent(sdlEvent, input, isRunning);
-		}
-
 		esl::uint currentTime = SDL_GetTicks();
 
-		const float MaximumDeltaTime = 0.05f;
+		const float MaximumDeltaTime = 0.0625f;
 		float totalDeltaTime = 0.001f * (currentTime - lastTime);
 		while (totalDeltaTime > 0.0f)
 		{
 			float deltaTime = std::min(totalDeltaTime, MaximumDeltaTime);
+
+			input->RecycleState();
+
+			while (SDL_PollEvent(&sdlEvent) != 0)
+			{
+				esl_main::HandleEvent(sdlEvent, sdlWindow, input, isRunning);
+			}
+
+			SDL_SetRelativeMouseMode(input->mouse.isLockedToWindow ? SDL_TRUE : SDL_FALSE);
+
+			for (int system = 0; system < resources->queuedSystems.size(); system++)
+			{
+				resources->queuedSystems[system]->Start(resources);
+				resources->systems.push_back(resources->queuedSystems[system]);
+			}
+			resources->queuedSystems.clear();
 
 			for (int system = 0; system < resources->systems.size(); system++)
 			{
@@ -79,7 +90,7 @@ int main(int Count, char* Values[])
 		textSystem->UpdateTexts(resources);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.75f, 0.75f, 0.75f, 1.0f);
+		glClearColor(12.0f / 255.0f, 12.0f / 255.0f, 12.0f / 255.0f, 1.0f);
 
 		renderSystem->RenderObjects(resources);
 
@@ -117,7 +128,7 @@ void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile::SDL_GL_CONTEXT_PROFILE_CORE);
 
-	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WindowFlags::SDL_WINDOW_OPENGL | SDL_WindowFlags::SDL_WINDOW_SHOWN);
+	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, esl_main::windowSize.x, esl_main::windowSize.y, SDL_WindowFlags::SDL_WINDOW_OPENGL | SDL_WindowFlags::SDL_WINDOW_SHOWN);
 	SDLGLContext = SDL_GL_CreateContext(SDLWindow);
 
 	GLenum glewInitState = glewInit();
@@ -132,7 +143,7 @@ void esl_main::DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext)
 	SDL_Quit();
 }
 
-void esl_main::HandleEvent(SDL_Event SDLEvent, std::unique_ptr<esl::Input>& const Input, bool& IsRunning)
+void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, bool& IsRunning)
 {
 	switch (SDLEvent.type)
 	{
@@ -158,6 +169,7 @@ void esl_main::HandleEvent(SDL_Event SDLEvent, std::unique_ptr<esl::Input>& cons
 		}
 		break;
 	case SDL_EventType::SDL_MOUSEMOTION:
+		Input->mouse.relativeMotion = glm::vec2(SDLEvent.motion.xrel, SDLEvent.motion.yrel);
 		Input->mouse.position = glm::vec2(SDLEvent.motion.x, SDLEvent.motion.y);
 		break;
 	}

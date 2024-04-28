@@ -14,6 +14,7 @@ namespace esl
 {
 	static const int PositionAttribute = 0;
 	static const int UVAttribute = 1;
+	static const int ColorAttribute = 2;
 
 	static const short TransparentRenderOrder = 1024;
 
@@ -31,7 +32,7 @@ namespace esl
 		int projectionMatrixUniform;
 		int viewMatrixUniform;
 		int textureUniform;
-		int colorUniform;
+		int diffuseColorUniform;
 	};
 
 	struct Texture
@@ -71,18 +72,27 @@ namespace esl
 		Sprite(short Mesh, glm::vec2 FrameUVSize, esl::AnimationClip Clip, esl::AnimationClip QueuedClip) : time(0), mesh(Mesh), frameUVSize(FrameUVSize), clip(Clip), queuedClip(QueuedClip), shouldUpdateMesh(true) {}
 	};
 
-	enum class TextAlignment : char
+	enum class HorizontalTextAlignment : char
 	{
 		Left = 0,
 		Right = 1
+	};
+
+	enum class VerticalTextAlignment : char
+	{
+		Bottom = 0,
+		Top = 1,
+		Middle = 2
 	};
 
 	struct Text
 	{
 		short sharedMesh;
 		glm::vec2 position;
+		glm::vec3 color;
 		std::string text;
-		esl::TextAlignment alignment;
+		esl::HorizontalTextAlignment horizontalAlignment;
+		esl::VerticalTextAlignment verticalAlignment;
 		float letterSpacing;
 		float size;
 	};
@@ -93,7 +103,7 @@ namespace esl
 		short mesh;
 		std::shared_ptr<esl::Material> material;
 		esl::Transform transform;
-		glm::vec4 color;
+		glm::vec4 diffuseColor;
 	};
 
 	class Resources;
@@ -110,6 +120,12 @@ namespace esl
 		) = 0;
 	};
 
+	class Event
+	{
+	public:
+		virtual void OnEvent(esl::System* System, esl::ushort ID) = 0;
+	};
+
 	class Resources
 	{
 	public:
@@ -122,5 +138,7 @@ namespace esl
 		std::vector<std::shared_ptr<esl::Text>> texts;
 		std::vector<std::shared_ptr<esl::Object>> objects;
 		std::vector<std::shared_ptr<esl::System>> systems;
+		std::vector<std::shared_ptr<esl::System>> queuedSystems;
+		std::vector<std::shared_ptr<esl::Event>> events;
 	};
 }

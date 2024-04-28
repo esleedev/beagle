@@ -27,8 +27,10 @@ esl::Mesh esl::GenerateQuadMesh(glm::vec2 Size, glm::vec2 Origin)
 
     glEnableVertexAttribArray(esl::PositionAttribute);
     glEnableVertexAttribArray(esl::UVAttribute);
+    glEnableVertexAttribArray(esl::ColorAttribute);
     glVertexAttribPointer(esl::PositionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(esl::Vertex), 0);
     glVertexAttribPointer(esl::UVAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(esl::Vertex), (const GLvoid*)12);
+    glVertexAttribPointer(esl::ColorAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(esl::Vertex), (const GLvoid*)20);
 
     glGenBuffers(1, &mesh.ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
@@ -47,8 +49,34 @@ void esl::DeleteMeshes(std::vector<esl::Mesh> Meshes)
     }
 }
 
+void esl::LoadOBJ(std::string FilePath, std::vector<glm::vec3>& Vertices, std::vector<esl::uint>& Indices)
+{
+    std::vector<std::string> lines;
+    esl::GetFileLineByLine(FilePath, lines);
+    for (int line = 0; line < lines.size(); line++)
+    {
+        std::vector<std::string> values;
+        esl::FindValuesInLine(lines[line], values, ' ');
+        if (values.size() == 0) continue;
+        if (values[0] == "v")
+            Vertices.push_back({ std::stof(values[1]), std::stof(values[2]), std::stof(values[3]) });
+        else if (values[0] == "f")
+        {
+            for (int index = 0; index < 3; index++)
+            {
+                std::vector<std::string> indexValues;
+                esl::FindValuesInLine(values[1 + index], indexValues, '/');
+                Indices.push_back(std::stoi(indexValues[0]) - 1);
+            }
+        }
+    }
+}
+
 void esl::LoadOBJ(std::string FilePath, std::vector<esl::Vertex>& Vertices, std::vector<esl::uint>& Indices)
 {
+    Vertices.clear();
+    Indices.clear();
+
     std::vector<std::string> lines;
 
     std::vector<glm::vec3> sourceVertices;
@@ -85,9 +113,3 @@ void esl::LoadOBJ(std::string FilePath, std::vector<esl::Vertex>& Vertices, std:
         Indices.push_back(index);
     }
 }
-
-esl::Mesh esl::LoadOBJAsMesh(std::string FilePath)
-{
-    return esl::Mesh();
-}
-

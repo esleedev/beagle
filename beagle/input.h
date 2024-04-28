@@ -34,6 +34,8 @@ namespace esl
 		bool isButtonPressed[MaximumButtonCount];
 		bool wasButtonPressed[MaximumButtonCount];
 		glm::vec2 position;
+		glm::vec2 relativeMotion;
+		bool isLockedToWindow = false;
 	};
 
 	enum class MouseButtonType : esl::ubyte

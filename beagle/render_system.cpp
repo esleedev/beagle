@@ -25,7 +25,11 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
     glm::vec3 lookAtDirection = lookAtRotation * glm::vec3(0, 0, -1);
     lookAtDirection = glm::normalize(lookAtDirection);
 
-    camera.viewMatrix = glm::lookAt(camera.position, camera.position + lookAtDirection, glm::vec3(0, 1, 0));
+    // change lookat up when pitch is 90/-90
+    glm::vec3 up = { 0, 1, 0 };
+    if (glm::abs(lookAtDirection.y) >= 0.999f)
+        up = { 0, 0, 1 };
+    camera.viewMatrix = glm::lookAt(camera.position, camera.position + lookAtDirection, up);
 
     Resources->camera = camera;
 
@@ -33,7 +37,6 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
     for (int object = 0; object < Resources->objects.size(); object++)
     {
         Resources->objects[object]->transform.matrix = glm::translate(glm::mat4x4(1), Resources->objects[object]->transform.position);
-        Resources->objects[object]->transform.CalculateRotation();
         Resources->objects[object]->transform.matrix *= glm::toMat4(Resources->objects[object]->transform.rotation);
         Resources->objects[object]->transform.matrix *= glm::scale(glm::mat4x4(1), Resources->objects[object]->transform.scale);
     }
@@ -95,7 +98,7 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
             glBindTexture(GL_TEXTURE_2D, Resources->textures[Resources->materials[material]->texture].name);
             glBindVertexArray(Resources->meshes[mesh].vao);
             glUniformMatrix4fv(Resources->shaders[shader].objectMatrixUniform, 1, GL_FALSE, &Resources->objects[object]->transform.matrix[0][0]);
-            glUniform4fv(Resources->shaders[shader].colorUniform, 1, &Resources->objects[object]->color[0]);
+            glUniform4fv(Resources->shaders[shader].diffuseColorUniform, 1, &Resources->objects[object]->diffuseColor[0]);
             glDrawElements(GL_TRIANGLES, Resources->meshes[mesh].indices.size(), GL_UNSIGNED_INT, 0);
             object++;
         }

@@ -7,4 +7,6 @@
 namespace esl_main
 {
 	extern void OnGameStart(std::shared_ptr<esl::Resources> Resources);
+
+	extern glm::vec2 windowSize;
 }
