@@ -38,9 +38,36 @@ short esl::AddTexture(std::shared_ptr<esl::Resources> Resources, const char* Fil
 
 	SDL_FreeSurface(image);
 
+	texture.fileInformation = std::make_shared<esl::FileInformation>();
+	texture.fileInformation->path = FilePath;
+	texture.fileInformation->lastWriteTime = std::filesystem::last_write_time(FilePath);
+
 	Resources->textures.push_back(texture);
 	return Resources->textures.size() - 1;
 }
+
+void esl::ReloadTexture(esl::Texture& Texture)
+{
+	SDL_Surface* image = IMG_Load(Texture.fileInformation->path.c_str());
+
+	glBindTexture(GL_TEXTURE_2D, Texture.name);
+	glTexImage2D
+	(
+		GL_TEXTURE_2D,
+		0, // Mip level
+		image->format->BytesPerPixel == 4 ? GL_RGBA : GL_RGB,
+		image->w, image->h, 0,
+		image->format->BytesPerPixel == 4 ? GL_RGBA : GL_RGB,
+		GL_UNSIGNED_BYTE, image->pixels
+	);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	Texture.fileInformation->lastWriteTime = std::filesystem::last_write_time(Texture.fileInformation->path);
+
+	SDL_FreeSurface(image);
+}
+
 
 std::shared_ptr<esl::Material> esl::AddMaterial
 (

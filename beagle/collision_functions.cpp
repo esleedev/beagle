@@ -203,8 +203,6 @@ glm::vec2 esl::GetPositionAfterCircleSweep
             // todo: test wall ahead of slide
 
             position += slideVelocity;
-
-            std::cout << "slide ";
         }
 
         return position;

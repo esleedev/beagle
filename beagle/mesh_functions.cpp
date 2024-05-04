@@ -36,6 +36,8 @@ esl::Mesh esl::GenerateQuadMesh(glm::vec2 Size, glm::vec2 Origin)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(esl::uint), &mesh.indices[0], GL_STATIC_DRAW);
 
+    mesh.fileInformation = nullptr;
+
     return mesh;
 }
 
@@ -111,5 +113,55 @@ void esl::LoadOBJ(std::string FilePath, std::vector<esl::Vertex>& Vertices, std:
     {
         Vertices.push_back(esl::Vertex(sourceVertices[sourceIndices[index]], sourceUVs[sourceUVIndices[index]]));
         Indices.push_back(index);
+    }
+}
+
+esl::Mesh esl::LoadOBJAsMesh(std::string FilePath)
+{
+    esl::Mesh mesh = {};
+
+    mesh.fileInformation = std::make_shared<esl::FileInformation>();
+    mesh.fileInformation->path = FilePath;
+    mesh.fileInformation->lastWriteTime = std::filesystem::last_write_time(FilePath);
+
+    esl::LoadOBJ(FilePath, mesh.vertices, mesh.indices);
+
+    glGenVertexArrays(1, &mesh.vao);
+    glBindVertexArray(mesh.vao);
+
+    glGenBuffers(1, &mesh.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+    glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(esl::Vertex), &mesh.vertices[0], GL_DYNAMIC_DRAW);
+
+    glEnableVertexAttribArray(esl::PositionAttribute);
+    glEnableVertexAttribArray(esl::UVAttribute);
+    glEnableVertexAttribArray(esl::ColorAttribute);
+    glVertexAttribPointer(esl::PositionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(esl::Vertex), 0);
+    glVertexAttribPointer(esl::UVAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(esl::Vertex), (const GLvoid*)12);
+    glVertexAttribPointer(esl::ColorAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(esl::Vertex), (const GLvoid*)20);
+
+    glGenBuffers(1, &mesh.ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(esl::uint), &mesh.indices[0], GL_DYNAMIC_DRAW);
+
+    return mesh;
+}
+
+void esl::ReloadMeshIfItHasFile(esl::Mesh& Mesh)
+{
+    if (Mesh.fileInformation != nullptr && Mesh.fileInformation->path != "")
+    {
+        esl::LoadOBJ(Mesh.fileInformation->path, Mesh.vertices, Mesh.indices);
+
+        Mesh.fileInformation->lastWriteTime = std::filesystem::last_write_time(Mesh.fileInformation->path);
+
+        // remake mesh
+        glBindVertexArray(Mesh.vao);
+
+        glBindBuffer(GL_ARRAY_BUFFER, Mesh.vbo);
+        glBufferData(GL_ARRAY_BUFFER, Mesh.vertices.size() * sizeof(esl::Vertex), &Mesh.vertices[0], GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Mesh.ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, Mesh.indices.size() * sizeof(esl::uint), &Mesh.indices[0], GL_DYNAMIC_DRAW);
     }
 }

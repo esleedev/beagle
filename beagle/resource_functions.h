@@ -21,6 +21,11 @@ namespace esl
 		const char* FilePath
 	);
 
+	void ReloadTexture
+	(
+		esl::Texture& Texture
+	);
+
 	std::shared_ptr<esl::Material> AddMaterial
 	(
 		std::shared_ptr<esl::Resources> Resources,

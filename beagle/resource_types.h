@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <filesystem>
 
 #include "common_types.h"
 #include "vertex.h"
@@ -18,11 +19,18 @@ namespace esl
 
 	static const short TransparentRenderOrder = 1024;
 
+	struct FileInformation
+	{
+		std::string path;
+		std::filesystem::file_time_type lastWriteTime;
+	};
+
 	struct Mesh
 	{
 		esl::uint vao, vbo, ibo;
 		std::vector<esl::Vertex> vertices;
 		std::vector<esl::uint> indices;
+		std::shared_ptr<esl::FileInformation> fileInformation;
 	};
 
 	struct Shader
@@ -38,6 +46,7 @@ namespace esl
 	struct Texture
 	{
 		esl::uint name;
+		std::shared_ptr<esl::FileInformation> fileInformation;
 	};
 
 	class Material

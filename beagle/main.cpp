@@ -24,7 +24,7 @@ namespace esl_main
 
 	void CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext);
 	void DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext);
-	void HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, bool& IsRunning);
+	void HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources, bool& IsRunning);
 }
 
 int main(int Count, char* Values[])
@@ -65,7 +65,7 @@ int main(int Count, char* Values[])
 
 			while (SDL_PollEvent(&sdlEvent) != 0)
 			{
-				esl_main::HandleEvent(sdlEvent, sdlWindow, input, isRunning);
+				esl_main::HandleEvent(sdlEvent, sdlWindow, input, resources.get(), isRunning);
 			}
 
 			SDL_SetRelativeMouseMode(input->mouse.isLockedToWindow ? SDL_TRUE : SDL_FALSE);
@@ -143,7 +143,7 @@ void esl_main::DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext)
 	SDL_Quit();
 }
 
-void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, bool& IsRunning)
+void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources, bool& IsRunning)
 {
 	switch (SDLEvent.type)
 	{
@@ -171,6 +171,33 @@ void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::uniqu
 	case SDL_EventType::SDL_MOUSEMOTION:
 		Input->mouse.relativeMotion = glm::vec2(SDLEvent.motion.xrel, SDLEvent.motion.yrel);
 		Input->mouse.position = glm::vec2(SDLEvent.motion.x, SDLEvent.motion.y);
+		break;
+	case SDL_EventType::SDL_WINDOWEVENT:
+		if (SDLEvent.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+		{
+			for (int texture = 0; texture < Resources->textures.size(); texture++)
+			{
+				auto lastWriteTime = Resources->textures[texture].fileInformation->lastWriteTime;
+				auto newWriteTime = std::filesystem::last_write_time(Resources->textures[texture].fileInformation->path);
+				if (lastWriteTime != newWriteTime)
+				{
+					esl::ReloadTexture(Resources->textures[texture]);
+				}
+			}
+
+			for (int mesh = 0; mesh < Resources->meshes.size(); mesh++)
+			{
+				if (Resources->meshes[mesh].fileInformation != nullptr && Resources->meshes[mesh].fileInformation->path != "")
+				{
+					auto lastWriteTime = Resources->meshes[mesh].fileInformation->lastWriteTime;
+					auto newWriteTime = std::filesystem::last_write_time(Resources->meshes[mesh].fileInformation->path);
+					if (lastWriteTime != newWriteTime)
+					{
+						esl::ReloadMeshIfItHasFile(Resources->meshes[mesh]);
+					}
+				}
+			}
+		}
 		break;
 	}
 }
