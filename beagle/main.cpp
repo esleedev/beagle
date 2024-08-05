@@ -21,10 +21,18 @@
 
 namespace esl_main
 {
-	glm::vec2 windowSize = glm::vec2(1280, 720);
+	struct DisplayMode;
+	enum class WindowType : esl::ubyte;
+	esl_main::WindowType windowType;
+	glm::vec2 windowSize;
+	std::vector<esl_main::DisplayMode> displayModes;
+	int displayModeIndex;
+	bool shouldApplyWindowSettings;
 
 	void CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext);
 	void DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext);
+	void UpdateRenderTargetTexture(esl::Resources* Resources);
+	void ApplyWindowSettings(SDL_Window* SDLWindow, float& AspectRatio);
 	void HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources, bool& IsRunning);
 }
 
@@ -46,8 +54,14 @@ int main(int Count, char* Values[])
 	esl::uint lastTime = 0;
 	bool isRunning = true;
 
-	resources->camera.SetProjectionSettings(16.0f / 9.0f, 60.0f, 0.1f, 100.0f);
+	glm::vec2 windowSize = esl_main::windowSize;
+	resources->camera.SetProjectionSettings(windowSize.x / windowSize.y, 60.0f, 0.1f, 100.0f);
 	resources->camera.SetViewSettings(glm::vec3(0, 0, 10), 0, 0);
+
+	// init render target
+	resources->renderTarget.mesh = esl::GenerateQuadMesh(glm::vec2(2, 2), glm::vec2(1, 1));
+	resources->renderTarget.shader = esl::AddShader(resources, "shaders/renderTargetVertexShader.txt", "shaders/renderTargetFragmentShader.txt");
+	esl_main::UpdateRenderTargetTexture(resources.get());
 
 	esl_main::OnGameStart(resources);
 
@@ -63,6 +77,13 @@ int main(int Count, char* Values[])
 
 			input->RecycleState();
 
+			// handle sdl events (input, windowing etc)
+			if (esl_main::shouldApplyWindowSettings)
+			{
+				esl_main::ApplyWindowSettings(sdlWindow, resources->camera.aspectRatio);
+				esl_main::UpdateRenderTargetTexture(resources.get());
+				esl_main::shouldApplyWindowSettings = false;
+			}
 			while (SDL_PollEvent(&sdlEvent) != 0)
 			{
 				esl_main::HandleEvent(sdlEvent, sdlWindow, input, resources.get(), isRunning);
@@ -103,6 +124,10 @@ int main(int Count, char* Values[])
 		TTF_CloseFont(resources->fonts[font]);
 	}
 
+	glDeleteRenderbuffers(1, &resources->renderTarget.depthBufferName);
+	glDeleteFramebuffers(1, &resources->renderTarget.frameBufferName);
+	glDeleteTextures(1, &resources->renderTarget.textureName);
+
 	for (int texture = 0; texture < resources->textures.size(); texture++)
 	{
 		glDeleteTextures(1, &resources->textures[texture].name);
@@ -126,12 +151,31 @@ int main(int Count, char* Values[])
 void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
+	SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING, "1");
+
+	// Get resolution & refresh rates available from the primary monitor
+	int displayModeCount = SDL_GetNumDisplayModes(0);
+	SDL_DisplayMode displayMode;
+	for (int mode = 0; mode < displayModeCount; mode++)
+	{
+		// zero is success for some reason
+		if (SDL_GetDisplayMode(0, mode, &displayMode) == 0)
+		{
+			esl_main::displayModes.push_back
+			({
+				displayMode.format, { displayMode.w, displayMode.h },
+				displayMode.refresh_rate
+			});
+		}
+	}
+	esl_main::displayModeIndex = 6;
+	glm::vec2 displayModeSize = esl_main::windowSize = esl_main::displayModes[esl_main::displayModeIndex].size;
 
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile::SDL_GL_CONTEXT_PROFILE_CORE);
 
-	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, esl_main::windowSize.x, esl_main::windowSize.y, SDL_WindowFlags::SDL_WINDOW_OPENGL | SDL_WindowFlags::SDL_WINDOW_SHOWN);
+	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, displayModeSize.x, displayModeSize.y, SDL_WindowFlags::SDL_WINDOW_OPENGL | SDL_WindowFlags::SDL_WINDOW_SHOWN);
 	SDLGLContext = SDL_GL_CreateContext(SDLWindow);
 
 	if (!(IMG_Init(IMG_InitFlags::IMG_INIT_PNG) & (int)IMG_InitFlags::IMG_INIT_PNG))
@@ -153,6 +197,53 @@ void esl_main::DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext)
 	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
+}
+
+void esl_main::UpdateRenderTargetTexture(esl::Resources* Resources)
+{
+	// delete render target
+	glDeleteRenderbuffers(1, &Resources->renderTarget.depthBufferName);
+	glDeleteFramebuffers(1, &Resources->renderTarget.frameBufferName);
+	glDeleteTextures(1, &Resources->renderTarget.textureName);
+	// remake it with new res
+	glGenFramebuffers(1, &Resources->renderTarget.frameBufferName);
+	glBindFramebuffer(GL_FRAMEBUFFER, Resources->renderTarget.frameBufferName);
+	glGenTextures(1, &Resources->renderTarget.textureName);
+	glBindTexture(GL_TEXTURE_2D, Resources->renderTarget.textureName);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, esl_main::windowSize.x, esl_main::windowSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glGenRenderbuffers(1, &Resources->renderTarget.depthBufferName);
+	glBindRenderbuffer(GL_RENDERBUFFER, Resources->renderTarget.depthBufferName);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, esl_main::windowSize.x, esl_main::windowSize.y);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, Resources->renderTarget.depthBufferName);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Resources->renderTarget.textureName, 0);
+	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, drawBuffers);
+}
+
+void esl_main::ApplyWindowSettings(SDL_Window* SDLWindow, float& AspectRatio)
+{
+	esl_main::windowSize = esl_main::displayModes[esl_main::displayModeIndex].size;
+	AspectRatio = esl_main::windowSize.x / esl_main::windowSize.y;
+
+	if (SDL_SetWindowFullscreen(SDLWindow, (esl_main::windowType == esl_main::WindowType::Window) ? 0 : SDL_WINDOW_FULLSCREEN) < 0)
+		std::cout << SDL_GetError();
+
+	if (esl_main::windowType == esl_main::WindowType::Fullscreen)
+	{
+		// gets the desired mode and change the monitor resolution and refresh rate
+		SDL_DisplayMode displayMode;
+		SDL_GetDisplayMode(0, esl_main::displayModeIndex, &displayMode);
+		if (SDL_SetWindowDisplayMode(SDLWindow, &displayMode) < 0)
+		{
+			std::cout << SDL_GetError();
+		}
+	}
+
+	// setting the window after seems to be necessary for both windowed and fullscreen
+	SDL_SetWindowSize(SDLWindow, esl_main::windowSize.x, esl_main::windowSize.y);
+	SDL_SetWindowPosition(SDLWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
 
 void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources, bool& IsRunning)

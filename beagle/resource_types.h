@@ -58,6 +58,16 @@ namespace esl
 		std::shared_ptr<esl::FileInformation> fileInformation;
 	};
 
+	struct RenderTarget
+	{
+		esl::uint frameBufferName;
+		esl::uint depthBufferName;
+		esl::uint textureName;
+		esl::Mesh mesh;
+		short shader;
+		glm::vec4 diffuseColor; // shader setting
+	};
+
 	class Material
 	{
 	public:
@@ -137,6 +147,7 @@ namespace esl
 	{
 	public:
 		esl::Camera camera;
+		esl::RenderTarget renderTarget;
 		std::vector<TTF_Font*> fonts;
 		std::vector<esl::Mesh> meshes;
 		std::vector<esl::Shader> shaders;

@@ -10,6 +10,7 @@
 
 #include "render_system.h"
 #include "camera.h"
+#include "game.h"
 
 void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
 {
@@ -73,6 +74,11 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
         }
     );
 
+    glBindFramebuffer(GL_FRAMEBUFFER, Resources->renderTarget.frameBufferName);
+    glViewport(0, 0, esl_main::windowSize.x, esl_main::windowSize.y);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(12.0f / 255.0f, 12.0f / 255.0f, 12.0f / 255.0f, 1.0f);
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -81,6 +87,15 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
     int objectCount = Resources->objects.size();
     for (short material = 0; material < Resources->materials.size(); material++)
     {
+        if (Resources->materials[material]->renderOrder < 0)
+        {
+            while (object < objectCount && Resources->objects[object]->material == Resources->materials[material])
+            {
+                object++;
+            }
+            continue;
+        }
+
         if (Resources->materials[material]->renderOrder >= esl::TransparentRenderOrder && (material == 0 || Resources->materials[material - 1]->renderOrder < esl::TransparentRenderOrder))
         {
             glDisable(GL_DEPTH_TEST);
@@ -104,4 +119,47 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
         }
         // otherwise, move on to the next material...
     }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, esl_main::windowSize.x, esl_main::windowSize.y);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(12.0f / 255.0f, 12.0f / 255.0f, 12.0f / 255.0f, 1.0f);
+
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    object = 0;
+    for (short material = 0; material < Resources->materials.size(); material++)
+    {
+        if (Resources->materials[material]->renderOrder >= 0)
+            break;
+
+        short shader = Resources->materials[material]->shader;
+        glUseProgram(Resources->shaders[shader].program);
+        glUniformMatrix4fv(Resources->shaders[shader].projectionMatrixUniform, 1, GL_FALSE, &camera.projectionMatrix[0][0]);
+        glUniformMatrix4fv(Resources->shaders[shader].viewMatrixUniform, 1, GL_FALSE, &camera.viewMatrix[0][0]);
+
+        // keep rendering objects that are using this material
+        while (object < objectCount && Resources->objects[object]->material == Resources->materials[material])
+        {
+            short mesh = Resources->objects[object]->mesh;
+            glBindTexture(GL_TEXTURE_2D, Resources->textures[Resources->materials[material]->texture].name);
+            glBindVertexArray(Resources->meshes[mesh].vao);
+            glUniformMatrix4fv(Resources->shaders[shader].objectMatrixUniform, 1, GL_FALSE, &Resources->objects[object]->transform.matrix[0][0]);
+            glUniform4fv(Resources->shaders[shader].diffuseColorUniform, 1, &Resources->objects[object]->diffuseColor[0]);
+            glDrawElements(GL_TRIANGLES, Resources->meshes[mesh].indices.size(), GL_UNSIGNED_INT, 0);
+            object++;
+        }
+        // otherwise, move on to the next material...
+    }
+
+
+    glUseProgram(Resources->shaders[Resources->renderTarget.shader].program);
+    glBindTexture(GL_TEXTURE_2D, Resources->renderTarget.textureName);
+    glBindVertexArray(Resources->renderTarget.mesh.vao);
+    glUniform4fv(Resources->shaders[Resources->renderTarget.shader].diffuseColorUniform, 1, &Resources->renderTarget.diffuseColor[0]);
+    glDrawElements(GL_TRIANGLES, Resources->renderTarget.mesh.indices.size(), GL_UNSIGNED_INT, 0);
+
 }
