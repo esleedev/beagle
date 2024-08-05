@@ -3,10 +3,8 @@ Beagle is a C++ game framework for quickly starting game projects. It uses SDL 2
 Features
 - Objects for rendering with transform, mesh and material
 - Game loop managing time, updating systems and rendering objects 
-- Resource pool with sprites, meshes, camera, text, shaders, materials, textures, objects and systems
-- Input helpers
-- 3D collision helpers
+- Resource pool with sprites, meshes, camera, shaders, materials, textures, objects and systems
+- Helpers for TTF font rendering, input and 3D collision
 - Sprite animation system
-- Font rendering system using bitmaps
 
 🐶 Created by Eva Sydney Lee: https://eslee.dev
