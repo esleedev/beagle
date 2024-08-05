@@ -32,7 +32,9 @@ namespace esl
 
 	glm::vec2 GetPositionAfterCircleSweep
 	(
-		glm::vec2 Origin, glm::vec2 Velocity,
-		esl::SweepHitWithLine Hit
+		glm::vec2 Origin, glm::vec2 Velocity, float Radius,
+		std::vector<esl::Line> Lines,
+		esl::SweepHitWithLine Hit,
+		int IterationCount = 1
 	);
 }
