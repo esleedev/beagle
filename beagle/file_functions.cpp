@@ -58,11 +58,12 @@ void esl::FindValuesInLine(std::string Line, std::vector<std::string>& Values, c
         if (separatorPosition != std::string::npos)
         {
             Values.push_back(Line.substr(position, separatorPosition - position));
+            position = separatorPosition;
         }
         else
         {
             Values.push_back(Line.substr(position));
+            break;
         }
-        position = separatorPosition;
     }
 }
