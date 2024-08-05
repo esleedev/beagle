@@ -74,6 +74,19 @@ void esl::LoadOBJ(std::string FilePath, std::vector<glm::vec3>& Vertices, std::v
     }
 }
 
+void esl::LoadOBJWithPositionDataOnly(std::string FilePath, std::vector<esl::Vertex>& Vertices, std::vector<esl::uint>& Indices)
+{
+    Vertices.clear();
+    Indices.clear();
+
+    std::vector<glm::vec3> vertices;
+    esl::LoadOBJ(FilePath, vertices, Indices);
+    for (int vertex = 0; vertex < vertices.size(); vertex++)
+    {
+        Vertices.push_back(esl::Vertex(vertices[vertex], glm::vec2{ 0 }));
+    }
+}
+
 void esl::LoadOBJ(std::string FilePath, std::vector<esl::Vertex>& Vertices, std::vector<esl::uint>& Indices)
 {
     Vertices.clear();
@@ -116,7 +129,7 @@ void esl::LoadOBJ(std::string FilePath, std::vector<esl::Vertex>& Vertices, std:
     }
 }
 
-esl::Mesh esl::LoadOBJAsMesh(std::string FilePath)
+esl::Mesh esl::LoadOBJAsMesh(std::string FilePath, esl::VertexDescription VertexDescription)
 {
     esl::Mesh mesh = {};
 
@@ -124,7 +137,12 @@ esl::Mesh esl::LoadOBJAsMesh(std::string FilePath)
     mesh.fileInformation->path = FilePath;
     mesh.fileInformation->lastWriteTime = std::filesystem::last_write_time(FilePath);
 
-    esl::LoadOBJ(FilePath, mesh.vertices, mesh.indices);
+    if (VertexDescription == esl::VertexDescription::HasPosition)
+        esl::LoadOBJWithPositionDataOnly(FilePath, mesh.vertices, mesh.indices);
+    else
+        esl::LoadOBJ(FilePath, mesh.vertices, mesh.indices);
+
+    mesh.vertexDescription = VertexDescription;
 
     glGenVertexArrays(1, &mesh.vao);
     glBindVertexArray(mesh.vao);
@@ -151,7 +169,10 @@ void esl::ReloadMeshIfItHasFile(esl::Mesh& Mesh)
 {
     if (Mesh.fileInformation != nullptr && Mesh.fileInformation->path != "")
     {
-        esl::LoadOBJ(Mesh.fileInformation->path, Mesh.vertices, Mesh.indices);
+        if (Mesh.vertexDescription == esl::VertexDescription::HasPosition)
+            esl::LoadOBJWithPositionDataOnly(Mesh.fileInformation->path, Mesh.vertices, Mesh.indices);
+        else
+            esl::LoadOBJ(Mesh.fileInformation->path, Mesh.vertices, Mesh.indices);
 
         Mesh.fileInformation->lastWriteTime = std::filesystem::last_write_time(Mesh.fileInformation->path);
 

@@ -25,12 +25,19 @@ namespace esl
 		std::filesystem::file_time_type lastWriteTime;
 	};
 
+	enum VertexDescription : esl::ubyte
+	{
+		HasAll = 0,
+		HasPosition
+	};
+
 	struct Mesh
 	{
 		esl::uint vao, vbo, ibo;
 		std::vector<esl::Vertex> vertices;
 		std::vector<esl::uint> indices;
 		std::shared_ptr<esl::FileInformation> fileInformation;
+		esl::VertexDescription vertexDescription = VertexDescription::HasAll;
 	};
 
 	struct Shader
