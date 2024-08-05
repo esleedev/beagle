@@ -21,6 +21,13 @@ namespace esl
 		const char* FilePath
 	);
 
+	// return -1 if texture with file path doesn't exist
+	short GetTexture
+	(
+		std::shared_ptr<esl::Resources> Resources,
+		const char* FilePath
+	);
+
 	void ReloadTexture
 	(
 		esl::Texture& Texture
@@ -46,17 +53,21 @@ namespace esl
 		esl::AnimationClip InitialClip = esl::AnimationClip(0, 1, 0)
 	);
 
-	std::shared_ptr<esl::Text> AddText
+	short AddFont
 	(
 		std::shared_ptr<esl::Resources> Resources,
-		short SharedMesh,
-		glm::vec2 Position,
-		glm::vec3 Color,
+		std::string FilePath, int Size
+	);
+
+	std::shared_ptr<esl::Object> AddTextObject
+	(
+		std::shared_ptr<esl::Resources> Resources,
+		short Shader, short Font,
 		std::string Text,
-		esl::HorizontalTextAlignment HorizontalAlignment = esl::HorizontalTextAlignment::Left,
-		esl::VerticalTextAlignment VerticalAlignment = esl::VerticalTextAlignment::Bottom,
-		float LetterSpacing = 0.0f,
-		float Size = 0.08f
+		glm::vec4 DiffuseColor = glm::vec4(1),
+		short RenderOrder = -1,
+		esl::HorizontalTextAlignment HorizontalTextAlignment = esl::HorizontalTextAlignment::Left,
+		esl::VerticalTextAlignment VerticalTextAlignment = esl::VerticalTextAlignment::Bottom
 	);
 
 	std::shared_ptr<esl::Object> AddObject

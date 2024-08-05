@@ -3,6 +3,7 @@
 
 #include "resource_functions.h"
 #include "shader_functions.h"
+#include "mesh_functions.h"
 
 short esl::AddShader
 (
@@ -44,6 +45,16 @@ short esl::AddTexture(std::shared_ptr<esl::Resources> Resources, const char* Fil
 
 	Resources->textures.push_back(texture);
 	return Resources->textures.size() - 1;
+}
+
+short esl::GetTexture(std::shared_ptr<esl::Resources> Resources, const char* FilePath)
+{
+	for (short index = 0; index < Resources->textures.size(); index++)
+	{
+		if (Resources->textures[index].fileInformation->path == FilePath)
+			return index;
+	}
+	return -1;
 }
 
 void esl::ReloadTexture(esl::Texture& Texture)
@@ -100,25 +111,67 @@ std::shared_ptr<esl::Sprite> esl::AddSprite(std::shared_ptr<esl::Resources> Reso
 	return sprite;
 }
 
-std::shared_ptr<esl::Text> esl::AddText
+short esl::AddFont(std::shared_ptr<esl::Resources> Resources, std::string FilePath, int Size)
+{
+	TTF_Font* font = TTF_OpenFont(FilePath.c_str(), Size);
+	Resources->fonts.push_back(font);
+	return Resources->fonts.size() - 1;
+}
+
+std::shared_ptr<esl::Object> esl::AddTextObject
 (
-	std::shared_ptr<esl::Resources> Resources, short SharedMesh,
-	glm::vec2 Position, glm::vec3 Color, std::string Text,
-	esl::HorizontalTextAlignment HorizontalAlignment, esl::VerticalTextAlignment VerticalAlignment,
-	float LetterSpacing, float Size
+	std::shared_ptr<esl::Resources> Resources,
+	short Shader, short Font,
+	std::string Text, glm::vec4 DiffuseColor,
+	short RenderOrder,
+	esl::HorizontalTextAlignment HorizontalTextAlignment,
+	esl::VerticalTextAlignment VerticalTextAlignment
 )
 {
-	std::shared_ptr<esl::Text> text = std::make_shared<esl::Text>();
-	text->sharedMesh = SharedMesh;
-	text->position = Position;
-	text->color = Color;
-	text->text = Text;
-	text->horizontalAlignment = HorizontalAlignment;
-	text->verticalAlignment = VerticalAlignment;
-	text->letterSpacing = LetterSpacing;
-	text->size = Size;
-	Resources->texts.push_back(text);
-	return text;
+	// todo: cache font or use a shared texture
+	esl::Texture texture;
+
+	SDL_Color color;
+	color.r = 255;
+	color.g = 255;
+	color.b = 255;
+	color.a = 255;
+	SDL_Surface* image = TTF_RenderText_Blended(Resources->fonts[Font], Text.c_str(), color);
+
+	glGenTextures(1, &texture.name);
+	glBindTexture(GL_TEXTURE_2D, texture.name);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, image->pitch / image->format->BytesPerPixel);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D
+	(
+		GL_TEXTURE_2D,
+		0, // Mip level
+		GL_RGBA,
+		image->w, image->h, 0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE, image->pixels
+	);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+	Resources->textures.push_back(texture);
+
+	glm::vec2 origin = { 0, 0 };
+	if (HorizontalTextAlignment == esl::HorizontalTextAlignment::Middle)
+		origin.x = ((float)image->w / image->h) * 0.5f;
+	else if (HorizontalTextAlignment == esl::HorizontalTextAlignment::Right)
+		origin.x = (float)image->w / image->h;
+	if (VerticalTextAlignment == esl::VerticalTextAlignment::Middle)
+		origin.y = 0.5f;
+	else if (VerticalTextAlignment == esl::VerticalTextAlignment::Top)
+		origin.y = 1;
+	short mesh = esl::AddMesh(Resources, esl::GenerateQuadMesh(glm::vec2((float)image->w / image->h, 1.0f), origin));
+	std::shared_ptr<esl::Material> material = esl::AddMaterial(Resources, Resources->textures.size() - 1, Shader, RenderOrder);
+	std::shared_ptr<esl::Object> object = esl::AddObject(Resources, mesh, material, esl::Transform(), DiffuseColor);
+
+	SDL_FreeSurface(image);
+
+	return object;
 }
 
 std::shared_ptr<esl::Object> esl::AddObject(std::shared_ptr<esl::Resources> Resources, short Mesh, std::shared_ptr<esl::Material> Material, esl::Transform Transform, glm::vec4 DiffuseColor)

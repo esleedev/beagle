@@ -1,5 +1,7 @@
 #include <SDL.h>
 #include <SDL_joystick.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
 
 #include <gl/glew.h>
 #include <SDL_opengl.h>
@@ -10,7 +12,6 @@
 
 #include "common_types.h"
 #include "sprite_system.h"
-#include "text_system.h"
 #include "render_system.h"
 #include "mesh_functions.h"
 #include "shader_functions.h"
@@ -39,7 +40,6 @@ int main(int Count, char* Values[])
 	std::unique_ptr<esl::Input> input = std::make_unique<esl::Input>();
 	std::shared_ptr<esl::Resources> resources = std::make_shared<esl::Resources>();
 	std::unique_ptr<esl::SpriteSystem> spriteSystem = std::make_unique<esl::SpriteSystem>();
-	std::unique_ptr<esl::TextSystem> textSystem = std::make_unique<esl::TextSystem>();
 	std::unique_ptr<esl::RenderSystem> renderSystem = std::make_unique<esl::RenderSystem>();
 
 	SDL_Event sdlEvent;
@@ -82,12 +82,11 @@ int main(int Count, char* Values[])
 				resources->systems[system]->Update(deltaTime, input, resources);
 			}
 
+			// update sprite animations
 			spriteSystem->UpdateSprites(resources, deltaTime);
 			
 			totalDeltaTime -= deltaTime;
 		}
-
-		textSystem->UpdateTexts(resources);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(12.0f / 255.0f, 12.0f / 255.0f, 12.0f / 255.0f, 1.0f);
@@ -97,6 +96,11 @@ int main(int Count, char* Values[])
 		SDL_GL_SwapWindow(sdlWindow);
 
 		lastTime = currentTime;
+	}
+
+	for (int font = 0; font < resources->fonts.size(); font++)
+	{
+		TTF_CloseFont(resources->fonts[font]);
 	}
 
 	for (int texture = 0; texture < resources->textures.size(); texture++)
@@ -112,7 +116,6 @@ int main(int Count, char* Values[])
 	input.reset();
 	resources.reset();
 	spriteSystem.reset();
-	textSystem.reset();
 	renderSystem.reset();
 
 	esl_main::DestroyWindow(sdlWindow, sdlGLContext);
@@ -131,6 +134,12 @@ void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, esl_main::windowSize.x, esl_main::windowSize.y, SDL_WindowFlags::SDL_WINDOW_OPENGL | SDL_WindowFlags::SDL_WINDOW_SHOWN);
 	SDLGLContext = SDL_GL_CreateContext(SDLWindow);
 
+	if (!(IMG_Init(IMG_InitFlags::IMG_INIT_PNG) & (int)IMG_InitFlags::IMG_INIT_PNG))
+		std::cout << "Error initializing SDL_image: " << IMG_GetError() << std::endl;
+
+	if (TTF_Init() == -1)
+		std::cout << "Error initializing SDL_ttf: " << TTF_GetError() << std::endl;
+
 	GLenum glewInitState = glewInit();
 	if (glewInitState != GLEW_OK)
 		std::cout << "Error initializing GLEW: " << glewGetErrorString(glewInitState) << std::endl;
@@ -140,6 +149,9 @@ void esl_main::DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext)
 {
 	SDL_GL_DeleteContext(SDLGLContext);
 	SDL_DestroyWindow(SDLWindow);
+
+	TTF_Quit();
+	IMG_Quit();
 	SDL_Quit();
 }
 
@@ -177,6 +189,7 @@ void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::uniqu
 		{
 			for (int texture = 0; texture < Resources->textures.size(); texture++)
 			{
+				if (Resources->textures[texture].fileInformation == nullptr) continue;
 				auto lastWriteTime = Resources->textures[texture].fileInformation->lastWriteTime;
 				auto newWriteTime = std::filesystem::last_write_time(Resources->textures[texture].fileInformation->path);
 				if (lastWriteTime != newWriteTime)

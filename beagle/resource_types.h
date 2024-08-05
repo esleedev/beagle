@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SDL_ttf.h>
+
 #include <vector>
 #include <memory>
 #include <string>
@@ -91,7 +93,8 @@ namespace esl
 	enum class HorizontalTextAlignment : char
 	{
 		Left = 0,
-		Right = 1
+		Right = 1,
+		Middle = 2
 	};
 
 	enum class VerticalTextAlignment : char
@@ -99,18 +102,6 @@ namespace esl
 		Bottom = 0,
 		Top = 1,
 		Middle = 2
-	};
-
-	struct Text
-	{
-		short sharedMesh;
-		glm::vec2 position;
-		glm::vec3 color;
-		std::string text;
-		esl::HorizontalTextAlignment horizontalAlignment;
-		esl::VerticalTextAlignment verticalAlignment;
-		float letterSpacing;
-		float size;
 	};
 
 	class Object
@@ -146,12 +137,12 @@ namespace esl
 	{
 	public:
 		esl::Camera camera;
+		std::vector<TTF_Font*> fonts;
 		std::vector<esl::Mesh> meshes;
 		std::vector<esl::Shader> shaders;
 		std::vector<esl::Texture> textures;
 		std::vector<std::shared_ptr<esl::Material>> materials;
 		std::vector<std::shared_ptr<esl::Sprite>> sprites;
-		std::vector<std::shared_ptr<esl::Text>> texts;
 		std::vector<std::shared_ptr<esl::Object>> objects;
 		std::vector<std::shared_ptr<esl::System>> systems;
 		std::vector<std::shared_ptr<esl::System>> queuedSystems;
