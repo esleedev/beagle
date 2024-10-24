@@ -5,6 +5,7 @@
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <iostream>
 
 #include <algorithm>
 

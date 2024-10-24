@@ -94,7 +94,7 @@ namespace esl
 		}
 		else
 		{
-			Resources->queuedSystems.push_back(castedSystem);
+			Resources->queuedSystems.insert(Resources->queuedSystems.begin(), castedSystem);
 		}
 
 		return system;
@@ -102,16 +102,19 @@ namespace esl
 
 	template <typename EventType> std::shared_ptr<EventType> AddEvent
 	(
-		std::shared_ptr<esl::Resources> Resources
+		std::shared_ptr<esl::Resources> Resources, esl::ushort ID
 	)
 	{
 		std::shared_ptr<EventType> event = std::make_shared<EventType>();
 
 		std::shared_ptr<esl::Event> castedEvent = std::static_pointer_cast<esl::Event>(event);
+		castedEvent->resources = Resources;
+		castedEvent->id = ID;
 
 		Resources->events.push_back(castedEvent);
 		return event;
 	}
 
-	void CallEvents(std::shared_ptr<esl::Resources> Resources, esl::System* System, esl::ushort Id);
+	// c++11 feature tip: use shared_from_this() if calling from a system if you need the current system as a shared_ptr
+	void CallEvents(std::shared_ptr<esl::Resources> Resources, std::shared_ptr<esl::System> System, esl::ushort ID, float WaitTime = 0);
 }

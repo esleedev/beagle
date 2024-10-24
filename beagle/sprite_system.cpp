@@ -1,5 +1,5 @@
 #include <gl/glew.h>
-
+#include <iostream>
 #include "sprite_system.h"
 
 void esl::SpriteSystem::UpdateSprites(std::shared_ptr<esl::Resources> Resources, float DeltaTime)

@@ -28,12 +28,13 @@ namespace esl_main
 	std::vector<esl_main::DisplayMode> displayModes;
 	int displayModeIndex;
 	bool shouldApplyWindowSettings;
+	bool isRunning;
 
 	void CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext);
 	void DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext);
 	void UpdateRenderTargetTexture(esl::Resources* Resources);
 	void ApplyWindowSettings(SDL_Window* SDLWindow, float& AspectRatio);
-	void HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources, bool& IsRunning);
+	void HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources);
 }
 
 int main(int Count, char* Values[])
@@ -52,7 +53,7 @@ int main(int Count, char* Values[])
 
 	SDL_Event sdlEvent;
 	esl::uint lastTime = 0;
-	bool isRunning = true;
+	esl_main::isRunning = true;
 
 	glm::vec2 windowSize = esl_main::windowSize;
 	resources->camera.SetProjectionSettings(windowSize.x / windowSize.y, 60.0f, 0.1f, 100.0f);
@@ -65,7 +66,7 @@ int main(int Count, char* Values[])
 
 	esl_main::OnGameStart(resources);
 
-	while (isRunning)
+	while (esl_main::isRunning)
 	{
 		esl::uint currentTime = SDL_GetTicks();
 
@@ -86,12 +87,26 @@ int main(int Count, char* Values[])
 			}
 			while (SDL_PollEvent(&sdlEvent) != 0)
 			{
-				esl_main::HandleEvent(sdlEvent, sdlWindow, input, resources.get(), isRunning);
+				esl_main::HandleEvent(sdlEvent, sdlWindow, input, resources.get());
 			}
 
+			// set lock if needed, useful for mouselook
 			SDL_SetRelativeMouseMode(input->mouse.isLockedToWindow ? SDL_TRUE : SDL_FALSE);
 
-			for (int system = 0; system < resources->queuedSystems.size(); system++)
+			// tick event timers for delayed events
+			for (int eventTimer = resources->internalEventTimers.size() - 1; eventTimer >= 0; eventTimer--)
+			{
+				resources->internalEventTimers[eventTimer].time -= deltaTime;
+				if (resources->internalEventTimers[eventTimer].time <= 0.0f)
+				{
+					esl::InternalEventTimer timer = resources->internalEventTimers[eventTimer];
+					esl::CallEvents(resources, timer.system, timer.id);
+					resources->internalEventTimers.erase(resources->internalEventTimers.begin() + eventTimer);
+				}
+			}
+
+			// queued systems when you need members set before calling start
+			for (int system = resources->queuedSystems.size() - 1; system >= 0; system--)
 			{
 				resources->queuedSystems[system]->Start(resources);
 				resources->systems.push_back(resources->queuedSystems[system]);
@@ -116,7 +131,7 @@ int main(int Count, char* Values[])
 
 		SDL_GL_SwapWindow(sdlWindow);
 
-		lastTime = currentTime;
+ 		lastTime = currentTime;
 	}
 
 	for (int font = 0; font < resources->fonts.size(); font++)
@@ -175,7 +190,7 @@ void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile::SDL_GL_CONTEXT_PROFILE_CORE);
 
-	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, displayModeSize.x, displayModeSize.y, SDL_WindowFlags::SDL_WINDOW_OPENGL | SDL_WindowFlags::SDL_WINDOW_SHOWN);
+	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, displayModeSize.x, displayModeSize.y, SDL_WindowFlags::SDL_WINDOW_OPENGL | SDL_WindowFlags::SDL_WINDOW_BORDERLESS);
 	SDLGLContext = SDL_GL_CreateContext(SDLWindow);
 
 	if (!(IMG_Init(IMG_InitFlags::IMG_INIT_PNG) & (int)IMG_InitFlags::IMG_INIT_PNG))
@@ -246,12 +261,12 @@ void esl_main::ApplyWindowSettings(SDL_Window* SDLWindow, float& AspectRatio)
 	SDL_SetWindowPosition(SDLWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
 
-void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources, bool& IsRunning)
+void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources)
 {
 	switch (SDLEvent.type)
 	{
 	case SDL_EventType::SDL_QUIT:
-		IsRunning = false;
+		esl_main::isRunning = false;
 		break;
 	case SDL_EventType::SDL_KEYDOWN:
 		Input->keyboard.isKeyPressed[SDLEvent.key.keysym.scancode] = true;

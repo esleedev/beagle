@@ -5,6 +5,7 @@
 
 namespace esl_main
 {
+	extern bool isRunning;
 	extern void OnGameStart(std::shared_ptr<esl::Resources> Resources);
 
 	extern enum class WindowType : esl::ubyte

@@ -51,10 +51,10 @@
     <ClCompile Include="file_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="text_system.cpp">
+    <ClCompile Include="collision_functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="collision_functions.cpp">
+    <ClCompile Include="game\player_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,21 +101,21 @@
     <ClInclude Include="file_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="text_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="shape_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="collision_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="game\player_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game\game_globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\checkerboard.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="textures\font.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
@@ -124,5 +124,11 @@
     <Text Include="shaders\vertexShader.txt" />
     <Text Include="shaders\screenSpaceVertexShader.txt" />
     <Text Include="shaders\transparentFragmentShader.txt" />
+    <Text Include="shaders\fragmentOverlayShader.txt" />
+    <Text Include="shaders\renderTargetFragmentShader.txt" />
+    <Text Include="shaders\renderTargetVertexShader.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="fonts\jost-semibold.ttf" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 #include <gl/glew.h>
 #include <SDL_image.h>
+#include <iostream>
 
 #include "resource_functions.h"
 #include "shader_functions.h"
@@ -137,35 +138,35 @@ std::shared_ptr<esl::Object> esl::AddTextObject
 	color.b = 255;
 	color.a = 255;
 	SDL_Surface* image = TTF_RenderText_Blended(Resources->fonts[Font], Text.c_str(), color);
-
 	glGenTextures(1, &texture.name);
 	glBindTexture(GL_TEXTURE_2D, texture.name);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, image->pitch / image->format->BytesPerPixel);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D
 	(
 		GL_TEXTURE_2D,
 		0, // Mip level
 		GL_RGBA,
 		image->w, image->h, 0,
-		GL_RGBA,
+		GL_BGRA,
 		GL_UNSIGNED_BYTE, image->pixels
 	);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
 	Resources->textures.push_back(texture);
 
 	glm::vec2 origin = { 0, 0 };
 	if (HorizontalTextAlignment == esl::HorizontalTextAlignment::Middle)
-		origin.x = ((float)image->w / image->h) * 0.5f;
+		origin.x = 0.5f;
 	else if (HorizontalTextAlignment == esl::HorizontalTextAlignment::Right)
-		origin.x = (float)image->w / image->h;
+		origin.x = 1;
 	if (VerticalTextAlignment == esl::VerticalTextAlignment::Middle)
 		origin.y = 0.5f;
-	else if (VerticalTextAlignment == esl::VerticalTextAlignment::Top)
+	else if (VerticalTextAlignment == esl::VerticalTextAlignment::Bottom)
 		origin.y = 1;
-	short mesh = esl::AddMesh(Resources, esl::GenerateQuadMesh(glm::vec2((float)image->w / image->h, 1.0f), origin));
+
+	glm::vec2 size = glm::vec2((float)image->w / (float)image->h * (image->h / 32.0f), image->h / 32.0f);
+	short mesh = esl::AddMesh(Resources, esl::GenerateQuadMesh(size, origin * size));
 	std::shared_ptr<esl::Material> material = esl::AddMaterial(Resources, Resources->textures.size() - 1, Shader, RenderOrder);
 	std::shared_ptr<esl::Object> object = esl::AddObject(Resources, mesh, material, esl::Transform(), DiffuseColor);
 
@@ -185,10 +186,22 @@ std::shared_ptr<esl::Object> esl::AddObject(std::shared_ptr<esl::Resources> Reso
 	return object;
 }
 
-void esl::CallEvents(std::shared_ptr<esl::Resources> Resources, esl::System* System, esl::ushort Id)
+void esl::CallEvents(std::shared_ptr<esl::Resources> Resources, std::shared_ptr<esl::System> System, esl::ushort ID, float WaitTime)
 {
-	for (int index = 0; index < Resources->events.size(); index++)
+	if (WaitTime > 0.0f)
 	{
-		Resources->events[index]->OnEvent(System, Id);
+		esl::InternalEventTimer timer;
+		timer.id = ID;
+		timer.system = System;
+		timer.time = WaitTime;
+		Resources->internalEventTimers.push_back(timer);
+	}
+	else
+	{
+		for (int index = 0; index < Resources->events.size(); index++)
+		{
+			if (Resources->events[index]->id == ID)
+				Resources->events[index]->OnEvent(System);
+		}
 	}
 }

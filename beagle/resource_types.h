@@ -125,7 +125,7 @@ namespace esl
 
 	class Resources;
 
-	class System
+	class System : public std::enable_shared_from_this<esl::System>
 	{
 	public:
 		virtual void Start(std::shared_ptr<esl::Resources> Resources) {};
@@ -137,10 +137,21 @@ namespace esl
 		) = 0;
 	};
 
+	class Resources;
+
 	class Event
 	{
 	public:
-		virtual void OnEvent(esl::System* System, esl::ushort ID) = 0;
+		std::shared_ptr<esl::Resources> resources;
+		esl::ushort id;
+		virtual void OnEvent(std::shared_ptr<esl::System> System) = 0;
+	};
+
+	struct InternalEventTimer
+	{
+		std::shared_ptr<esl::System> system;
+		esl::ushort id;
+		float time;
 	};
 
 	class Resources
@@ -158,5 +169,6 @@ namespace esl
 		std::vector<std::shared_ptr<esl::System>> systems;
 		std::vector<std::shared_ptr<esl::System>> queuedSystems;
 		std::vector<std::shared_ptr<esl::Event>> events;
+		std::vector<esl::InternalEventTimer> internalEventTimers;
 	};
 }
