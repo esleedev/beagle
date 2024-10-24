@@ -1,0 +1,15 @@
+#version 330
+
+uniform sampler2D texture;
+uniform vec4 diffuseColor;
+in vec2 uv;
+in vec3 color;
+out vec4 outColor;
+
+void main()
+{
+	outColor = texture2D(texture, uv.xy);
+	outColor *= diffuseColor;
+	outColor.rgb *= color;
+	if (outColor.a <= 0.4) discard;
+}
