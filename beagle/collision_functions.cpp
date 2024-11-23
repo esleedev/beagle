@@ -88,17 +88,16 @@ bool esl::DoesCircleSweepIntersectWithLines
         glm::vec2 lineSweepHitPoint;
         lineSweepHitPoint.x = (-Velocity.x * (aToB.y * linePointA.x + -aToB.x * linePointA.y) - -aToB.x * (Velocity.y * Origin.x + -Velocity.x * Origin.y)) / lineSweepDeterminant;
         lineSweepHitPoint.y = (aToB.y * (Velocity.y * Origin.x + -Velocity.x * Origin.y) - Velocity.y * (aToB.y * linePointA.x + -aToB.x * linePointA.y)) / lineSweepDeterminant;
-
         if
         (
-            lineSweepHitPoint.x - 0.0001f >= glm::min(linePointA.x, linePointB.x) &&
-            lineSweepHitPoint.x + 0.0001f <= glm::max(linePointA.x, linePointB.x) &&
-            lineSweepHitPoint.x - 0.0001f >= glm::min(Origin.x, sweepEndPoint.x) &&
-            lineSweepHitPoint.x + 0.0001f <= glm::max(Origin.x, sweepEndPoint.x) &&
-            lineSweepHitPoint.y - 0.0001f >= glm::min(linePointA.y, linePointB.y) &&
-            lineSweepHitPoint.y + 0.0001f <= glm::max(linePointA.y, linePointB.y) &&
-            lineSweepHitPoint.y - 0.0001f >= glm::min(Origin.y, sweepEndPoint.y) &&
-            lineSweepHitPoint.y + 0.0001f <= glm::max(Origin.y, sweepEndPoint.y)
+            lineSweepHitPoint.x + 0.0001f >= glm::min(linePointA.x, linePointB.x) &&
+            lineSweepHitPoint.x - 0.0001f <= glm::max(linePointA.x, linePointB.x) &&
+            lineSweepHitPoint.x + 0.0001f >= glm::min(Origin.x, sweepEndPoint.x) &&
+            lineSweepHitPoint.x - 0.0001f <= glm::max(Origin.x, sweepEndPoint.x) &&
+            lineSweepHitPoint.y + 0.0001f >= glm::min(linePointA.y, linePointB.y) &&
+            lineSweepHitPoint.y - 0.0001f <= glm::max(linePointA.y, linePointB.y) &&
+            lineSweepHitPoint.y + 0.0001f >= glm::min(Origin.y, sweepEndPoint.y) &&
+            lineSweepHitPoint.y - 0.0001f <= glm::max(Origin.y, sweepEndPoint.y)
         )
         {
             canCollide = true;
