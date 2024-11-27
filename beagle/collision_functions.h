@@ -6,12 +6,27 @@
 
 namespace esl
 {
+	struct Mesh;
+
     bool DoesRayIntersectWithSpheres
     (
         glm::vec3 RayOrigin, glm::vec3 RayDirection,
         std::vector<esl::Sphere> Spheres,
         glm::vec3& HitPoint, float& HitDistance, int& HitSphereIndex
     );
+
+	struct RayHit
+	{
+		glm::vec3 hitPoint;
+		glm::vec3 hitNormal;
+		float hitDistance;
+	};
+
+	bool DoesRayIntersectWithMesh
+	(
+		glm::vec3 RayOrigin, glm::vec3 RayDirection,
+		const esl::Mesh& Mesh, esl::RayHit& Hit
+	);
 
 	struct SweepHitWithLine
 	{

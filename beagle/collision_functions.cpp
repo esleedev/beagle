@@ -1,9 +1,11 @@
 #include <glm/geometric.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/vector_angle.hpp>
 #include <algorithm>
 #include <iostream>
 
 #include "collision_functions.h"
+#include "resource_types.h"
 
 bool esl::DoesRayIntersectWithSpheres
 (
@@ -49,6 +51,51 @@ bool esl::DoesRayIntersectWithSpheres
     }
 
     return (HitSphereIndex > -1);
+}
+
+bool esl::DoesRayIntersectWithMesh(glm::vec3 RayOrigin, glm::vec3 RayDirection, const esl::Mesh& Mesh, esl::RayHit& Hit)
+{
+    Hit.hitPoint = Hit.hitNormal = glm::vec3(0, 0, 0);
+    Hit.hitDistance = std::numeric_limits<float>::max();
+
+    int triangleCount = Mesh.indices.size() / 3;
+    for (int triangle = 0; triangle < triangleCount; triangle++)
+    {
+        glm::vec3 vertex0 = Mesh.vertices[Mesh.indices[triangle * 3]].position;
+        glm::vec3 vertex1 = Mesh.vertices[Mesh.indices[triangle * 3 + 1]].position;
+        glm::vec3 vertex2 = Mesh.vertices[Mesh.indices[triangle * 3 + 2]].position;
+
+        glm::vec3 edge0To1 = vertex1 - vertex0;
+        glm::vec3 edge0To2 = vertex2 - vertex0;
+
+        glm::vec3 rayCrossEdge0To2 = glm::cross(RayDirection, edge0To2);
+        float determinant = glm::dot(edge0To1, rayCrossEdge0To2);
+
+        if (determinant > -0.000001f && determinant < 0.000001f)
+            continue;
+
+        glm::vec3 toOrigin = RayOrigin - vertex0;
+        float u = (1.0f / determinant) * glm::dot(toOrigin, rayCrossEdge0To2);
+
+        if (u >= 0.0f && u <= 1.0f)
+        {
+            glm::vec3 toOriginCrossEdge0To1 = glm::cross(toOrigin, edge0To1);
+            float v = (1.0f / determinant) * glm::dot(RayDirection, toOriginCrossEdge0To1);
+
+            if (v >= 0.0f && u + v <= 1.0f)
+            {
+                float time = (1.0f / determinant) * glm::dot(edge0To2, toOriginCrossEdge0To1);
+                if (time > 0.000001f && time < Hit.hitDistance)
+                {
+                    Hit.hitPoint = RayOrigin + RayDirection * time;
+                    Hit.hitNormal = glm::normalize(glm::cross(glm::normalize(edge0To2), glm::normalize(edge0To1)));
+                    Hit.hitDistance = time;
+                }
+            }
+        }
+    }
+
+    return (Hit.hitDistance < std::numeric_limits<float>::max());
 }
 
 // Returns true if there are any hits. Hits are sorted based on hit distance, closest first
