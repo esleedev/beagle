@@ -57,6 +57,12 @@
     <ClCompile Include="game\player_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="debug_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="internal_mesh_functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input.h">
@@ -113,6 +119,12 @@
     <ClInclude Include="game\game_globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="debug_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="internal_mesh_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\checkerboard.png">
@@ -124,9 +136,10 @@
     <Text Include="shaders\vertexShader.txt" />
     <Text Include="shaders\screenSpaceVertexShader.txt" />
     <Text Include="shaders\transparentFragmentShader.txt" />
-    <Text Include="shaders\fragmentOverlayShader.txt" />
     <Text Include="shaders\renderTargetFragmentShader.txt" />
     <Text Include="shaders\renderTargetVertexShader.txt" />
+    <Text Include="shaders\lineFragmentShader.txt" />
+    <Text Include="shaders\lineVertexShader.txt" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="fonts\jost-semibold.ttf" />

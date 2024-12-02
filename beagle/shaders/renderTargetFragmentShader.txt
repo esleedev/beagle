@@ -1,21 +1,11 @@
 #version 330
 
 uniform sampler2D texture;
-uniform vec4 diffuseColor; // r = saturation, g = blur
+uniform vec4 diffuseColor;
 in vec2 uv;
 out vec4 outColor;
 
 void main()
 {
-	outColor = texture2D(texture, vec2(uv.x, 1.0 - uv.y));
-
-	float blur = diffuseColor.g;
-	outColor.rgb += texture2D(texture, vec2(max(0.0001, uv.x - 0.0024), min(0.9999, 1.0 - uv.y + 0.0012))).rgb * vec3(1.05, 1, 1) * blur * 0.75;
-	outColor.rgb += texture2D(texture, vec2(min(0.9999, uv.x + 0.0024), min(0.9999, 1.0 - uv.y + 0.0012))).rgb * vec3(1, 1, 1.05) * blur * 0.75;
-	outColor.rgb += texture2D(texture, vec2(max(0.0001, uv.x - 0.0014), max(0.0001, 1.0 - uv.y - 0.00124))).rgb * blur * 0.35;
-	outColor.rgb += texture2D(texture, vec2(min(0.9999, uv.x + 0.00124), min(0.9999, 1.0 - uv.y + 0.00012))).rgb * blur * 0.35;
-
-	float luminance = dot(outColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-	float saturation = diffuseColor.r;
-	outColor.rgb = vec3(luminance, luminance, luminance) * max(0, 1.0 - saturation) + outColor.rgb * saturation;
+	outColor = texture2D(texture, vec2(uv.x, uv.y * -1.0f));
 }

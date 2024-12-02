@@ -89,9 +89,11 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="collision_functions.cpp" />
+    <ClCompile Include="debug_functions.cpp" />
     <ClCompile Include="file_functions.cpp" />
     <ClCompile Include="game\game.cpp" />
     <ClCompile Include="game\player_system.cpp" />
+    <ClCompile Include="internal_mesh_functions.cpp" />
     <ClCompile Include="mesh_functions.cpp" />
     <ClCompile Include="render_system.cpp" />
     <ClCompile Include="input.cpp" />
@@ -106,9 +108,11 @@
     <ClInclude Include="collision_functions.h" />
     <ClInclude Include="common_types.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="debug_functions.h" />
     <ClInclude Include="file_functions.h" />
     <ClInclude Include="game\game_globals.h" />
     <ClInclude Include="game\player_system.h" />
+    <ClInclude Include="internal_mesh_functions.h" />
     <ClInclude Include="shape_types.h" />
     <ClInclude Include="sprite_functions.h" />
     <ClInclude Include="sprite_system.h" />
@@ -126,8 +130,9 @@
     <Image Include="textures\checkerboard.png" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="shaders\fragmentOverlayShader.txt" />
     <Text Include="shaders\fragmentShader.txt" />
+    <Text Include="shaders\lineFragmentShader.txt" />
+    <Text Include="shaders\lineVertexShader.txt" />
     <Text Include="shaders\renderTargetFragmentShader.txt" />
     <Text Include="shaders\renderTargetVertexShader.txt" />
     <Text Include="shaders\screenSpaceVertexShader.txt" />

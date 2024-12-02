@@ -2,11 +2,11 @@
 
 #include <vector>
 
-#include "shape_types.h"
-
 namespace esl
 {
 	struct Mesh;
+	struct Sphere;
+	struct Line;
 
     bool DoesRayIntersectWithSpheres
     (

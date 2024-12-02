@@ -1,0 +1,34 @@
+#version 330
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 objectMatrix;
+layout(location = 0) in vec3 inPosition;
+layout(location = 1) in vec3 inNextPosition;
+layout(location = 2) in vec3 inPreviousPosition;
+out vec3 color;
+
+void main()
+{
+	mat4 worldMatrix = projectionMatrix * viewMatrix * objectMatrix;
+	vec4 previousPosition = worldMatrix * vec4(inPreviousPosition, 1.0);
+	vec4 position = worldMatrix * vec4(inPosition, 1.0);
+	vec4 nextPosition = worldMatrix * vec4(inNextPosition, 1.0);
+	float aspectRatio = 16.0 / 9.0;
+	vec2 screenPosition = position.xy / position.w * vec2(aspectRatio, 1.0);
+	vec2 previousScreenPosition = previousPosition.xy / previousPosition.w * vec2(aspectRatio, 1.0);
+	vec2 lineDirection = screenPosition - previousScreenPosition;
+	if (distance(screenPosition, previousScreenPosition) < 0.005)
+	{
+		vec2 nextScreenPosition = nextPosition.xy / nextPosition.w * vec2(aspectRatio, 1.0);
+		lineDirection = nextScreenPosition - screenPosition;
+	}
+	lineDirection = normalize(lineDirection);
+	vec2 lineNormal = vec2(-lineDirection.y, lineDirection.x);
+	lineNormal *= 0.004 + max(0.0, position.z * 0.012) / 2.0;
+	lineNormal.x /= aspectRatio;
+	float orientation = (gl_VertexID % 2 == 1 ? -1.0f : 1.0);
+	gl_Position = vec4(lineNormal * orientation, 0.0, 0.0) + position;
+	gl_PointSize = 1.0;
+	color = vec3(1.0, 1.0, 1.0);
+}

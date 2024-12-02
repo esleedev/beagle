@@ -15,9 +15,14 @@
 
 namespace esl
 {
+	// default rendering attributes
 	static const int PositionAttribute = 0;
 	static const int UVAttribute = 1;
 	static const int ColorAttribute = 2;
+
+	// line rendering attributes
+	static const int NextPositionAttribute = 1;
+	static const int PreviousPositionAttribute = 2;
 
 	static const short TransparentRenderOrder = 1024;
 
@@ -40,6 +45,17 @@ namespace esl
 		std::vector<esl::uint> indices;
 		std::shared_ptr<esl::FileInformation> fileInformation;
 		esl::VertexDescription vertexDescription = VertexDescription::HasAll;
+	};
+
+	struct Line;
+
+	struct LineMesh
+	{
+		esl::uint vao, vbo, ibo;
+		std::vector<esl::Line> lines;
+		std::vector<esl::LineVertex> vertices;
+		std::vector<esl::uint> indices;
+		glm::vec4 diffuseColor;
 	};
 
 	struct Shader
@@ -170,5 +186,7 @@ namespace esl
 		std::vector<std::shared_ptr<esl::System>> queuedSystems;
 		std::vector<std::shared_ptr<esl::Event>> events;
 		std::vector<esl::InternalEventTimer> internalEventTimers;
+		std::vector<esl::LineMesh> internalLineMeshes;
+		std::shared_ptr<esl::Material> lineMaterial;
 	};
 }

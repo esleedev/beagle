@@ -7,4 +7,5 @@
 namespace game_globals
 {
 	extern std::vector<esl::Line> walls;
+	extern short wallsMesh;
 }

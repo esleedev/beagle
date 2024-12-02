@@ -10,6 +10,7 @@
 namespace game_globals
 {
 	std::vector<esl::Line> walls;
+	short wallsMesh;
 }
 
 void esl_main::OnGameStart(std::shared_ptr<esl::Resources> Resources)
@@ -19,7 +20,7 @@ void esl_main::OnGameStart(std::shared_ptr<esl::Resources> Resources)
 
 	// load font
 	short font = esl::AddFont(Resources, "fonts/jost-semibold.ttf", 32);
-	short screenSpaceShaderIndex = esl::AddShader(Resources, "shaders/screenSpaceVertexShader.txt", "shaders/fragmentOverlayShader.txt");
+	short screenSpaceShaderIndex = esl::AddShader(Resources, "shaders/screenSpaceVertexShader.txt", "shaders/fragmentShader.txt");
 	// add text
 	std::shared_ptr<esl::Object> textObject = esl::AddTextObject
 	(
@@ -51,11 +52,11 @@ void esl_main::OnGameStart(std::shared_ptr<esl::Resources> Resources)
 	game_globals::walls.push_back(line);
 
 	// wall mesh
-	short meshIndex = esl::AddMesh(Resources, esl::GenerateQuadMesh({ 1, 1 }, { 0, 0 }));
+	game_globals::wallsMesh = esl::AddMesh(Resources, esl::GenerateQuadMesh({ 1, 1 }, { 0, 0 }));
 
 	// used GenerateQuad to generate a new vao. get rid of the quad
-	Resources->meshes[meshIndex].vertices.clear();
-	Resources->meshes[meshIndex].indices.clear();
+	Resources->meshes[game_globals::wallsMesh].vertices.clear();
+	Resources->meshes[game_globals::wallsMesh].indices.clear();
 
 	// build mesh out of the lines
 	for (int wall = 0; wall < game_globals::walls.size(); wall++)
@@ -72,12 +73,12 @@ void esl_main::OnGameStart(std::shared_ptr<esl::Resources> Resources)
 			wall * 4, wall * 4 + 1, wall * 4 + 2,
 			wall * 4, wall * 4 + 2, wall * 4 + 3
 		};
-		Resources->meshes[meshIndex].indices.insert(Resources->meshes[meshIndex].indices.end(), indices, indices + 6);
-		Resources->meshes[meshIndex].vertices.insert(Resources->meshes[meshIndex].vertices.end(), vertices, vertices + 4);
+		Resources->meshes[game_globals::wallsMesh].indices.insert(Resources->meshes[game_globals::wallsMesh].indices.end(), indices, indices + 6);
+		Resources->meshes[game_globals::wallsMesh].vertices.insert(Resources->meshes[game_globals::wallsMesh].vertices.end(), vertices, vertices + 4);
 	}
 
 	// update vao
-	esl::Mesh mesh = Resources->meshes[meshIndex];
+	esl::Mesh mesh = Resources->meshes[game_globals::wallsMesh];
 	glBindVertexArray(mesh.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
 	glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(esl::Vertex), &mesh.vertices[0], GL_DYNAMIC_DRAW);
@@ -88,6 +89,6 @@ void esl_main::OnGameStart(std::shared_ptr<esl::Resources> Resources)
 	short shaderIndex = esl::AddShader(Resources, "shaders/vertexShader.txt", "shaders/fragmentShader.txt");
 	short textureIndex = esl::AddTexture(Resources, "textures/checkerboard.png");
 	std::shared_ptr<esl::Material> material = esl::AddMaterial(Resources, textureIndex, shaderIndex);
-	std::shared_ptr<esl::Object> object = esl::AddObject(Resources, meshIndex, material, esl::Transform());
+	std::shared_ptr<esl::Object> object = esl::AddObject(Resources, game_globals::wallsMesh, material, esl::Transform());
 	object->transform.position = glm::vec3(0, 0, 0);
 }

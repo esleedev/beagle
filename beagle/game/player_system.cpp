@@ -7,6 +7,8 @@
 #include "../mesh_functions.h"
 #include "../resource_functions.h"
 #include "../collision_functions.h"
+#include "../debug_functions.h"
+#include "../shape_types.h"
 
 #include "game_globals.h"
 #include "player_system.h"
@@ -71,4 +73,16 @@ void game::PlayerSystem::Update(float DeltaTime, std::unique_ptr<esl::Input>& co
 
 	Resources->camera.position.x = position.x;
 	Resources->camera.position.z = position.y;
+
+	// shoot a ray and draw it
+	esl::RayHit hit;
+	glm::vec3 up = glm::vec3(0, 1, 0);
+	glm::vec3 forward = rotationAroundYaw * glm::vec3(0, 0, -1);
+	glm::vec3 right = rotationAroundYaw * glm::vec3(1, 0, 0);
+	glm::vec3 rayStart = Resources->camera.position - up * 0.05f + right * 0.15f + forward * 0.125f;
+	glm::vec3 rayDirection = forward + up * 0.1f - right * 0.05f;
+	if (esl::DoesRayIntersectWithMesh(rayStart, rayDirection, Resources->meshes[game_globals::wallsMesh], hit))
+	{
+		esl_debug::DrawLine(Resources, esl::Line{ rayStart, hit.hitPoint });
+	}
 }

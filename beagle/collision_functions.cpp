@@ -6,6 +6,7 @@
 
 #include "collision_functions.h"
 #include "resource_types.h"
+#include "shape_types.h"
 
 bool esl::DoesRayIntersectWithSpheres
 (
@@ -95,7 +96,7 @@ bool esl::DoesRayIntersectWithMesh(glm::vec3 RayOrigin, glm::vec3 RayDirection, 
         }
     }
 
-    return (Hit.hitDistance < std::numeric_limits<float>::max());
+    return Hit.hitDistance < std::numeric_limits<float>::max();
 }
 
 // Returns true if there are any hits. Hits are sorted based on hit distance, closest first

@@ -121,11 +121,31 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
         // otherwise, move on to the next material...
     }
 
+    if (Resources->lineMaterial != nullptr)
+    {
+        glEnable(GL_DEPTH_TEST);
+        int lineMeshCount = Resources->internalLineMeshes.size();
+        short shader = Resources->lineMaterial->shader;
+        glUseProgram(Resources->shaders[shader].program);
+        glUniformMatrix4fv(Resources->shaders[shader].projectionMatrixUniform, 1, GL_FALSE, &camera.projectionMatrix[0][0]);
+        glUniformMatrix4fv(Resources->shaders[shader].viewMatrixUniform, 1, GL_FALSE, &camera.viewMatrix[0][0]);
+        glm::mat4x4 identityMatrix = glm::identity<glm::mat4x4>();
+        glUniformMatrix4fv(Resources->shaders[shader].objectMatrixUniform, 1, GL_FALSE, &identityMatrix[0][0]);
+        for (int lineMesh = 0; lineMesh < lineMeshCount; lineMesh++)
+        {
+            if (Resources->internalLineMeshes[lineMesh].vertices.size() == 0)
+                continue;
+
+            glBindVertexArray(Resources->internalLineMeshes[lineMesh].vao);
+            glUniform4fv(Resources->shaders[shader].diffuseColorUniform, 1, &Resources->internalLineMeshes[lineMesh].diffuseColor[0]);
+            glDrawElements(GL_TRIANGLES, Resources->internalLineMeshes[lineMesh].indices.size(), GL_UNSIGNED_INT, 0);
+        }
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, esl_main::windowSize.x, esl_main::windowSize.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(12.0f / 255.0f, 12.0f / 255.0f, 12.0f / 255.0f, 1.0f);
-
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);

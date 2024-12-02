@@ -16,6 +16,7 @@
 #include "mesh_functions.h"
 #include "shader_functions.h"
 #include "resource_functions.h"
+#include "internal_mesh_functions.h"
 #include "input.h"
 #include "game.h"
 
@@ -64,6 +65,9 @@ int main(int Count, char* Values[])
 	resources->renderTarget.shader = esl::AddShader(resources, "shaders/renderTargetVertexShader.txt", "shaders/renderTargetFragmentShader.txt");
 	esl_main::UpdateRenderTargetTexture(resources.get());
 
+	// set material to draw lines
+	resources->lineMaterial = esl::AddMaterial(resources, 0, esl::AddShader(resources, "shaders/lineVertexShader.txt", "shaders/lineFragmentShader.txt"));
+
 	esl_main::OnGameStart(resources);
 
 	while (esl_main::isRunning)
@@ -92,6 +96,12 @@ int main(int Count, char* Values[])
 
 			// set lock if needed, useful for mouselook
 			SDL_SetRelativeMouseMode(input->mouse.isLockedToWindow ? SDL_TRUE : SDL_FALSE);
+
+			// clear debug lines for this tick
+			for (int lineMesh = 0; lineMesh < resources->internalLineMeshes.size(); lineMesh++)
+			{
+				resources->internalLineMeshes[lineMesh].lines.clear();
+			}
 
 			// tick event timers for delayed events
 			for (int eventTimer = resources->internalEventTimers.size() - 1; eventTimer >= 0; eventTimer--)
@@ -123,6 +133,8 @@ int main(int Count, char* Values[])
 			
 			totalDeltaTime -= deltaTime;
 		}
+
+		esl_internal::UpdateLines(resources);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(12.0f / 255.0f, 12.0f / 255.0f, 12.0f / 255.0f, 1.0f);

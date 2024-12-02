@@ -41,6 +41,41 @@ esl::Mesh esl::GenerateQuadMesh(glm::vec2 Size, glm::vec2 Origin)
     return mesh;
 }
 
+esl::LineMesh esl::GenerateLineMesh(esl::Line Line)
+{
+    esl::LineMesh mesh = {};
+
+    mesh.lines.push_back(Line);
+    mesh.vertices =
+    {
+        esl::LineVertex(Line.pointA, Line.pointB, Line.pointA),
+        esl::LineVertex(Line.pointA, Line.pointB, Line.pointA),
+        esl::LineVertex(Line.pointB, Line.pointB, Line.pointA),
+        esl::LineVertex(Line.pointB, Line.pointB, Line.pointA)
+    };
+    mesh.indices = { 0, 1, 2, 1, 3, 2 };
+
+    glGenVertexArrays(1, &mesh.vao);
+    glBindVertexArray(mesh.vao);
+
+    glGenBuffers(1, &mesh.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(esl::LineVertex), &mesh.vertices[0], GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(esl::PositionAttribute);
+    glEnableVertexAttribArray(esl::NextPositionAttribute);
+    glEnableVertexAttribArray(esl::PreviousPositionAttribute);
+    glVertexAttribPointer(esl::PositionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(esl::LineVertex), 0);
+    glVertexAttribPointer(esl::NextPositionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(esl::LineVertex), (const GLvoid*)12);
+    glVertexAttribPointer(esl::PreviousPositionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(esl::LineVertex), (const GLvoid*)24);
+
+    glGenBuffers(1, &mesh.ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(esl::uint), &mesh.indices[0], GL_STATIC_DRAW);
+
+    return mesh;
+}
+
 void esl::DeleteMeshes(std::vector<esl::Mesh> Meshes)
 {
     for (int mesh = 0; mesh < Meshes.size(); mesh++)
