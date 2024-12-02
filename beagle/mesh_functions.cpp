@@ -1,5 +1,6 @@
 #include <gl/glew.h>
 #include <fstream>
+#include <iostream>
 
 #include "mesh_functions.h"
 #include "file_functions.h"
@@ -90,9 +91,11 @@ void esl::LoadOBJ(std::string FilePath, std::vector<glm::vec3>& Vertices, std::v
 {
     std::vector<std::string> lines;
     esl::GetFileLineByLine(FilePath, lines);
+
+    std::vector<std::string> values;
     for (int line = 0; line < lines.size(); line++)
     {
-        std::vector<std::string> values;
+        values.clear();
         esl::FindValuesInLine(lines[line], values, ' ');
         if (values.size() == 0) continue;
         if (values[0] == "v")
@@ -135,9 +138,10 @@ void esl::LoadOBJ(std::string FilePath, std::vector<esl::Vertex>& Vertices, std:
     std::vector<esl::uint> sourceUVIndices;
 
     esl::GetFileLineByLine(FilePath, lines);
+    std::vector<std::string> values;
     for (int line = 0; line < lines.size(); line++)
     {
-        std::vector<std::string> values;
+        values.clear();
         esl::FindValuesInLine(lines[line], values, ' ');
         if (values.size() == 0) continue;
         if (values[0] == "v")
