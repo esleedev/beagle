@@ -14,7 +14,7 @@ void main()
 	vec4 previousPosition = worldMatrix * vec4(inPreviousPosition, 1.0);
 	vec4 position = worldMatrix * vec4(inPosition, 1.0);
 	vec4 nextPosition = worldMatrix * vec4(inNextPosition, 1.0);
-	float aspectRatio = 16.0 / 9.0;
+	float aspectRatio = projectionMatrix[1][1] / projectionMatrix[0][0];
 	vec2 screenPosition = position.xy / position.w * vec2(aspectRatio, 1.0);
 	vec2 previousScreenPosition = previousPosition.xy / previousPosition.w * vec2(aspectRatio, 1.0);
 	vec2 lineDirection = screenPosition - previousScreenPosition;
