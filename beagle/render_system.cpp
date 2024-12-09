@@ -121,11 +121,11 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
         // otherwise, move on to the next material...
     }
 
-    if (Resources->lineMaterial != nullptr)
+    if (Resources->internalLineMaterial != nullptr)
     {
         glEnable(GL_DEPTH_TEST);
         int lineMeshCount = Resources->internalLineMeshes.size();
-        short shader = Resources->lineMaterial->shader;
+        short shader = Resources->internalLineMaterial->shader;
         glUseProgram(Resources->shaders[shader].program);
         glUniformMatrix4fv(Resources->shaders[shader].projectionMatrixUniform, 1, GL_FALSE, &camera.projectionMatrix[0][0]);
         glUniformMatrix4fv(Resources->shaders[shader].viewMatrixUniform, 1, GL_FALSE, &camera.viewMatrix[0][0]);

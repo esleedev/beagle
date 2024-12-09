@@ -26,6 +26,8 @@ namespace esl
 
 	static const short TransparentRenderOrder = 1024;
 
+	static const esl::ushort HashIndexedMaterialsSize = 256;
+
 	struct FileInformation
 	{
 		std::string path;
@@ -90,8 +92,9 @@ namespace esl
 		short texture;
 		short shader;
 		short renderOrder;
+		std::string name;
 
-		Material(short Texture, short Shader, short RenderOrder) : texture(Texture), shader(Shader), renderOrder(RenderOrder) {}
+		Material(short Texture, short Shader, short RenderOrder) : texture(Texture), shader(Shader), renderOrder(RenderOrder), name("") {}
 	};
 
 	struct AnimationClip
@@ -187,6 +190,7 @@ namespace esl
 		std::vector<std::shared_ptr<esl::Event>> events;
 		std::vector<esl::InternalEventTimer> internalEventTimers;
 		std::vector<esl::LineMesh> internalLineMeshes;
-		std::shared_ptr<esl::Material> lineMaterial;
+		std::shared_ptr<esl::Material> internalLineMaterial;
+		std::shared_ptr<esl::Material> internalHashIndexedMaterials[esl::HashIndexedMaterialsSize];
 	};
 }

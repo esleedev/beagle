@@ -80,19 +80,66 @@ void esl::ReloadTexture(esl::Texture& Texture)
 	SDL_FreeSurface(image);
 }
 
-
 std::shared_ptr<esl::Material> esl::AddMaterial
 (
 	std::shared_ptr<esl::Resources> Resources,
-	short Texture, short Shader, short RenderOrder
+	short Texture, short Shader, short RenderOrder,
+	std::string Name
 )
 {
 	std::shared_ptr<esl::Material> material = std::make_shared<esl::Material>
 	(
 		Texture, Shader, RenderOrder
 	);
+
+	if (Name.size() > 0)
+	{
+		material->name = Name;
+		esl::ushort hash = GetHashFromName(Name) % esl::HashIndexedMaterialsSize;
+		while (true)
+		{
+			if (Resources->internalHashIndexedMaterials[hash] == nullptr)
+			{
+				Resources->internalHashIndexedMaterials[hash] = material;
+				break;
+			}
+			hash = (hash + 1) % esl::HashIndexedMaterialsSize;
+		}
+	}
+
 	Resources->materials.push_back(material);
 	return material;
+}
+
+std::shared_ptr<esl::Material> esl::GetMaterial(std::shared_ptr<esl::Resources> Resources, std::string Name)
+{
+	if (Name.size() > 0)
+	{
+		esl::ushort hash = GetHashFromName(Name) % esl::HashIndexedMaterialsSize;
+		while (true)
+		{
+			if (Resources->internalHashIndexedMaterials[hash] == nullptr) break;
+			if (Resources->internalHashIndexedMaterials[hash]->name == Name)
+			{
+				return Resources->internalHashIndexedMaterials[hash];
+			}
+			hash = (hash + 1) % esl::HashIndexedMaterialsSize;
+		}
+	}
+
+	return nullptr;
+}
+
+esl::ushort esl::GetHashFromName(std::string Name)
+{
+	int size = Name.size();
+	int value = 0;
+	int powersOfTen[] = { 1, 10, 100, 1000, 10000, 100000 };
+	for (int character = 0; character < size; character++)
+	{
+		value += powersOfTen[character % 6] * (Name[character] % 128);
+	}
+	return value % 65535;
 }
 
 short esl::AddMesh(std::shared_ptr<esl::Resources> Resources, esl::Mesh Mesh)

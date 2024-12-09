@@ -66,7 +66,7 @@ int main(int Count, char* Values[])
 	esl_main::UpdateRenderTargetTexture(resources.get());
 
 	// set material to draw lines
-	resources->lineMaterial = esl::AddMaterial(resources, 0, esl::AddShader(resources, "shaders/lineVertexShader.txt", "shaders/lineFragmentShader.txt"));
+	resources->internalLineMaterial = esl::AddMaterial(resources, 0, esl::AddShader(resources, "shaders/lineVertexShader.txt", "shaders/lineFragmentShader.txt"));
 
 	esl_main::OnGameStart(resources);
 

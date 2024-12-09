@@ -36,8 +36,13 @@ namespace esl
 	std::shared_ptr<esl::Material> AddMaterial
 	(
 		std::shared_ptr<esl::Resources> Resources,
-		short Texture, short Shader, short RenderOrder = 0
+		short Texture, short Shader, short RenderOrder = 0,
+		std::string Name = ""
 	);
+
+	std::shared_ptr<esl::Material> GetMaterial(std::shared_ptr<esl::Resources> Resources, std::string Name);
+
+	esl::ushort GetHashFromName(std::string Name);
 
 	short AddMesh
 	(
