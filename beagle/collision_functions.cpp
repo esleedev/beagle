@@ -132,6 +132,7 @@ bool esl::DoesCircleSweepIntersectWithLines
             continue;
 
         bool canCollide = false;
+        bool canCollideWithEndPoint = false;
 
         // find point of intersection between static line and sweep line
         glm::vec2 lineSweepHitPoint;
@@ -165,7 +166,7 @@ bool esl::DoesCircleSweepIntersectWithLines
         glm::vec2 pointAHitPoint = Origin + (time * Velocity);
         if (time >= (-Radius - Epsilon) / sweepDistance && time <= 1.0f + (Radius + Epsilon) / sweepDistance && glm::distance(pointAHitPoint, linePointA) <= (Radius + Epsilon))
         {
-            canCollide = true;
+            canCollideWithEndPoint = true;
         }
 
         // find nearest point on sweep line to static point B
@@ -173,10 +174,10 @@ bool esl::DoesCircleSweepIntersectWithLines
         glm::vec2 pointBHitPoint = Origin + (time * Velocity);
         if (time >= (-Radius - Epsilon) / sweepDistance && time <= 1.0f + (Radius + Epsilon) / sweepDistance && glm::distance(pointBHitPoint, linePointB) <= (Radius + Epsilon))
         {
-            canCollide = true;
+            canCollideWithEndPoint = true;
         }
 
-        if (!canCollide) continue;
+        if (!canCollide && !canCollideWithEndPoint) continue;
 
         // distance from line to origin
         float distanceToClosestToOrigin = glm::distance(Origin, closestToOrigin);
@@ -195,12 +196,12 @@ bool esl::DoesCircleSweepIntersectWithLines
             hit.lineIndex = line;
             hit.hitPoint = linePointA + (time * aToB);
             hit.hitDistance = glm::distance(hit.hitPoint, Origin);
-            hit.newOrigin = newOrigin;
             hit.lineNormal = hit.hitNormal = glm::normalize(glm::vec2(-aToB.y, aToB.x));
+            hit.newOrigin = newOrigin + hit.hitNormal * Epsilon;
             hit.isHitAnEndPoint = false;
             Hits.push_back(hit);
         }
-        else if (time >= (-Radius - Epsilon) / lineLength && time <= 1.0f + (Radius + Epsilon) / lineLength)
+        else if (canCollideWithEndPoint)
         {
             // nearest point to new origin is on an end point
             glm::vec2 endPointHitPoint = (time <= 0.0f) ? pointAHitPoint : pointBHitPoint;
@@ -214,9 +215,9 @@ bool esl::DoesCircleSweepIntersectWithLines
             hit.lineIndex = line;
             hit.hitPoint = endPoint;
             hit.hitDistance = glm::distance(hit.hitPoint, Origin);
-            hit.newOrigin = newOrigin;
             hit.lineNormal = glm::normalize(glm::vec2(-aToB.y, aToB.x));
             hit.hitNormal = glm::normalize(newOrigin - endPoint);
+            hit.newOrigin = newOrigin + hit.hitNormal * Epsilon;
             hit.isHitAnEndPoint = true;
             Hits.push_back(hit);
         }
@@ -273,7 +274,7 @@ glm::vec2 esl::GetPositionAfterCircleSweep
     std::vector<esl::SweepHitWithLine> hits;
     if (esl::DoesCircleSweepIntersectWithLines(position, Velocity, Radius, Lines, hits))
     {
-        if (glm::distance2(Hit.lineNormal, hits[0].lineNormal) > Epsilon * 0.2f && hits[0].isHitAnEndPoint == false)
+        if (glm::distance2(Hit.lineNormal, hits[0].lineNormal) > Epsilon * 0.2f || hits[0].isHitAnEndPoint == false)
             return esl::GetPositionAfterCircleSweep(position, Velocity, Radius, Lines, hits[0], IterationCount - 1);
         else
             return position + Velocity;
