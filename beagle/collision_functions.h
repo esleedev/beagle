@@ -34,6 +34,7 @@ namespace esl
 		glm::vec2 hitPoint;
 		glm::vec2 hitNormal;
 		glm::vec2 lineNormal;
+		short lineIndex;
 		float hitDistance;
 		bool isHitAnEndPoint;
 	};
