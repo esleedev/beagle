@@ -1,6 +1,7 @@
 #include <glm/geometric.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/vector_angle.hpp>
+
 #include <algorithm>
 
 #include "collision_functions.h"
@@ -55,6 +56,8 @@ bool esl::DoesRayIntersectWithSpheres
 
 bool esl::DoesRayIntersectWithMesh(glm::vec3 RayOrigin, glm::vec3 RayDirection, const esl::Mesh& Mesh, esl::RayHit& Hit)
 {
+    const float Epsilon = 0.000001f;
+
     Hit.hitPoint = Hit.hitNormal = glm::vec3(0, 0, 0);
     Hit.hitDistance = std::numeric_limits<float>::max();
 
@@ -71,7 +74,7 @@ bool esl::DoesRayIntersectWithMesh(glm::vec3 RayOrigin, glm::vec3 RayDirection, 
         glm::vec3 rayCrossEdge0To2 = glm::cross(RayDirection, edge0To2);
         float determinant = glm::dot(edge0To1, rayCrossEdge0To2);
 
-        if (determinant > -0.000001f && determinant < 0.000001f)
+        if (determinant > -Epsilon && determinant < Epsilon)
             continue;
 
         glm::vec3 toOrigin = RayOrigin - vertex0;
@@ -85,7 +88,7 @@ bool esl::DoesRayIntersectWithMesh(glm::vec3 RayOrigin, glm::vec3 RayDirection, 
             if (v >= 0.0f && u + v <= 1.0f)
             {
                 float time = (1.0f / determinant) * glm::dot(edge0To2, toOriginCrossEdge0To1);
-                if (time > 0.000001f && time < Hit.hitDistance)
+                if (time > Epsilon && time < Hit.hitDistance)
                 {
                     Hit.hitPoint = RayOrigin + RayDirection * time;
                     Hit.hitNormal = glm::normalize(glm::cross(glm::normalize(edge0To2), glm::normalize(edge0To1)));
@@ -109,6 +112,7 @@ bool esl::DoesCircleSweepIntersectWithLines
     Hits.clear();
 
     const float Epsilon = 0.000008f;
+    const float SmallerEpsilon = 0.000002f;
 
     glm::vec2 sweepEndPoint = Origin + Velocity;
     glm::vec2 sweepDirection = glm::normalize(Velocity);
@@ -125,10 +129,15 @@ bool esl::DoesCircleSweepIntersectWithLines
         float time = (((Origin.x - linePointA.x) * aToB.x) + ((Origin.y - linePointA.y) * aToB.y)) / (lineLength * lineLength);
         glm::vec2 closestToOrigin = linePointA + (time * aToB);
 
+        // distance from line to origin
+        float distanceToClosestToOrigin = glm::distance(Origin, closestToOrigin);
+        if (distanceToClosestToOrigin == 0.0f)
+            continue;
+
         // test line with sweep
         float lineSweepDeterminant = aToB.y * -Velocity.x - Velocity.y * -aToB.x;
-        // lines are parallel, exit early
-        if (lineSweepDeterminant == 0.0f)
+        // lines are parallel, or sweep is happening from the other side. exit early
+        if (lineSweepDeterminant >= 0.0f)
             continue;
 
         bool canCollide = false;
@@ -140,14 +149,14 @@ bool esl::DoesCircleSweepIntersectWithLines
         lineSweepHitPoint.y = (aToB.y * (Velocity.y * Origin.x + -Velocity.x * Origin.y) - Velocity.y * (aToB.y * linePointA.x + -aToB.x * linePointA.y)) / lineSweepDeterminant;
         if
         (
-            lineSweepHitPoint.x + Epsilon >= glm::min(linePointA.x, linePointB.x) &&
-            lineSweepHitPoint.x - Epsilon <= glm::max(linePointA.x, linePointB.x) &&
-            lineSweepHitPoint.x + Epsilon >= glm::min(Origin.x, sweepEndPoint.x) &&
-            lineSweepHitPoint.x - Epsilon <= glm::max(Origin.x, sweepEndPoint.x) &&
-            lineSweepHitPoint.y + Epsilon >= glm::min(linePointA.y, linePointB.y) &&
-            lineSweepHitPoint.y - Epsilon <= glm::max(linePointA.y, linePointB.y) &&
-            lineSweepHitPoint.y + Epsilon >= glm::min(Origin.y, sweepEndPoint.y) &&
-            lineSweepHitPoint.y - Epsilon <= glm::max(Origin.y, sweepEndPoint.y)
+            lineSweepHitPoint.x + SmallerEpsilon >= glm::min(linePointA.x, linePointB.x) &&
+            lineSweepHitPoint.x - SmallerEpsilon <= glm::max(linePointA.x, linePointB.x) &&
+            lineSweepHitPoint.x + SmallerEpsilon >= glm::min(Origin.x, sweepEndPoint.x) &&
+            lineSweepHitPoint.x - SmallerEpsilon <= glm::max(Origin.x, sweepEndPoint.x) &&
+            lineSweepHitPoint.y + SmallerEpsilon >= glm::min(linePointA.y, linePointB.y) &&
+            lineSweepHitPoint.y - SmallerEpsilon <= glm::max(linePointA.y, linePointB.y) &&
+            lineSweepHitPoint.y + SmallerEpsilon >= glm::min(Origin.y, sweepEndPoint.y) &&
+            lineSweepHitPoint.y - SmallerEpsilon <= glm::max(Origin.y, sweepEndPoint.y)
         )
         {
             canCollide = true;
@@ -156,7 +165,7 @@ bool esl::DoesCircleSweepIntersectWithLines
         // find nearest point on static line to the sweep end point
         time = (((sweepEndPoint.x - linePointA.x) * aToB.x) + ((sweepEndPoint.y - linePointA.y) * aToB.y)) / (lineLength * lineLength);
         glm::vec2 lineSweepEndHitPoint = linePointA + (time * aToB);
-        if (glm::distance(lineSweepEndHitPoint, sweepEndPoint) <= Radius + Epsilon / lineLength && time >= 0.0f - 0.0002f && time <= 1.0f + Epsilon / lineLength)
+        if (glm::distance(lineSweepEndHitPoint, sweepEndPoint) <= Radius + SmallerEpsilon && time >= 0.0f - Epsilon / lineLength && time <= 1.0f + Epsilon / lineLength)
         {
             canCollide = true;
         }
@@ -179,10 +188,6 @@ bool esl::DoesCircleSweepIntersectWithLines
 
         if (!canCollide && !canCollideWithEndPoint) continue;
 
-        // distance from line to origin
-        float distanceToClosestToOrigin = glm::distance(Origin, closestToOrigin);
-        if (distanceToClosestToOrigin == 0.0f)
-            continue;
         // new origin after sweep
         glm::vec2 newOrigin = lineSweepHitPoint - sweepDirection * (Radius * (glm::distance(Origin, lineSweepHitPoint) / distanceToClosestToOrigin));
 
@@ -241,41 +246,50 @@ glm::vec2 esl::GetPositionAfterCircleSweep
     int IterationCount
 )
 {
-    const float Epsilon = 0.000008f;
+    const float Epsilon = 0.000012f;
+    const float SmallerEpsilon = 0.000001f;
 
-    if (Hit.hitDistance >= Radius + Epsilon)
-        return Origin + Velocity;
+    float distance = glm::length(Velocity);
 
-    glm::vec2 direction = glm::normalize(Velocity);
+    if (distance == 0.0f)
+    {
+        return Origin;
+    }
+
+    glm::vec2 direction = Velocity / distance;
 
     glm::vec2 toNewOrigin = Hit.newOrigin - Origin;
-    float projectedDistanceAlongDirection = glm::dot(toNewOrigin, Velocity) - Epsilon;
+    float projectedDistanceAlongDirection = glm::dot(toNewOrigin, Velocity) - SmallerEpsilon;
     glm::vec2 position = Origin + direction * projectedDistanceAlongDirection;
-
-    if (IterationCount <= 1)
+    if (IterationCount <= 0)
         return position;
 
     float distanceRemaining = glm::max(0.0f, glm::length(Velocity) - projectedDistanceAlongDirection);
+    if (distanceRemaining <= 0.0f)
+        return position;
 
     glm::vec2 toTarget = Origin + Velocity - position;
     float distanceToTarget = glm::length(toTarget);
     float projectedDistanceAlongNormal = glm::dot(toTarget, -Hit.hitNormal);
     distanceToTarget -= projectedDistanceAlongNormal;
-    if (distanceToTarget <= Epsilon || distanceRemaining <= Epsilon)
-        return position;
-
     distanceRemaining = glm::min(distanceRemaining, distanceToTarget);
+
     toTarget -= projectedDistanceAlongNormal * Hit.hitNormal;
     direction = glm::normalize(toTarget);
 
     Velocity = direction * distanceRemaining;
     Velocity -= Hit.hitNormal * glm::dot(Velocity, Hit.hitNormal);
 
+    distance = glm::length(Velocity);
+    if (distance == 0.0f) return position;
+    direction = Velocity / distance;
+
     std::vector<esl::SweepHitWithLine> hits;
-    if (esl::DoesCircleSweepIntersectWithLines(position, Velocity, Radius, Lines, hits))
+    if (esl::DoesCircleSweepIntersectWithLines(position, Velocity + direction * Epsilon, Radius - SmallerEpsilon, Lines, hits))
     {
-        if (glm::distance2(Hit.lineNormal, hits[0].lineNormal) > Epsilon * 0.2f || hits[0].isHitAnEndPoint == false)
-            return esl::GetPositionAfterCircleSweep(position, Velocity, Radius, Lines, hits[0], IterationCount - 1);
+        esl::SweepHitWithLine hit = hits[0];
+        if (Hit.lineIndex != hit.lineIndex || (hit.isHitAnEndPoint != Hit.isHitAnEndPoint))
+            return esl::GetPositionAfterCircleSweep(position, Velocity, Radius, Lines, hit, IterationCount - 1);
         else
             return position + Velocity;
     }
