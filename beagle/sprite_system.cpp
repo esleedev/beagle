@@ -9,7 +9,7 @@ void esl::SpriteSystem::UpdateSprites(std::shared_ptr<esl::Resources> Resources,
 		std::shared_ptr<esl::Sprite> thisSprite = Resources->sprites[sprite];
         float lastTime = thisSprite->time;
         thisSprite->time += DeltaTime * thisSprite->clip.speed;
-		if (thisSprite->time >= thisSprite->clip.frameCount)
+		if (thisSprite->time >= thisSprite->clip.frameCount || (thisSprite->clip.speed <= 0.0f && thisSprite->queuedClip.frameStart >= 0 && thisSprite->clip != thisSprite->queuedClip))
 		{
 			thisSprite->clip = thisSprite->queuedClip;
             thisSprite->queuedClip = esl::AnimationClip(-1, 0, 0);

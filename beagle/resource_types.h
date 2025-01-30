@@ -103,6 +103,8 @@ namespace esl
 		short frameCount;
 		float speed;
 
+		bool operator==(esl::AnimationClip OtherClip) { return OtherClip.frameStart == frameStart && OtherClip.frameCount == frameCount && OtherClip.speed == speed; }
+		bool operator!=(esl::AnimationClip OtherClip) { return OtherClip.frameStart != frameStart || OtherClip.frameCount != frameCount || OtherClip.speed != speed; }
 		AnimationClip(short FrameStart, short FrameCount, float Speed) : frameStart(FrameStart), frameCount(FrameCount), speed(Speed) {}
 	};
 
