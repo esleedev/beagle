@@ -9,10 +9,12 @@ out vec4 outColor;
 void main()
 {
 	outColor = texture2D(texture, uv.xy);
+	// curve alpha so text looks sharper :)
+	outColor.a *= 1.5;
+	outColor.a -= 0.25;
+	outColor.a *= outColor.r * outColor.r * outColor.r;
+	outColor.a = clamp(outColor.a, 0, 1);
+	// color
 	outColor *= diffuseColor;
 	outColor.rgb *= color;
-	if (outColor.a < 0.01)
-	{
-		discard;
-	}
 }

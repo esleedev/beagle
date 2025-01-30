@@ -19,16 +19,21 @@ void esl_main::OnGameStart(std::shared_ptr<esl::Resources> Resources)
 	esl::AddSystem<game::PlayerSystem>(Resources);
 
 	// load font
-	short font = esl::AddFont(Resources, "fonts/jost-semibold.ttf", 32);
-	short screenSpaceShaderIndex = esl::AddShader(Resources, "shaders/screenSpaceVertexShader.txt", "shaders/fragmentShader.txt");
+	short textShader = esl::AddShader(Resources, "shaders/vertexShader.txt", "shaders/textFragmentShader.txt");
+	short font = esl::AddFont(Resources, "fonts/jost-semibold.ttf", textShader, 32);
 	// add text
-	std::shared_ptr<esl::Object> textObject = esl::AddTextObject
+	short textMesh = esl::AddEmptyMesh(Resources);
+	glm::vec4 textColor = glm::vec4(1);
+	std::shared_ptr<esl::Object> textObject = esl::AddObject(Resources, textMesh, Resources->fonts[font]->material, esl::Transform(), textColor);
+	textObject->transform.position = { 0.0f, 0.25f, 6.0f };
+	textObject->transform.scale = { 0.75f, 0.75f, 1 };
+	std::shared_ptr<esl::Text> text = esl::AddText
 	(
-		Resources, screenSpaceShaderIndex, font, "It was a dark and stormy night", glm::vec4(1), -1,
-		esl::HorizontalTextAlignment::Middle, esl::VerticalTextAlignment::Middle
+		Resources,
+		textMesh, font,
+		"It was a dark and stormy night",
+		esl::HorizontalTextAlignment::Left, esl::VerticalTextAlignment::Top
 	);
-	float verticalAspectRatio = 1.0f / Resources->camera.aspectRatio;
-	textObject->transform.scale = glm::vec3(verticalAspectRatio, 1, 1) * 0.08f;
 
 	// add walls
 	esl::Line line;
@@ -52,11 +57,7 @@ void esl_main::OnGameStart(std::shared_ptr<esl::Resources> Resources)
 	game_globals::walls.push_back(line);
 
 	// wall mesh
-	game_globals::wallsMesh = esl::AddMesh(Resources, esl::GenerateQuadMesh({ 1, 1 }, { 0, 0 }));
-
-	// used GenerateQuad to generate a new vao. get rid of the quad
-	Resources->meshes[game_globals::wallsMesh].vertices.clear();
-	Resources->meshes[game_globals::wallsMesh].indices.clear();
+	game_globals::wallsMesh = esl::AddMesh(Resources, esl::GenerateEmptyMesh());
 
 	// build mesh out of the lines
 	for (int wall = 0; wall < game_globals::walls.size(); wall++)

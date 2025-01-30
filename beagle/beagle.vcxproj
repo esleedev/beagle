@@ -136,6 +136,7 @@
     <Text Include="shaders\renderTargetFragmentShader.txt" />
     <Text Include="shaders\renderTargetVertexShader.txt" />
     <Text Include="shaders\screenSpaceVertexShader.txt" />
+    <Text Include="shaders\textFragmentShader.txt" />
     <Text Include="shaders\transparentFragmentShader.txt" />
     <Text Include="shaders\vertexShader.txt" />
   </ItemGroup>

@@ -140,6 +140,7 @@
     <Text Include="shaders\renderTargetVertexShader.txt" />
     <Text Include="shaders\lineFragmentShader.txt" />
     <Text Include="shaders\lineVertexShader.txt" />
+    <Text Include="shaders\textFragmentShader.txt" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="fonts\jost-semibold.ttf" />
