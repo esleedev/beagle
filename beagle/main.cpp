@@ -203,7 +203,7 @@ void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile::SDL_GL_CONTEXT_PROFILE_CORE);
 
-	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, displayModeSize.x, displayModeSize.y, SDL_WindowFlags::SDL_WINDOW_OPENGL | SDL_WindowFlags::SDL_WINDOW_BORDERLESS);
+	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, displayModeSize.x, displayModeSize.y, SDL_WindowFlags::SDL_WINDOW_OPENGL);
 	SDLGLContext = SDL_GL_CreateContext(SDLWindow);
 
 	if (!(IMG_Init(IMG_InitFlags::IMG_INIT_PNG) & (int)IMG_InitFlags::IMG_INIT_PNG))

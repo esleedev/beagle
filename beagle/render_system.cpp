@@ -172,7 +172,6 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
         // otherwise, move on to the next material...
     }
 
-
     glUseProgram(Resources->shaders[Resources->renderTarget.shader].program);
     glBindTexture(GL_TEXTURE_2D, Resources->renderTarget.textureName);
     glBindVertexArray(Resources->renderTarget.mesh.vao);
