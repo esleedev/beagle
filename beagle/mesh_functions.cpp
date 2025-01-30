@@ -6,6 +6,36 @@
 #include "file_functions.h"
 #include "vertex.h"
 
+esl::Mesh esl::GenerateEmptyMesh()
+{
+    esl::Mesh mesh = {};
+
+    mesh.vertices = {};
+    mesh.indices = {};
+
+    glGenVertexArrays(1, &mesh.vao);
+    glBindVertexArray(mesh.vao);
+
+    glGenBuffers(1, &mesh.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
+
+    glEnableVertexAttribArray(esl::PositionAttribute);
+    glEnableVertexAttribArray(esl::UVAttribute);
+    glEnableVertexAttribArray(esl::ColorAttribute);
+    glVertexAttribPointer(esl::PositionAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(esl::Vertex), 0);
+    glVertexAttribPointer(esl::UVAttribute, 2, GL_FLOAT, GL_FALSE, sizeof(esl::Vertex), (const GLvoid*)12);
+    glVertexAttribPointer(esl::ColorAttribute, 3, GL_FLOAT, GL_FALSE, sizeof(esl::Vertex), (const GLvoid*)20);
+
+    glGenBuffers(1, &mesh.ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+
+    mesh.fileInformation = nullptr;
+
+    return mesh;
+}
+
 esl::Mesh esl::GenerateQuadMesh(glm::vec2 Size, glm::vec2 Origin)
 {
     esl::Mesh mesh = {};

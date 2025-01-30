@@ -5,6 +5,7 @@
 
 namespace esl
 {
+	esl::Mesh GenerateEmptyMesh();
 	esl::Mesh GenerateQuadMesh(glm::vec2 Size, glm::vec2 Origin);
 	esl::LineMesh GenerateLineMesh(esl::Line Line);
 	void DeleteMeshes(std::vector<esl::Mesh> Meshes);

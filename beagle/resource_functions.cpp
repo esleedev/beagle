@@ -148,6 +148,12 @@ short esl::AddMesh(std::shared_ptr<esl::Resources> Resources, esl::Mesh Mesh)
 	return Resources->meshes.size() - 1;
 }
 
+short esl::AddEmptyMesh(std::shared_ptr<esl::Resources> Resources)
+{
+	Resources->meshes.push_back(esl::GenerateEmptyMesh());
+	return Resources->meshes.size() - 1;
+}
+
 std::shared_ptr<esl::Sprite> esl::AddSprite(std::shared_ptr<esl::Resources> Resources, short Mesh, glm::vec2 FrameUVSize, esl::AnimationClip InitialClip)
 {
 	std::shared_ptr<esl::Sprite> sprite = std::make_shared<esl::Sprite>

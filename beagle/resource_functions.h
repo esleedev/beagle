@@ -50,6 +50,8 @@ namespace esl
 		esl::Mesh Mesh
 	);
 
+	short AddEmptyMesh(std::shared_ptr<esl::Resources> Resources);
+
 	std::shared_ptr<esl::Sprite> AddSprite
 	(
 		std::shared_ptr<esl::Resources> Resources,
