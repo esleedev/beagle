@@ -142,6 +142,17 @@ namespace esl
 		glm::vec4 diffuseColor;
 	};
 
+	class Text
+	{
+	public:
+		short mesh;
+		short font;
+		std::string string;
+		esl::HorizontalTextAlignment horizontalTextAlignment;
+		esl::VerticalTextAlignment verticalTextAlignment;
+		bool shouldUpdateMesh;
+	};
+
 	class Resources;
 
 	class System : public std::enable_shared_from_this<esl::System>
@@ -173,17 +184,31 @@ namespace esl
 		float time;
 	};
 
+	struct Glyph
+	{
+		glm::vec2 uv;
+		glm::vec2 uvSize;
+	};
+
+	struct Font
+	{
+		TTF_Font* font;
+		std::shared_ptr<esl::Material> material;
+		std::vector<esl::Glyph> glyphs;
+	};
+
 	class Resources
 	{
 	public:
 		esl::Camera camera;
 		esl::RenderTarget renderTarget;
-		std::vector<TTF_Font*> fonts;
 		std::vector<esl::Mesh> meshes;
 		std::vector<esl::Shader> shaders;
 		std::vector<esl::Texture> textures;
 		std::vector<std::shared_ptr<esl::Material>> materials;
 		std::vector<std::shared_ptr<esl::Sprite>> sprites;
+		std::vector<std::shared_ptr<esl::Font>> fonts;
+		std::vector<std::shared_ptr<esl::Text>> texts;
 		std::vector<std::shared_ptr<esl::Object>> objects;
 		std::vector<std::shared_ptr<esl::System>> systems;
 		std::vector<std::shared_ptr<esl::System>> queuedSystems;

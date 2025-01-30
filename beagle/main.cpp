@@ -135,6 +135,7 @@ int main(int Count, char* Values[])
 		}
 
 		esl_internal::UpdateLines(resources);
+		esl_internal::UpdateTexts(resources);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(12.0f / 255.0f, 12.0f / 255.0f, 12.0f / 255.0f, 1.0f);
@@ -148,7 +149,7 @@ int main(int Count, char* Values[])
 
 	for (int font = 0; font < resources->fonts.size(); font++)
 	{
-		TTF_CloseFont(resources->fonts[font]);
+		TTF_CloseFont(resources->fonts[font]->font);
 	}
 
 	glDeleteRenderbuffers(1, &resources->renderTarget.depthBufferName);

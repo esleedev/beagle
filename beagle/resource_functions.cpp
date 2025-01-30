@@ -1,5 +1,5 @@
-#include <gl/glew.h>
 #include <SDL_image.h>
+#include <gl/glew.h>
 #include <iostream>
 
 #include "resource_functions.h"
@@ -159,35 +159,23 @@ std::shared_ptr<esl::Sprite> esl::AddSprite(std::shared_ptr<esl::Resources> Reso
 	return sprite;
 }
 
-short esl::AddFont(std::shared_ptr<esl::Resources> Resources, std::string FilePath, int Size)
+short esl::AddFont(std::shared_ptr<esl::Resources> Resources, std::string FilePath, short Shader, int Size)
 {
-	TTF_Font* font = TTF_OpenFont(FilePath.c_str(), Size);
-	Resources->fonts.push_back(font);
-	return Resources->fonts.size() - 1;
-}
+	TTF_Font* ttfFont = TTF_OpenFont(FilePath.c_str(), Size);
+	std::shared_ptr<esl::Font> font = std::make_shared<esl::Font>();
+	font->font = ttfFont;
 
-std::shared_ptr<esl::Object> esl::AddTextObject
-(
-	std::shared_ptr<esl::Resources> Resources,
-	short Shader, short Font,
-	std::string Text, glm::vec4 DiffuseColor,
-	short RenderOrder,
-	esl::HorizontalTextAlignment HorizontalTextAlignment,
-	esl::VerticalTextAlignment VerticalTextAlignment
-)
-{
-	// todo: cache font or use a shared texture
+	// cache font (ascii 32~127)
 	esl::Texture texture;
-
-	SDL_Color color;
-	color.r = 255;
-	color.g = 255;
-	color.b = 255;
-	color.a = 255;
-	SDL_Surface* image = TTF_RenderText_Blended(Resources->fonts[Font], Text.c_str(), color);
 	glGenTextures(1, &texture.name);
 	glBindTexture(GL_TEXTURE_2D, texture.name);
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, image->pitch / image->format->BytesPerPixel);
+
+	const int TextureWidth = 512;
+	const int TextureHeight = 256;
+
+	// create blank texture
+	std::vector<GLubyte> blankPixels(TextureWidth * TextureHeight * 4, 0);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, TextureWidth);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D
@@ -195,31 +183,70 @@ std::shared_ptr<esl::Object> esl::AddTextObject
 		GL_TEXTURE_2D,
 		0, // Mip level
 		GL_RGBA,
-		image->w, image->h, 0,
+		TextureWidth, TextureHeight, 0,
 		GL_BGRA,
-		GL_UNSIGNED_BYTE, image->pixels
+		GL_UNSIGNED_BYTE, &blankPixels[0]
 	);
+	blankPixels.clear();
+
+	const SDL_Color color = { 255, 255, 255, 255 };
+
+	glm::ivec2 offset = { 0, 0 };
+	glm::ivec2 margin = { 2, 2 };
+	offset += margin;
+	esl::ushort tallest = 0;
+	esl::Glyph glyph = {};
+	for (int ascii = 32; ascii <= 127; ascii++)
+	{
+		char character = (char)ascii;
+		std::string characterString(&character, 1);
+		SDL_Surface* image = TTF_RenderText_Blended(ttfFont, characterString.c_str(), color);
+		if (offset.x + image->w + margin.x >= TextureWidth)
+		{
+			offset.x = margin.x;
+			offset.y += tallest + margin.y;
+			tallest = 0;
+		}
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, image->pitch / image->format->BytesPerPixel);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, offset.x, offset.y, image->w, image->h, GL_BGRA, GL_UNSIGNED_BYTE, image->pixels);
+
+		glyph.uv = { (float)offset.x / TextureWidth, (float)offset.y / TextureHeight };
+		glyph.uvSize = { (float)image->w / TextureWidth, (float)image->h / TextureHeight };
+		font->glyphs.push_back(glyph);
+
+		offset.x += image->w + margin.x;
+		if (image->h > tallest) tallest = image->h;
+		SDL_FreeSurface(image);
+	}
+
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
 	Resources->textures.push_back(texture);
+	font->material = esl::AddMaterial(Resources, Resources->textures.size() - 1, Shader, esl::TransparentRenderOrder);
 
-	glm::vec2 origin = { 0, 0 };
-	if (HorizontalTextAlignment == esl::HorizontalTextAlignment::Middle)
-		origin.x = 0.5f;
-	else if (HorizontalTextAlignment == esl::HorizontalTextAlignment::Right)
-		origin.x = 1;
-	if (VerticalTextAlignment == esl::VerticalTextAlignment::Middle)
-		origin.y = 0.5f;
-	else if (VerticalTextAlignment == esl::VerticalTextAlignment::Bottom)
-		origin.y = 1;
+	Resources->fonts.push_back(font);
 
-	glm::vec2 size = glm::vec2((float)image->w / (float)image->h * (image->h / 32.0f), image->h / 32.0f);
-	short mesh = esl::AddMesh(Resources, esl::GenerateQuadMesh(size, origin * size));
-	std::shared_ptr<esl::Material> material = esl::AddMaterial(Resources, Resources->textures.size() - 1, Shader, RenderOrder);
-	std::shared_ptr<esl::Object> object = esl::AddObject(Resources, mesh, material, esl::Transform(), DiffuseColor);
+	return Resources->fonts.size() - 1;
+}
 
-	SDL_FreeSurface(image);
-
-	return object;
+std::shared_ptr<esl::Text> esl::AddText
+(
+	std::shared_ptr<esl::Resources> Resources,
+	short Mesh, short Font,
+	std::string String,
+	esl::HorizontalTextAlignment HorizontalTextAlignment,
+	esl::VerticalTextAlignment VerticalTextAlignment
+)
+{
+	auto text = std::make_shared<esl::Text>();
+	text->mesh = Mesh;
+	text->font = Font;
+	text->string = String;
+	text->horizontalTextAlignment = HorizontalTextAlignment;
+	text->verticalTextAlignment = VerticalTextAlignment;
+	text->shouldUpdateMesh = true;
+	Resources->texts.push_back(text);
+	return text;
 }
 
 std::shared_ptr<esl::Object> esl::AddObject(std::shared_ptr<esl::Resources> Resources, short Mesh, std::shared_ptr<esl::Material> Material, esl::Transform Transform, glm::vec4 DiffuseColor)

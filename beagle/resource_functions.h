@@ -61,16 +61,14 @@ namespace esl
 	short AddFont
 	(
 		std::shared_ptr<esl::Resources> Resources,
-		std::string FilePath, int Size
+		std::string FilePath, short Shader, int Size
 	);
 
-	std::shared_ptr<esl::Object> AddTextObject
+	std::shared_ptr<esl::Text> AddText
 	(
 		std::shared_ptr<esl::Resources> Resources,
-		short Shader, short Font,
-		std::string Text,
-		glm::vec4 DiffuseColor = glm::vec4(1),
-		short RenderOrder = -1,
+		short Mesh, short Font,
+		std::string String,
 		esl::HorizontalTextAlignment HorizontalTextAlignment = esl::HorizontalTextAlignment::Left,
 		esl::VerticalTextAlignment VerticalTextAlignment = esl::VerticalTextAlignment::Bottom
 	);

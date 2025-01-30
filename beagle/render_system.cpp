@@ -60,6 +60,7 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
     );
 
     // sort objects by order of materials
+    // todo: sort transparent objects (renderOrder >= esl::TransparentRenderOrder) by distance
     std::sort
     (
         Resources->objects.begin(), Resources->objects.end(),
@@ -95,11 +96,6 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
                 object++;
             }
             continue;
-        }
-
-        if (Resources->materials[material]->renderOrder >= esl::TransparentRenderOrder && (material == 0 || Resources->materials[material - 1]->renderOrder < esl::TransparentRenderOrder))
-        {
-            glDisable(GL_DEPTH_TEST);
         }
 
         short shader = Resources->materials[material]->shader;
