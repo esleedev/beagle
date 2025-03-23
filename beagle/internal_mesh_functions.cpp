@@ -47,9 +47,9 @@ void esl_internal::UpdateTexts(std::shared_ptr<esl::Resources> Resources)
 		else if (Resources->texts[text]->horizontalTextAlignment == esl::HorizontalTextAlignment::Right)
 			origin.x = 1;
 		if (Resources->texts[text]->verticalTextAlignment == esl::VerticalTextAlignment::Middle)
-			origin.y = -0.5f;
-		else if (Resources->texts[text]->verticalTextAlignment == esl::VerticalTextAlignment::Top)
-			origin.y = -1;
+			origin.y = 0.5f;
+		else if (Resources->texts[text]->verticalTextAlignment == esl::VerticalTextAlignment::Bottom)
+			origin.y = 1;
 
 		std::string string = Resources->texts[text]->string;
 		std::shared_ptr<esl::Font> font = Resources->fonts[Resources->texts[text]->font];
@@ -70,7 +70,7 @@ void esl_internal::UpdateTexts(std::shared_ptr<esl::Resources> Resources)
 		// construct mesh
 		// todo: replace height and adjust vertical alignment with font's actual height properties
 		float height = 0.12f;
-		glm::vec3 position = glm::vec3(-lineWidths[0] * origin.x, lineWidths.size() * height * origin.y, 0);
+		glm::vec3 position = glm::vec3(-lineWidths[0] * origin.x, (lineWidths.size() * height) * origin.y - height, 0);
 		int unskippedCharacterCount = 0;
 		int line = 0;
 		for (esl::uint character = 0; character < string.size(); character++)
