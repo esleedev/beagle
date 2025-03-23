@@ -152,6 +152,7 @@ namespace esl
 		std::string string;
 		esl::HorizontalTextAlignment horizontalTextAlignment;
 		esl::VerticalTextAlignment verticalTextAlignment;
+		glm::vec2 areaSize;
 		bool shouldUpdateMesh;
 	};
 

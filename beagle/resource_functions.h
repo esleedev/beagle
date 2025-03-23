@@ -71,8 +71,9 @@ namespace esl
 		std::shared_ptr<esl::Resources> Resources,
 		short Mesh, short Font,
 		std::string String,
-		esl::HorizontalTextAlignment HorizontalTextAlignment = esl::HorizontalTextAlignment::Left,
-		esl::VerticalTextAlignment VerticalTextAlignment = esl::VerticalTextAlignment::Bottom
+		esl::HorizontalTextAlignment HorizontalTextAlignment,
+		esl::VerticalTextAlignment VerticalTextAlignment,
+		glm::vec2 AreaSize
 	);
 
 	std::shared_ptr<esl::Object> AddObject

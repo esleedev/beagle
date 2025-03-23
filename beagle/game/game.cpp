@@ -25,14 +25,15 @@ void esl_main::OnGameStart(std::shared_ptr<esl::Resources> Resources)
 	short textMesh = esl::AddEmptyMesh(Resources);
 	glm::vec4 textColor = glm::vec4(1);
 	std::shared_ptr<esl::Object> textObject = esl::AddObject(Resources, textMesh, Resources->fonts[font]->material, esl::Transform(), textColor);
-	textObject->transform.position = { 0.0f, 0.25f, 6.0f };
+	textObject->transform.position = { 0.0f, 1.0f, 6.0f };
 	textObject->transform.scale = { 0.75f, 0.75f, 1 };
 	std::shared_ptr<esl::Text> text = esl::AddText
 	(
 		Resources,
 		textMesh, font,
-		"It was a dark and stormy night",
-		esl::HorizontalTextAlignment::Left, esl::VerticalTextAlignment::Top
+		"It was a dark and stormy night.",
+		esl::HorizontalTextAlignment::Middle, esl::VerticalTextAlignment::Top,
+		glm::vec2(0.75f, 1)
 	);
 
 	// add walls

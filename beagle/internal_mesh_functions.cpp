@@ -47,29 +47,18 @@ void esl_internal::UpdateTexts(std::shared_ptr<esl::Resources> Resources)
 		else if (Resources->texts[text]->horizontalTextAlignment == esl::HorizontalTextAlignment::Right)
 			origin.x = 1;
 		if (Resources->texts[text]->verticalTextAlignment == esl::VerticalTextAlignment::Middle)
-			origin.y = 0.5f;
-		else if (Resources->texts[text]->verticalTextAlignment == esl::VerticalTextAlignment::Bottom)
-			origin.y = 1;
+			origin.y = -0.5f;
+		else if (Resources->texts[text]->verticalTextAlignment == esl::VerticalTextAlignment::Top)
+			origin.y = -1;
 
 		std::string string = Resources->texts[text]->string;
 		std::shared_ptr<esl::Font> font = Resources->fonts[Resources->texts[text]->font];
 
+		esl_internal::WrapTextHorizontally(string, font, Resources->texts[text]->areaSize.x);
+
 		// get how many lines in string + the width of each line
 		std::vector<float> lineWidths;
-		float lineWidth = 0;
-		for (int character = 0; character < string.size(); character++)
-		{
-			if (string[character] == '\n')
-			{
-				lineWidths.push_back(lineWidth);
-				lineWidth = 0;
-				continue;
-			}
-			// add glyph's width to line width
-			int ascii = (int)string[character] - 32;
-			lineWidth += font->glyphs[ascii].uvSize.x;
-		}
-		lineWidths.push_back(lineWidth);
+		esl_internal::GetLineWidthsFromTextString(string, font, lineWidths);
 
 		// get mesh
 		short mesh = Resources->texts[text]->mesh;
@@ -84,7 +73,7 @@ void esl_internal::UpdateTexts(std::shared_ptr<esl::Resources> Resources)
 		glm::vec3 position = glm::vec3(-lineWidths[0] * origin.x, lineWidths.size() * height * origin.y, 0);
 		int unskippedCharacterCount = 0;
 		int line = 0;
-		for (int character = 0; character < string.size(); character++)
+		for (esl::uint character = 0; character < string.size(); character++)
 		{
 			if (string[character] == '\n')
 			{
@@ -124,4 +113,59 @@ void esl_internal::UpdateTexts(std::shared_ptr<esl::Resources> Resources)
 
 		Resources->texts[text]->shouldUpdateMesh = false;
 	}
+}
+
+void esl_internal::WrapTextHorizontally(std::string& TextString, std::shared_ptr<esl::Font> Font, float HorizontalSize)
+{
+	esl::uint character = 0;
+	float lineWidth = 0;
+	while (character < TextString.size())
+	{
+		if (TextString[character] == '\n')
+		{
+			lineWidth = 0;
+			character++;
+			continue;
+		}
+		
+		int ascii = (int)TextString[character] - 32;
+		lineWidth += Font->glyphs[ascii].uvSize.x;
+		if (lineWidth > HorizontalSize)
+		{
+			// line width overflow, step back to look for space
+			for (int stepBackCharacter = character; stepBackCharacter >= 0; stepBackCharacter--)
+			{
+				if (TextString[stepBackCharacter] == ' ')
+				{
+					// replace space with newline
+					TextString[stepBackCharacter] = '\n';
+					// move position back
+					character = stepBackCharacter;
+					lineWidth = 0;
+					break;
+				}
+			}
+		}
+		character++;
+	}
+}
+
+void esl_internal::GetLineWidthsFromTextString(const std::string& TextString, std::shared_ptr<esl::Font> Font, std::vector<float>& LineWidths)
+{
+	// get the width of each line
+	LineWidths.clear();
+	float lineWidth = 0;
+	for (esl::uint character = 0; character < TextString.size(); character++)
+	{
+		if (TextString[character] == '\n')
+		{
+			LineWidths.push_back(lineWidth);
+			lineWidth = 0;
+			continue;
+		}
+		// add glyph's width to line width
+		int ascii = (int)TextString[character] - 32;
+		lineWidth += Font->glyphs[ascii].uvSize.x;
+	}
+	LineWidths.push_back(lineWidth);
 }

@@ -241,7 +241,8 @@ std::shared_ptr<esl::Text> esl::AddText
 	short Mesh, short Font,
 	std::string String,
 	esl::HorizontalTextAlignment HorizontalTextAlignment,
-	esl::VerticalTextAlignment VerticalTextAlignment
+	esl::VerticalTextAlignment VerticalTextAlignment,
+	glm::vec2 AreaSize
 )
 {
 	auto text = std::make_shared<esl::Text>();
@@ -250,6 +251,7 @@ std::shared_ptr<esl::Text> esl::AddText
 	text->string = String;
 	text->horizontalTextAlignment = HorizontalTextAlignment;
 	text->verticalTextAlignment = VerticalTextAlignment;
+	text->areaSize = AreaSize;
 	text->shouldUpdateMesh = true;
 	Resources->texts.push_back(text);
 	return text;
