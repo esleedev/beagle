@@ -34,7 +34,7 @@ namespace esl_main
 	void CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext);
 	void DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext);
 	void UpdateRenderTargetTexture(esl::Resources* Resources);
-	void ApplyWindowSettings(SDL_Window* SDLWindow, float& AspectRatio);
+	void ApplyWindowSettings(SDL_Window* SDLWindow, esl::Camera& Camera);
 	void HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources);
 }
 
@@ -44,8 +44,6 @@ int main(int Count, char* Values[])
 	SDL_Window* sdlWindow;
 	SDL_GLContext sdlGLContext;
 	esl_main::CreateWindow(sdlWindow, sdlGLContext);
-
-	SDL_GL_SetSwapInterval(1);
 
 	std::unique_ptr<esl::Input> input = std::make_unique<esl::Input>();
 	std::shared_ptr<esl::Resources> resources = std::make_shared<esl::Resources>();
@@ -82,13 +80,14 @@ int main(int Count, char* Values[])
 
 			input->RecycleState();
 
-			// handle sdl events (input, windowing etc)
+			// apply window changes
 			if (esl_main::shouldApplyWindowSettings)
 			{
-				esl_main::ApplyWindowSettings(sdlWindow, resources->camera.aspectRatio);
+				esl_main::ApplyWindowSettings(sdlWindow, resources->camera);
 				esl_main::UpdateRenderTargetTexture(resources.get());
 				esl_main::shouldApplyWindowSettings = false;
 			}
+			// handle sdl events (input, window changes, etc)
 			while (SDL_PollEvent(&sdlEvent) != 0)
 			{
 				esl_main::HandleEvent(sdlEvent, sdlWindow, input, resources.get());
@@ -178,8 +177,8 @@ int main(int Count, char* Values[])
 
 void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 {
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
 	SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING, "1");
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
 
 	// Get resolution & refresh rates available from the primary monitor
 	int displayModeCount = SDL_GetNumDisplayModes(0);
@@ -196,22 +195,35 @@ void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 			});
 		}
 	}
+
+	// pick a display mode to launch in
 	esl_main::displayModeIndex = 6;
 	glm::vec2 displayModeSize = esl_main::windowSize = esl_main::displayModes[esl_main::displayModeIndex].size;
-
+	// set opengl version before creating window
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile::SDL_GL_CONTEXT_PROFILE_CORE);
+	// create window, launch as hidden
+	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, displayModeSize.x, displayModeSize.y, SDL_WindowFlags::SDL_WINDOW_OPENGL | SDL_WindowFlags::SDL_WINDOW_HIDDEN);
+	// get true window size because of high dpi
+	glm::ivec2 drawableWindowSize;
+	SDL_GL_GetDrawableSize(SDLWindow, &drawableWindowSize.x, &drawableWindowSize.y);
+	// correct window size from high dpi scaling
+	SDL_SetWindowSize(SDLWindow, displayModeSize.x * (displayModeSize.x / drawableWindowSize.x), displayModeSize.y * (displayModeSize.y / drawableWindowSize.y));
+	// now center and show window
+	SDL_SetWindowPosition(SDLWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	SDL_ShowWindow(SDLWindow);
 
-	SDLWindow = SDL_CreateWindow("Beagle", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, displayModeSize.x, displayModeSize.y, SDL_WindowFlags::SDL_WINDOW_OPENGL);
+	// create gl context
 	SDLGLContext = SDL_GL_CreateContext(SDLWindow);
+	// set vsync
+	SDL_GL_SetSwapInterval(1);
 
+	// initialize image, ttf and glew
 	if (!(IMG_Init(IMG_InitFlags::IMG_INIT_PNG) & (int)IMG_InitFlags::IMG_INIT_PNG))
 		std::cout << "Error initializing SDL_image: " << IMG_GetError() << std::endl;
-
 	if (TTF_Init() == -1)
 		std::cout << "Error initializing SDL_ttf: " << TTF_GetError() << std::endl;
-
 	GLenum glewInitState = glewInit();
 	if (glewInitState != GLEW_OK)
 		std::cout << "Error initializing GLEW: " << glewGetErrorString(glewInitState) << std::endl;
@@ -250,16 +262,17 @@ void esl_main::UpdateRenderTargetTexture(esl::Resources* Resources)
 	glDrawBuffers(1, drawBuffers);
 }
 
-void esl_main::ApplyWindowSettings(SDL_Window* SDLWindow, float& AspectRatio)
+void esl_main::ApplyWindowSettings(SDL_Window* SDLWindow, esl::Camera& Camera)
 {
 	esl_main::windowSize = esl_main::displayModes[esl_main::displayModeIndex].size;
-	AspectRatio = esl_main::windowSize.x / esl_main::windowSize.y;
-
-	if (SDL_SetWindowFullscreen(SDLWindow, (esl_main::windowType == esl_main::WindowType::Window) ? 0 : SDL_WINDOW_FULLSCREEN) < 0)
-		std::cout << SDL_GetError();
+	Camera.aspectRatio = esl_main::windowSize.x / esl_main::windowSize.y;
 
 	if (esl_main::windowType == esl_main::WindowType::Fullscreen)
 	{
+		// need to set to windowed before changing display mode
+		if (SDL_SetWindowFullscreen(SDLWindow, 0) < 0)
+			std::cout << SDL_GetError();
+
 		// gets the desired mode and change the monitor resolution and refresh rate
 		SDL_DisplayMode displayMode;
 		SDL_GetDisplayMode(0, esl_main::displayModeIndex, &displayMode);
@@ -267,11 +280,36 @@ void esl_main::ApplyWindowSettings(SDL_Window* SDLWindow, float& AspectRatio)
 		{
 			std::cout << SDL_GetError();
 		}
-	}
 
-	// setting the window after seems to be necessary for both windowed and fullscreen
-	SDL_SetWindowSize(SDLWindow, esl_main::windowSize.x, esl_main::windowSize.y);
-	SDL_SetWindowPosition(SDLWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+		// set to fullscreen
+		if (SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN) < 0)
+			std::cout << SDL_GetError();
+	}
+	else
+	{
+		// need to set to windowed before changing window size
+		if (SDL_SetWindowFullscreen(SDLWindow, 0) < 0)
+			std::cout << SDL_GetError();
+
+		// get best display mode available if it's borderless fullscreen
+		if (esl_main::windowType == esl_main::WindowType::Borderless)
+		{
+			SDL_DisplayMode displayMode;
+			SDL_GetDisplayMode(0, 0, &displayMode);
+			esl_main::windowSize = { displayMode.w, displayMode.h };
+		}
+
+		SDL_SetWindowSize(SDLWindow, esl_main::windowSize.x, esl_main::windowSize.y);
+		glm::ivec2 drawableWindowSize;
+		SDL_GL_GetDrawableSize(SDLWindow, &drawableWindowSize.x, &drawableWindowSize.y);
+		// correct window size from "high dpi" scaling
+		SDL_SetWindowSize(SDLWindow, esl_main::windowSize.x * (esl_main::windowSize.x / drawableWindowSize.x), esl_main::windowSize.y * (esl_main::windowSize.y / drawableWindowSize.y));
+
+		// set to borderless or windowed
+		if (SDL_SetWindowFullscreen(SDLWindow, (esl_main::windowType == esl_main::WindowType::Borderless) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) < 0)
+			std::cout << SDL_GetError();
+		SDL_SetWindowPosition(SDLWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	}
 }
 
 void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources)
