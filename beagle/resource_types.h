@@ -165,7 +165,7 @@ namespace esl
 		virtual void Update
 		(
 			float DeltaTime,
-			std::unique_ptr<esl::Input>& const Input,
+			esl::Input* const Input,
 			std::shared_ptr<esl::Resources> Resources
 		) = 0;
 	};

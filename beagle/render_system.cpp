@@ -47,7 +47,7 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
     std::sort
     (
         Resources->materials.begin(), Resources->materials.end(),
-        [](std::shared_ptr<esl::Material>& const A, std::shared_ptr<esl::Material>& const B)
+        [](std::shared_ptr<esl::Material> const A, std::shared_ptr<esl::Material> const B)
         {
             if (A->renderOrder != B->renderOrder)
                 return A->renderOrder < B->renderOrder;
@@ -64,7 +64,7 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
     std::sort
     (
         Resources->objects.begin(), Resources->objects.end(),
-        [](std::shared_ptr<esl::Object>& const A, std::shared_ptr<esl::Object>& const B)
+        [](std::shared_ptr<esl::Object> const A, std::shared_ptr<esl::Object> const B)
         {
             if (A->material->renderOrder != B->material->renderOrder)
                 return A->material->renderOrder < B->material->renderOrder;

@@ -35,7 +35,7 @@ namespace esl_main
 	void DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext);
 	void UpdateRenderTargetTexture(esl::Resources* Resources);
 	void ApplyWindowSettings(SDL_Window* SDLWindow, esl::Camera& Camera);
-	void HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources);
+	void HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, esl::Input* const Input, esl::Resources* Resources);
 }
 
 int main(int Count, char* Values[])
@@ -90,7 +90,7 @@ int main(int Count, char* Values[])
 			// handle sdl events (input, window changes, etc)
 			while (SDL_PollEvent(&sdlEvent) != 0)
 			{
-				esl_main::HandleEvent(sdlEvent, sdlWindow, input, resources.get());
+				esl_main::HandleEvent(sdlEvent, sdlWindow, input.get(), resources.get());
 			}
 
 			// set lock if needed, useful for mouselook
@@ -124,7 +124,7 @@ int main(int Count, char* Values[])
 
 			for (int system = 0; system < resources->systems.size(); system++)
 			{
-				resources->systems[system]->Update(deltaTime, input, resources);
+				resources->systems[system]->Update(deltaTime, input.get(), resources);
 			}
 
 			// update sprite animations
@@ -312,7 +312,7 @@ void esl_main::ApplyWindowSettings(SDL_Window* SDLWindow, esl::Camera& Camera)
 	}
 }
 
-void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, std::unique_ptr<esl::Input>& const Input, esl::Resources* Resources)
+void esl_main::HandleEvent(SDL_Event SDLEvent, SDL_Window* SDLWindow, esl::Input* const Input, esl::Resources* Resources)
 {
 	switch (SDLEvent.type)
 	{
