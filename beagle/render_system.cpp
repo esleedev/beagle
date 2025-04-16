@@ -77,7 +77,7 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
     );
 
     glBindFramebuffer(GL_FRAMEBUFFER, Resources->renderTarget.frameBufferName);
-    glViewport(0, 0, esl_main::windowSize.x, esl_main::windowSize.y);
+    glViewport(0, 0, esl_main::drawableSize.x, esl_main::drawableSize.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(12.0f / 255.0f, 12.0f / 255.0f, 12.0f / 255.0f, 1.0f);
 
@@ -139,7 +139,7 @@ void esl::RenderSystem::RenderObjects(std::shared_ptr<esl::Resources> Resources)
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, esl_main::windowSize.x, esl_main::windowSize.y);
+    glViewport(0, 0, esl_main::drawableSize.x, esl_main::drawableSize.y);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(12.0f / 255.0f, 12.0f / 255.0f, 12.0f / 255.0f, 1.0f);
 

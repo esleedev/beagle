@@ -23,9 +23,9 @@
 namespace esl_main
 {
 	struct DisplayMode;
-	enum class WindowType : esl::ubyte;
 	esl_main::WindowType windowType;
 	glm::vec2 windowSize;
+	glm::vec2 drawableSize;
 	std::vector<esl_main::DisplayMode> displayModes;
 	int displayModeIndex;
 	bool shouldApplyWindowSettings;
@@ -198,7 +198,7 @@ void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 
 	// pick a display mode to launch in
 	esl_main::displayModeIndex = 6;
-	glm::vec2 displayModeSize = esl_main::windowSize = esl_main::displayModes[esl_main::displayModeIndex].size;
+	glm::vec2 displayModeSize = esl_main::displayModes[esl_main::displayModeIndex].size;
 	// set opengl version before creating window
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GLattr::SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -252,10 +252,10 @@ void esl_main::UpdateRenderTargetTexture(esl::Resources* Resources)
 	glBindTexture(GL_TEXTURE_2D, Resources->renderTarget.textureName);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, esl_main::windowSize.x, esl_main::windowSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, esl_main::drawableSize.x, esl_main::drawableSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 	glGenRenderbuffers(1, &Resources->renderTarget.depthBufferName);
 	glBindRenderbuffer(GL_RENDERBUFFER, Resources->renderTarget.depthBufferName);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, esl_main::windowSize.x, esl_main::windowSize.y);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, esl_main::drawableSize.x, esl_main::drawableSize.y);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, Resources->renderTarget.depthBufferName);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Resources->renderTarget.textureName, 0);
 	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
@@ -264,7 +264,7 @@ void esl_main::UpdateRenderTargetTexture(esl::Resources* Resources)
 
 void esl_main::ApplyWindowSettings(SDL_Window* SDLWindow, esl::Camera& Camera)
 {
-	esl_main::windowSize = esl_main::displayModes[esl_main::displayModeIndex].size;
+	glm::vec2 displayModeSize = esl_main::displayModes[esl_main::displayModeIndex].size;
 	Camera.aspectRatio = esl_main::windowSize.x / esl_main::windowSize.y;
 
 	if (esl_main::windowType == esl_main::WindowType::Fullscreen)
@@ -284,6 +284,8 @@ void esl_main::ApplyWindowSettings(SDL_Window* SDLWindow, esl::Camera& Camera)
 		// set to fullscreen
 		if (SDL_SetWindowFullscreen(SDLWindow, SDL_WINDOW_FULLSCREEN) < 0)
 			std::cout << SDL_GetError();
+
+		esl_main::drawableSize = esl_main::windowSize = displayModeSize;
 	}
 	else
 	{
@@ -296,19 +298,22 @@ void esl_main::ApplyWindowSettings(SDL_Window* SDLWindow, esl::Camera& Camera)
 		{
 			SDL_DisplayMode displayMode;
 			SDL_GetDisplayMode(0, 0, &displayMode);
-			esl_main::windowSize = { displayMode.w, displayMode.h };
+			displayModeSize = { displayMode.w, displayMode.h };
 		}
 
-		SDL_SetWindowSize(SDLWindow, esl_main::windowSize.x, esl_main::windowSize.y);
+		SDL_SetWindowSize(SDLWindow, displayModeSize.x, displayModeSize.y);
 		glm::ivec2 drawableWindowSize;
 		SDL_GL_GetDrawableSize(SDLWindow, &drawableWindowSize.x, &drawableWindowSize.y);
 		// correct window size from "high dpi" scaling
-		SDL_SetWindowSize(SDLWindow, esl_main::windowSize.x * (esl_main::windowSize.x / drawableWindowSize.x), esl_main::windowSize.y * (esl_main::windowSize.y / drawableWindowSize.y));
+		esl_main::windowSize = { displayModeSize.x * (displayModeSize.x / drawableWindowSize.x), displayModeSize.y * (displayModeSize.y / drawableWindowSize.y) };
+		SDL_SetWindowSize(SDLWindow, esl_main::windowSize.x, esl_main::windowSize.y);
 
 		// set to borderless or windowed
 		if (SDL_SetWindowFullscreen(SDLWindow, (esl_main::windowType == esl_main::WindowType::Borderless) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) < 0)
 			std::cout << SDL_GetError();
 		SDL_SetWindowPosition(SDLWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
+		esl_main::drawableSize = displayModeSize;
 	}
 }
 

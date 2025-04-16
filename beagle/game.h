@@ -21,6 +21,7 @@ namespace esl_main
 		int refreshRate;
 	};
 	extern glm::vec2 windowSize;
+	extern glm::vec2 drawableSize;
 	extern int displayModeIndex;
 	extern esl_main::WindowType windowType;
 	extern std::vector<esl_main::DisplayMode> displayModes;
