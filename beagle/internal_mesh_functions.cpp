@@ -71,7 +71,7 @@ void esl_internal::UpdateTexts(std::shared_ptr<esl::Resources> Resources)
 		// todo: replace height and adjust vertical alignment with font's actual height properties
 		float height = 0.12f;
 		glm::vec3 position = glm::vec3(-lineWidths[0] * origin.x, (lineWidths.size() * height) * origin.y - height, 0);
-		int unskippedCharacterCount = 0;
+		esl::uint unskippedCharacterCount = 0;
 		int line = 0;
 		for (esl::uint character = 0; character < string.size(); character++)
 		{

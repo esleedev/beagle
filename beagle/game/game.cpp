@@ -61,7 +61,7 @@ void esl_main::OnGameStart(std::shared_ptr<esl::Resources> Resources)
 	game_globals::wallsMesh = esl::AddMesh(Resources, esl::GenerateEmptyMesh());
 
 	// build mesh out of the lines
-	for (int wall = 0; wall < game_globals::walls.size(); wall++)
+	for (esl::uint wall = 0; wall < game_globals::walls.size(); wall++)
 	{
 		esl::Vertex vertices[] =
 		{
