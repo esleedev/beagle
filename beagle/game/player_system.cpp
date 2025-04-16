@@ -19,7 +19,7 @@ void game::PlayerSystem::Start(std::shared_ptr<esl::Resources> Resources)
 	Resources->camera.yaw = 0;
 }
 
-void game::PlayerSystem::Update(float DeltaTime, esl::Input* const Input, std::shared_ptr<esl::Resources> Resources)
+void game::PlayerSystem::Update(float DeltaTime, esl::Input* const Input, esl::Audio* const Audio, std::shared_ptr<esl::Resources> Resources)
 {
 	float radius = 0.35f;
 	float speed = 1.75f;

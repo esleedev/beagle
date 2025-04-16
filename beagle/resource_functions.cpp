@@ -80,6 +80,16 @@ void esl::ReloadTexture(esl::Texture& Texture)
 	SDL_FreeSurface(image);
 }
 
+short esl::AddSoundEffect(std::shared_ptr<esl::Resources> Resources, const char* FilePath)
+{
+	esl::SoundEffect soundEffect;
+	soundEffect.audioChunk = Mix_LoadWAV(FilePath);
+	if (soundEffect.audioChunk == nullptr)
+		std::cout << SDL_GetError() << std::endl;
+	Resources->soundEffects.push_back(soundEffect);
+	return Resources->soundEffects.size() - 1;
+}
+
 std::shared_ptr<esl::Material> esl::AddMaterial
 (
 	std::shared_ptr<esl::Resources> Resources,

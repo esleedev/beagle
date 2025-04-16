@@ -33,6 +33,12 @@ namespace esl
 		esl::Texture& Texture
 	);
 
+	short AddSoundEffect
+	(
+		std::shared_ptr<esl::Resources> Resources,
+		const char* FilePath
+	);
+
 	std::shared_ptr<esl::Material> AddMaterial
 	(
 		std::shared_ptr<esl::Resources> Resources,

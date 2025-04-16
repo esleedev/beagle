@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 
 #include <vector>
 #include <memory>
@@ -12,6 +13,7 @@
 #include "transform.h"
 #include "camera.h"
 #include "input.h"
+#include "audio.h"
 
 namespace esl
 {
@@ -166,11 +168,10 @@ namespace esl
 		(
 			float DeltaTime,
 			esl::Input* const Input,
+			esl::Audio* const Audio,
 			std::shared_ptr<esl::Resources> Resources
 		) = 0;
 	};
-
-	class Resources;
 
 	class Event
 	{
@@ -200,6 +201,11 @@ namespace esl
 		std::vector<esl::Glyph> glyphs;
 	};
 
+	struct SoundEffect
+	{
+		Mix_Chunk* audioChunk;
+	};
+
 	class Resources
 	{
 	public:
@@ -208,6 +214,7 @@ namespace esl
 		std::vector<esl::Mesh> meshes;
 		std::vector<esl::Shader> shaders;
 		std::vector<esl::Texture> textures;
+		std::vector<esl::SoundEffect> soundEffects;
 		std::vector<std::shared_ptr<esl::Material>> materials;
 		std::vector<std::shared_ptr<esl::Sprite>> sprites;
 		std::vector<std::shared_ptr<esl::Font>> fonts;

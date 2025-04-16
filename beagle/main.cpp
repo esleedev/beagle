@@ -2,6 +2,7 @@
 #include <SDL_joystick.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 
 #include <gl/glew.h>
 #include <SDL_opengl.h>
@@ -17,6 +18,7 @@
 #include "shader_functions.h"
 #include "resource_functions.h"
 #include "internal_mesh_functions.h"
+#include "audio.h"
 #include "input.h"
 #include "game.h"
 
@@ -46,6 +48,7 @@ int main(int Count, char* Values[])
 	esl_main::CreateWindow(sdlWindow, sdlGLContext);
 
 	std::unique_ptr<esl::Input> input = std::make_unique<esl::Input>();
+	std::unique_ptr<esl::Audio> audio = std::make_unique<esl::Audio>();
 	std::shared_ptr<esl::Resources> resources = std::make_shared<esl::Resources>();
 	std::unique_ptr<esl::SpriteSystem> spriteSystem = std::make_unique<esl::SpriteSystem>();
 	std::unique_ptr<esl::RenderSystem> renderSystem = std::make_unique<esl::RenderSystem>();
@@ -124,7 +127,7 @@ int main(int Count, char* Values[])
 
 			for (int system = 0; system < resources->systems.size(); system++)
 			{
-				resources->systems[system]->Update(deltaTime, input.get(), resources);
+				resources->systems[system]->Update(deltaTime, input.get(), audio.get(), resources);
 			}
 
 			// update sprite animations
@@ -150,6 +153,10 @@ int main(int Count, char* Values[])
 	{
 		TTF_CloseFont(resources->fonts[font]->font);
 	}
+	for (int soundEffect = 0; soundEffect < resources->soundEffects.size(); soundEffect++)
+	{
+		Mix_FreeChunk(resources->soundEffects[soundEffect].audioChunk);
+	}
 
 	glDeleteRenderbuffers(1, &resources->renderTarget.depthBufferName);
 	glDeleteFramebuffers(1, &resources->renderTarget.frameBufferName);
@@ -165,7 +172,6 @@ int main(int Count, char* Values[])
 	}
 	esl::DeleteMeshes(resources->meshes);
 
-	input.reset();
 	resources.reset();
 	spriteSystem.reset();
 	renderSystem.reset();
@@ -178,7 +184,7 @@ int main(int Count, char* Values[])
 void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 {
 	SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING, "1");
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO);
 
 	// Get resolution & refresh rates available from the primary monitor
 	int displayModeCount = SDL_GetNumDisplayModes(0);
@@ -209,19 +215,26 @@ void esl_main::CreateWindow(SDL_Window*& SDLWindow, SDL_GLContext& SDLGLContext)
 	glm::ivec2 drawableWindowSize;
 	SDL_GL_GetDrawableSize(SDLWindow, &drawableWindowSize.x, &drawableWindowSize.y);
 	// correct window size from high dpi scaling
-	SDL_SetWindowSize(SDLWindow, displayModeSize.x * (displayModeSize.x / drawableWindowSize.x), displayModeSize.y * (displayModeSize.y / drawableWindowSize.y));
+	esl_main::windowSize = { displayModeSize.x * (displayModeSize.x / drawableWindowSize.x), displayModeSize.y * (displayModeSize.y / drawableWindowSize.y) };
+	SDL_SetWindowSize(SDLWindow, esl_main::windowSize.x, esl_main::windowSize.y);
 	// now center and show window
 	SDL_SetWindowPosition(SDLWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	SDL_ShowWindow(SDLWindow);
+	// record display mode size to use for renderer
+	esl_main::drawableSize = displayModeSize;
 
 	// create gl context
 	SDLGLContext = SDL_GL_CreateContext(SDLWindow);
 	// set vsync
 	SDL_GL_SetSwapInterval(1);
 
-	// initialize image, ttf and glew
+	// initialize image, ttf, audio and glew
 	if (!(IMG_Init(IMG_InitFlags::IMG_INIT_PNG) & (int)IMG_InitFlags::IMG_INIT_PNG))
 		std::cout << "Error initializing SDL_image: " << IMG_GetError() << std::endl;
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
+		std::cout << "Error initializing SDL_mixer: " << Mix_GetError() << std::endl;
+	else
+		Mix_AllocateChannels(16);
 	if (TTF_Init() == -1)
 		std::cout << "Error initializing SDL_ttf: " << TTF_GetError() << std::endl;
 	GLenum glewInitState = glewInit();
@@ -235,6 +248,7 @@ void esl_main::DestroyWindow(SDL_Window* SDLWindow, SDL_GLContext SDLGLContext)
 	SDL_DestroyWindow(SDLWindow);
 
 	TTF_Quit();
+	Mix_Quit();
 	IMG_Quit();
 	SDL_Quit();
 }
