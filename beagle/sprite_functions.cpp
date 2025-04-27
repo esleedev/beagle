@@ -4,7 +4,7 @@ void esl::PlayAnimationClip(std::shared_ptr<esl::Sprite> Sprite, esl::AnimationC
 {
 	Sprite->time = 0;
 	Sprite->clip = Clip;
-	Sprite->shouldUpdateMesh = true;
+	Sprite->queuedClip = esl::AnimationClip(-1, 0, 0);
 }
 
 void esl::QueueAnimationClip(std::shared_ptr<esl::Sprite> Sprite, esl::AnimationClip Clip)

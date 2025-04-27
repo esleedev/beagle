@@ -7,7 +7,6 @@ void esl::SpriteSystem::UpdateSprites(std::shared_ptr<esl::Resources> Resources,
 	for (int sprite = 0; sprite < Resources->sprites.size(); sprite++)
 	{
 		std::shared_ptr<esl::Sprite> thisSprite = Resources->sprites[sprite];
-        float lastTime = thisSprite->time;
         thisSprite->time += DeltaTime * thisSprite->clip.speed;
 		if (thisSprite->time >= thisSprite->clip.frameCount || (thisSprite->clip.speed <= 0.0f && thisSprite->queuedClip.frameStart >= 0 && thisSprite->clip != thisSprite->queuedClip))
 		{
@@ -16,10 +15,10 @@ void esl::SpriteSystem::UpdateSprites(std::shared_ptr<esl::Resources> Resources,
 			thisSprite->time = 0;
 		}
 
-        // update mesh uvs if frame changes
-        if (thisSprite->shouldUpdateMesh || glm::floor(thisSprite->time) != glm::floor(lastTime) || thisSprite->time < lastTime)
+        // update mesh uvs if frame changed
+        int frame = glm::floor(thisSprite->time + thisSprite->clip.frameStart);
+        if (frame != thisSprite->frameOnLastUpdate)
         {
-            int frame = glm::floor(thisSprite->time + thisSprite->clip.frameStart);
             int xCount = glm::floor(1.0f / thisSprite->frameUVSize.x);
             int xFrame = frame % xCount;
             int yFrame = glm::floor(frame / xCount);
@@ -39,7 +38,7 @@ void esl::SpriteSystem::UpdateSprites(std::shared_ptr<esl::Resources> Resources,
             glBufferData(GL_ARRAY_BUFFER, Resources->meshes[thisSprite->mesh].vertices.size() * sizeof(esl::Vertex), &Resources->meshes[thisSprite->mesh].vertices[0], GL_STATIC_DRAW);
             glBindVertexArray(0);
 
-            thisSprite->shouldUpdateMesh = false;
+            thisSprite->frameOnLastUpdate = frame;
         }
 	}
 }
